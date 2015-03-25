@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+ <html>
+   	<head>
+	   	<link href="css/popup.css" rel="stylesheet" />
+   		<script type="text/javascript" src="RWSNode.js"></script>
+    	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+   	</head>
+   	<body>
+   		<svg id="diagram" width="500" height="400"></svg>
+   		<div id="grayMask">		<!-- Popup Div Starts Here -->
+		<div id="popupContact">	<!-- Contact Us Form -->
+		<form action="" id="addNodeForm" method="post" name="addNodeForm">
+		<!-- <img id="close" src="images/3.png" onclick ="div_hide()"> -->
+		<h2>Add Node</h2>
+		<hr>
+		<input id="addNodeName" name="name" placeholder="Name" type="text">
+		<input id="addNodeType" name="type" placeholder="Type" type="text">
+		<a href="javascript:%20add_node()" id="submit">Add</a>
+		</form>
+		</div>	<!-- Popup Div Ends Here -->
+		</div>	<!-- Display Popup Button -->
+		<button id="addNodeButton" onclick="show_add_popup()">Add Node</button>
+	</body>
+	<script type="text/javascript" src="RWSVisualizationController.js"></script>
+</html>
