@@ -2,6 +2,7 @@ var nodes = [];
 var wires = [];
 var selected = null;
 
+
 function setupDropShadows(svg) {
 	// filter chain comes from:
 	// https://github.com/wbzyl/d3-notes/blob/master/hello-drop-shadow.html
@@ -46,8 +47,11 @@ function setupDropShadows(svg) {
 
 function startVisualization() {
 
-	var svgContainer = d3.select("body").select("#diagram");
-	setupDropShadows(svgContainer);
+	var svg = d3.select('body').append('svg')
+    .attr('width', 400)
+    .attr('height', 400);
+
+    setupDropShadows(svg);
 
 	visNodes = [];
 
@@ -56,8 +60,60 @@ function startVisualization() {
 	});
 }
 
+function forceVis() {
+	var svg = d3.select('svg');
+	//svg.selectAll("*").remove();
+
+	force = d3.layout.force()
+	    .size([400, 400])
+	    .nodes(visNodes)
+	    .links(wires);
+
+	force.linkDistance(120);
+
+	force.gravity(0);
+
+	var link = svg.selectAll('line').data(wires);
+
+	var node = svg.selectAll('.node').data(visNodes);
+
+    force.on('tick', function() {
+
+	    // When this function executes, the force layout
+	    // calculations have concluded. The layout will
+	    // have set various properties in our nodes and
+	    // links objects that we can use to position them
+	    // within the SVG container.
+
+	    // First let's reposition the nodes. As the force
+	    // layout runs it updates the `x` and `y` properties
+	    // that define where the node should be centered.
+	    // To move the node, we set the appropriate SVG
+	    // attributes to their new values. We also have to
+	    // give the node a non-zero radius so that it's visible
+	    // in the container.
+	    node.attr('transform', function(d) { return 'translate( ' + d.x + ',' + d.y +')'; })
+		
+	    // We also need to update positions of the links.
+	    // For those elements, the force layout sets the
+	    // `source` and `target` properties, specifying
+	    // `x` and `y` values in each case.
+
+	    link.attr('x1', function(d) { return d.source.x; })
+	        .attr('y1', function(d) { return d.source.y; })
+	        .attr('x2', function(d) { return d.target.x; })
+	        .attr('y2', function(d) { return d.target.y; });
+
+	});
+
+	// Okay, everything is set up now so it's time to turn
+	// things over to the force layout. Here we go.
+
+	force.start();
+}
+
 function visualize() {
-	var svgContainer = d3.select("body").select("#diagram")
+	var svgContainer = d3.select('svg');
 
 	//returns all the nodes
 	var nodeGs = svgContainer.selectAll("g")
@@ -66,6 +122,8 @@ function visualize() {
 	//only the new nodes that just got added
 	var nodeEnter = nodeGs.enter().append("g");
 	nodeGs
+		.attr('transform', function(d) { return 'translate( ' + d.x + ',' + d.y +')'; })
+		.attr('class', 'node')
 		.on('mousedown', function() {
 			if(selected && selected.node.id != this.__data__.node.id) {
 				wires.push(new RWSWire(selected, this.__data__));
@@ -87,15 +145,16 @@ function visualize() {
 	//all the circle elements
 	var circles = nodeGs.selectAll("circle");
 	var circleAttributes = circles
-		.attr("cx", function (d) { return d.x; })
-		.attr("cy", function (d) { return d.y; })
+		.attr("cx", function (d) { return 0; })
+		.attr("cy", function (d) { return 0; })
 		.attr("r", function (d) { return d.r; })
 		.attr("fill", "purple")
 		.style("filter", function(d) { 
 			if(selected && selected.node.id == d.node.id) {
 				return "url(#drop-shadow)";
 			}
-			return ""});
+			return "";
+		});
 
 	
 	nodeEnter.append("text");
@@ -103,14 +162,14 @@ function visualize() {
 	//all the text elements
 	var texts = nodeGs.selectAll("text");
 	//Add Labels
-	textLabels = texts
+	var textLabels = texts
 	    .attr("dy", ".35em")
 		.text(function (d) { return d.node.name; })
 		.style("font-size", function(d) {
          return Math.min(2 * d.r, (2 * d.r - 8) / this.getComputedTextLength() * 16) + "px"; 
        	})
-		.attr("y", function(d) { return d.y; })
-		.attr("x", function(d) { return d.x - this.getComputedTextLength()/2; })
+		.attr("y", function(d) { return 0; })
+		.attr("x", function(d) { return - this.getComputedTextLength()/2; })
 
 
 	var links = svgContainer.selectAll("line")
