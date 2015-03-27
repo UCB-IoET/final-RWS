@@ -18,4 +18,5 @@ function VisualizationNode(node, x, y, r) {
 	this.x = x || Math.floor((Math.random() * 200) + 30);
 	this.y = y || Math.floor((Math.random() * 200) + 30);
 	this.r = r || Math.floor((Math.random() * 20) + 20);
+	this.selected = false;
 }
