@@ -2,6 +2,8 @@ var nodes = [];
 var wires = [];
 var selected = null;
 
+var manifestURL = "https://github.com/UCB-IoET/svc/blob/master/manifest.json";
+
 
 function setupDropShadows(svg) {
 	// filter chain comes from:
@@ -187,7 +189,7 @@ function visualize() {
 }
 
 function show_add_popup() {
-	document.getElementById('grayMask').style.display = "block";
+	document.getElementById('addNodeMask').style.display = "block";
 }
 
 function add_node() {
@@ -198,8 +200,16 @@ function add_node() {
 	visNodes.push(new VisualizationNode(node));
 	d3.select('#addNodeName').property('value','');
 	d3.select('#addNodeType').property('value','');
-	document.getElementById('grayMask').style.display = "none";
+	document.getElementById('addNodeMask').style.display = "none";
 	visualize();
 }
 
-startVisualization()
+function list_nearby_nodes() {
+	document.getElementById('listNodeMask').style.display = "block";
+	//here we look for nearby nodes using svcd
+	
+}
+
+window.addEventListener("DOMContentLoaded", function() {
+    startVisualization()
+}, false);
