@@ -7,10 +7,18 @@ function RWSNode(name) {
 	this.name = name || "";
 }
 
-function Sensor(name) {
+function RWSSensor(name, readingType) {
+	RWSNode.call(this, name);
+	this.readingType = readingType;
+}
+RWSSensor.prototype = new RWSNode;
+
+
+function RWSActuator(name) {
 	RWSNode.call(this, name);
 }
-Sensor.prototype = new RWSNode;
+RWSActuator.prototype = new RWSNode;
+
 
 //layer of abstraction for rendering this node onscreen, not stored
 function VisualizationNode(node, x, y, r) {

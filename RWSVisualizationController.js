@@ -205,9 +205,11 @@ function add_node() {
 }
 
 function list_nearby_nodes() {
-	document.getElementById('listNodeMask').style.display = "block";
+	// document.getElementById('listNodeMask').style.display = "block";
 	//here we look for nearby nodes using svcd
-	
+	//hardcoded for now
+	smap = new RWSSMAPInterface('http://proj.storm.pm:8081/data/buildinggeneral/plugstrip0/outlet1/on?callback=?');
+	smap.find_nodes();
 }
 
 window.addEventListener("DOMContentLoaded", function() {
