@@ -114,7 +114,7 @@ def evalu(ast, e):
         return ret
     elif typ == 'call':
         fn = lookup(e, ast['name'])
-        new = {'__parent':e}
+        new = ast['env']
         args = [bind(new,n,evalu(x, e)) for n,x in zip(fn['params'],ast['args'])]
         return [evalu(exp, new) for exp in ast['body']][-1]
     elif typ == 'prim':
@@ -122,7 +122,7 @@ def evalu(ast, e):
         args = [evalu(x, e) for x in ast['args']]
         return fn(*args)
     elif typ == 'def':
-        fn = {'params': ast['params'], 'body': ast['body']}
+        fn = {'params': ast['params'], 'body': ast['body'], 'env': {'__parent':e}}
         bind(e, ast.get('name','lambda'), fn)
         return fn
     elif typ == 'varget':
