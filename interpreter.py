@@ -51,7 +51,9 @@ def p(x):
     print x
     return x
 
-primitives = {'print': p}
+primitives = {'print': p,
+              'put_request': lambda x: requests.put(x),
+              'sleep': lambda x: time.sleep(x)}
 
 def lookup(e, name):
     #TODO: fix for false values
