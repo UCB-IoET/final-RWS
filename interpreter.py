@@ -24,8 +24,8 @@ sock.bind((UDP_IP, UDP_PORT))
 
 process_count = 0
 md = {}
-md['/processes'] = {'uuid': str(uuid.uuid1()),
-                    'Metadata': {'SourceName': 'interpreter'},
+md['/processes3'] = {'uuid': str(uuid.uuid1()),
+                    'Metadata': {'SourceName': 'interpreter3'},
                     'Properties': {'UnitofTime': 'ms', 'UnitofMeasure': 'count'}}
 
 # We don't want to generate new uuids on every run, just the first
@@ -155,7 +155,7 @@ while True:
         continue
 
     smap = {}
-    processes = smap['/processes'] = md['/processes']
+    processes = smap['/processes3'] = addresses['/processes3']
     process_count += 1
     processes['Readings'] = [[int(time.time()*1000), process_count]]
 
@@ -163,8 +163,11 @@ while True:
         # We use the IPv4 address because requests sometimes defaults
         # to ipv6 if you use DNS and the archiver doesn't support that.
         # This is a hack
+
         print "sending this to archiver: ", json.dumps(smap)
+
         x = requests.post('http://54.215.11.207:8079/add/interpreter',
+        #x = requests.post('http://shell.storm.pm:8079/add/interpreter',
                           data=json.dumps(smap))
         #x = requests.post('http://pantry.cs.berkeley.edu:8079/add/xyz',
         #                  data=json.dumps(smap))
