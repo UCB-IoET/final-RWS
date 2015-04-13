@@ -1,0 +1,365 @@
+
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style
+
+<!--
+work in progress - see test3.html. drag and drag multiple actuators. draggable connectors that move with nodes. 
+
+features to add - 
+
+1) nodes should only be added when cross the sidebar threshold 
+2) add event listeners to trigger server requests with changes in layout 
+3) connectors should appear only within certain distance from existing nodes on main layout 
+4) text should be editable 
+5) think about data model so that connectors/nodes transition correctly, can match up to multiple nodes/connectors, can easily send the right data back to server, etc. Other issues will become more apparent as the above features are fleshed out.
+-->
+
+
+.dot circle {
+  fill: lightsteelblue;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.dot circle.dragging {
+  fill: red;
+  stroke: brown;
+}
+
+.axis line {
+  fill: none;
+  stroke: #ddd;
+  shape-rendering: crispEdges;
+  vector-effect: non-scaling-stroke;
+}
+
+</style>
+<script>
+input_dict = {
+      "x": 100,
+      "y": 100, 
+      "width": 120, 
+      "height": 100,
+      "fill": "white",
+      "text": {
+          "y": 130,
+          "x": 120, 
+          "dy": "0.35em", 
+          "text": "Add input"
+      }
+}; 
+
+condition_dict = {
+      "x": 300,
+      "y": 100, 
+      "width": 120, 
+      "height": 100,
+      "fill": "white",
+      "text": {
+          "y": 330,
+          "x": 120, 
+          "dy": "0.35em", 
+          "text": "Add condition"
+      }
+}; 
+
+actuator_dict = {
+      "x": 500,
+      "y": 100, 
+      "width": 120, 
+      "height": 100,
+      "fill": "white",
+      "text": {
+          "y": 530,
+          "x": 120, 
+          "dy": "0.35em", 
+          "text": "Add actuator"
+      }
+}; 
+
+</script>
+<body>
+
+<section>
+
+<div> 
+<button style="margin:10px;font-size:20px"> Send model </button>
+</div> 
+
+
+<div id="canvas" style="float:left;margin-top:100">
+
+</div> 
+
+<div id="main_container" style="margin-left:300px;"> 
+</div> 
+
+</section> 
+
+
+<script src='lib/jquery-1.8.2.js'></script>
+<script src="lib/d3.v3.min.js"></script>
+
+<script>
+
+
+var zoom = d3.behavior.zoom()
+    .scaleExtent([1, 10])
+    .on("zoom", zoomed);
+
+
+// svg canvas - side container
+var canvas = d3.select("#canvas").append("svg")
+      .attr("x", 100)
+      .attr("width", 960)
+      .attr("height", 800)
+      //.style("background-color", "#C5E89B")
+
+// style-backgroundcolor for svg and attr-fill for shapes
+var bg_sidebar = canvas.append("rect")
+      .attr("width", 290)
+      .attr("height", 800)
+      .attr("fill", "#297A4A")
+      
+var bg_sidebar = canvas.append("rect")
+      .attr("x", 300)
+      .attr("width", 660)
+      .attr("height", 800)
+      .attr("fill", "#C5E89B")
+
+var onDragDrop2 = d3.behavior.drag()
+                  .origin(function(d) {return d;})
+                  .on("dragstart", function() {})
+                  .on("drag", dragHandler)
+                  .on("dragend", dropHandler)
+// adding examples
+
+d = [{x:0, y:0, actuator_dict}]
+
+
+i = 0
+
+function add_drop_option(d2) {
+
+console.log(i)
+i = i + 1 
+str = "." + d2.classn
+console.log(str)
+actuator = canvas.selectAll(str)
+                  .data(d2)
+                  .enter().append("g")
+                  .attr("transform", function (d) { return        "translate(" + d.x + "," + d.y + ")"; })
+                  .attr("id", i)
+                  .attr("class", function(d) {return d2.classn})
+                  .call(onDragDrop2);
+
+/*
+actuator = canvas.data(d2).append("g")
+                  .attr("transform", function (d) { return        "translate(" + d.x + "," + d.y + ")"; })
+                  .attr("id", i)
+                  .call(onDragDrop2);
+*/ 
+
+// http://bost.ocks.org/mike/nest/
+/*
+actuator.selectAll("rect").data(d2)
+  .enter().append("rect")
+  .attr("y", 200)
+  .attr("x", 200)
+  .attr("width", 400)
+  .attr("height", 400)
+  .attr("fill", "black")
+  /*.on("click", function(d) {
+    createnewRect(d); 
+  })
+*/ 
+
+
+actuator.selectAll("rect")
+  .data(d2)
+  .enter().append("rect")
+  .attr("y", function(d) { console.log(d.x); return d.dict.x })
+  .attr("x", function(d) { return d.dict.y })
+  .attr("width", function(d) { return d.dict.width })
+  .attr("height", function(d) { return d.dict.height })
+  .attr("fill", function(d) { return d.dict.fill })
+
+  /*.on("click", function(d) {
+    createnewRect(d); 
+  })
+*/ 
+actuator.selectAll("text")
+  .data(d2)
+  .enter().append("text")
+  .attr("y", function(d) { console.log(d.dict.text.text);return d.dict.text.y })
+  .attr("x", function(d) { return d.dict.text.x })
+  .attr("dy", function(d) { return d.dict.text.dy })
+  .text(function(d) { return d.dict.text.text })
+
+
+/*
+actuator.append("text")
+  .attr("y", object_dict.text.y)
+  .attr("x", object_dict.text.x)
+  .attr("dy", object_dict.text.dy)
+  .text(object_dict.text.text)
+*/
+
+}
+ 
+
+dataset = [{x:0, y:0, dict: input_dict, classn: "input"}, {x:0, y:0, dict: condition_dict, classn: "cond"}, {x:0, y:0, dict: actuator_dict, classn: "actuator"}]; 
+console.log(input_dict);
+
+add_drop_option(dataset);
+//add_drop_option(condition_dict);
+//add_drop_option(actuator_dict);
+
+/////////
+
+/////////
+
+/*
+function onDragDrop(dragHandler, dropHandler, object_dict) {
+        var drag = d3.behavior.drag();
+        drag.on("drag", dragHandler)
+            .on("dragend", dropHandler);
+        // object_dict
+    return drag;
+}
+ 
+
+
+
+d = [{x:0, y:0, actuator_dict}]
+*/ 
+
+function createnewRect(d, object_dict) {
+console.log("hello" + object_dict)
+
+this_dict = {
+      "x": 500,
+      "y": 100, 
+      "width": 120, 
+      "height": 100,
+      "fill": "white",
+      "text": {
+          "y": 530,
+          "x": 120, 
+          "dy": "0.35em", 
+          "text": "Add actuator"
+      }
+}; 
+
+// this_dict = object_dict 
+
+
+d = [{x:0, y:0}]
+i = i +7 
+console.log(i)
+console.log("new rect")
+
+
+new_act = canvas.data(d).append("g")
+                  .attr("transform", function (d) { return        "translate(" + d.x + "," + d.y + ")"; })
+                  .attr("id", i)
+                  .call(onDragDrop2);
+ 
+new_act.append("rect")
+  .attr("y", this_dict.x)
+  .attr("x", this_dict.y)
+  .attr("width", this_dict.width)
+  .attr("height", this_dict.height)
+  .attr("fill", this_dict.fill)
+  /*.on("click", function(d) {
+    createnewRect(d); 
+  })
+*/ 
+new_act.append("text")
+  .attr("y", this_dict.text.y)
+  .attr("x", this_dict.text.x)
+  .attr("dy", this_dict.text.dy)
+  .text(this_dict.text.text)
+
+
+}
+
+
+function dragHandler(d) {
+            
+            drawLine(d);
+            d.x += d3.event.dx;
+            d.y += d3.event.dy;
+            // if dragged past the border into main window, append a new object at the exact location
+
+            d3.select(this).attr("transform", "translate(" + d.x + "," + d.y + ")");
+  }
+
+
+function dropHandler(d) {
+  
+  if (i<100){
+  createnewRect(d); 
+}
+  // console.log("hello");
+  //drawLine(d); 
+
+    }
+
+function drawLine(d) {
+  //console.log("truth_value")
+  //console.log($("#newline").empty()[0]==undefined)
+  //console.log("linex" + d.x)
+  //console.log("liney" + d.y )
+  if ($("#newline").empty()==undefined) {
+    console.log("it's empty")
+  line = canvas.append("line")
+  .attr("id", "newline")
+  .attr("x1", 400)
+  .attr("x2", d.x)
+  .attr("y1", 300)
+  .attr("y2", d.y + 350)
+  .attr("stroke", "black")
+  .attr("stroke-width", "5px")
+}
+  else {
+    //console.log("transitioning")
+   //console.log($("#newline").transition())
+    canvas.select("#newline").transition()
+      .delay(0)
+      .attr("x2", d.x)
+      .attr("y2", d.y + 350)
+
+  }
+}
+
+
+line2 = canvas.append("line")
+  .attr("id", "newline")
+  .attr("x1", 400)
+  .attr("x2", 100)
+  .attr("y1", 300)
+  .attr("y2", 150)
+  .attr("stroke", "black")
+  .attr("stroke-width", "5px")
+  .on("click", function() {line2.transition().attr("y2", 200)})
+
+
+var container = canvas.append("g");
+
+
+
+function zoomed() {
+  container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
+
+
+function dragstarted(d) {
+  d3.event.sourceEvent.stopPropagation();
+  d3.select(this).classed("dragging", true);
+}
+
+
+</script>
