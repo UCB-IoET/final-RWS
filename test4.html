@@ -36,6 +36,50 @@ features to add -
 }
 
 </style>
+<script>
+input_dict = {
+      "x": 100,
+      "y": 100, 
+      "width": 120, 
+      "height": 100,
+      "fill": "white",
+      "text": {
+          "y": 130,
+          "x": 120, 
+          "dy": "0.35em", 
+          "text": "Add input"
+      }
+}; 
+
+condition_dict = {
+      "x": 300,
+      "y": 100, 
+      "width": 120, 
+      "height": 100,
+      "fill": "white",
+      "text": {
+          "y": 330,
+          "x": 120, 
+          "dy": "0.35em", 
+          "text": "Add condition"
+      }
+}; 
+
+actuator_dict = {
+      "x": 500,
+      "y": 100, 
+      "width": 120, 
+      "height": 100,
+      "fill": "white",
+      "text": {
+          "y": 530,
+          "x": 120, 
+          "dy": "0.35em", 
+          "text": "Add actuator"
+      }
+}; 
+
+</script>
 <body>
 
 <section>
@@ -145,47 +189,6 @@ sensor.append("text")
 //// actuator ////
 
 
-input_dict = {
-      "x": 100,
-      "y": 100, 
-      "width": 120, 
-      "height": 100,
-      "fill": "white",
-      "text": {
-          "y": 130,
-          "x": 120, 
-          "dy": "0.35em", 
-          "text": "Add input"
-      }
-}; 
-
-condition_dict = {
-      "x": 300,
-      "y": 100, 
-      "width": 120, 
-      "height": 100,
-      "fill": "white",
-      "text": {
-          "y": 330,
-          "x": 120, 
-          "dy": "0.35em", 
-          "text": "Add condition"
-      }
-}; 
-
-actuator_dict = {
-      "x": 500,
-      "y": 100, 
-      "width": 120, 
-      "height": 100,
-      "fill": "white",
-      "text": {
-          "y": 530,
-          "x": 120, 
-          "dy": "0.35em", 
-          "text": "Add actuator"
-      }
-}; 
 
 
 
@@ -196,34 +199,35 @@ actuator_dict = {
 
 i = 0
 
-function add_drop_option(actuator_dict) {
+function add_drop_option(object_dict) {
 
 console.log(i)
 i = i + 1 
 actuator = canvas.data(d).append("g")
                   .attr("transform", function (d) { return        "translate(" + d.x + "," + d.y + ")"; })
                   .attr("id", i)
-                .call(onDragDrop(dragHandler, dropHandler));
+                .call(onDragDrop(dragHandler, dropHandler, object_dict));
 
 actuator.append("rect")
-  .attr("y", actuator_dict.x)
-  .attr("x", actuator_dict.y)
-  .attr("width", actuator_dict.width)
-  .attr("height", actuator_dict.height)
-  .attr("fill", actuator_dict.fill)
+  .attr("y", object_dict.x)
+  .attr("x", object_dict.y)
+  .attr("width", object_dict.width)
+  .attr("height", object_dict.height)
+  .attr("fill", object_dict.fill)
   /*.on("click", function(d) {
     createnewRect(d); 
   })
 */ 
 
 actuator.append("text")
-  .attr("y", actuator_dict.text.y)
-  .attr("x", actuator_dict.text.x)
-  .attr("dy", actuator_dict.text.dy)
-  .text(actuator_dict.text.text)
+  .attr("y", object_dict.text.y)
+  .attr("x", object_dict.text.x)
+  .attr("dy", object_dict.text.dy)
+  .text(object_dict.text.text)
 
 }
 
+console.log(input_dict);
 add_drop_option(input_dict);
 add_drop_option(condition_dict);
 add_drop_option(actuator_dict);
@@ -232,10 +236,10 @@ add_drop_option(actuator_dict);
 
 /////////
 
-function onDragDrop(dragHandler, dropHandler) {
+function onDragDrop(dragHandler, dropHandler, object_dict) {
         var drag = d3.behavior.drag();
         drag.on("drag", dragHandler)
-            .on("dragend", dropHandler);
+            .on("dragend", dropHandler(object_dict));
     return drag;
 }
  
@@ -251,14 +255,33 @@ var actuator = canvas.data(d).append("g")
                   .call(onDragDrop(dragHandler, dropHandler));
 */ 
 
+/*
+
 var actuator = canvas.data(d).append("g")
                   .attr("transform", function (d) { return        "translate(" + d.x + "," + d.y + ")"; })
                   .attr("id", i)
                   .call(onDragDrop(dragHandler, dropHandler));
-
+*/ 
 function createnewRect(d, object_dict) {
 
-// actuator_dict = object_dict
+
+this_dict = {
+      "x": 500,
+      "y": 100, 
+      "width": 120, 
+      "height": 100,
+      "fill": "white",
+      "text": {
+          "y": 530,
+          "x": 120, 
+          "dy": "0.35em", 
+          "text": "Add actuator"
+      }
+}; 
+
+
+//console.log(object_dict)
+//this_dict = object_dict
 d = [{x:0, y:0}]
 i = i +7 
 console.log(i)
@@ -266,28 +289,28 @@ console.log("new rect")
 
 // console.log(actuator_dict.x)
 
-new_act = actuator 
+//new_act = actuator 
 
 new_act = canvas.data(d).append("g")
                   .attr("transform", function (d) { return        "translate(" + d.x + "," + d.y + ")"; })
                   .attr("id", i)
-                  .call(onDragDrop(dragHandler, dropHandler));
+                  .call(onDragDrop(dragHandler, dropHandler, object_dict));
  
 new_act.append("rect")
-  .attr("y", actuator_dict.x)
-  .attr("x", actuator_dict.y)
-  .attr("width", actuator_dict.width)
-  .attr("height", actuator_dict.height)
-  .attr("fill", actuator_dict.fill)
+  .attr("y", this_dict.x)
+  .attr("x", this_dict.y)
+  .attr("width", this_dict.width)
+  .attr("height", this_dict.height)
+  .attr("fill", this_dict.fill)
   /*.on("click", function(d) {
     createnewRect(d); 
   })
 */ 
 new_act.append("text")
-  .attr("y", actuator_dict.text.y)
-  .attr("x", actuator_dict.text.x)
-  .attr("dy", actuator_dict.text.dy)
-  .text(actuator_dict.text.text)
+  .attr("y", this_dict.text.y)
+  .attr("x", this_dict.text.x)
+  .attr("dy", this_dict.text.dy)
+  .text(this_dict.text.text)
 
 /*
 actuator.append("g")
@@ -332,8 +355,11 @@ function dragHandler(d) {
   }
 
 
-function dropHandler(d) {
-  createnewRect(d, actuator_dict); 
+function dropHandler(d, object_dict) {
+  
+  if (i<100){
+  createnewRect(d, object_dict); 
+}
   // console.log("hello");
   //drawLine(d); 
 
