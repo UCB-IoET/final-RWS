@@ -15,11 +15,14 @@ img#close {
 	top:-14px;
 	cursor:pointer
 }
-div#popupContact {
+div.popup {
 	position:absolute;
-	left:50%;
-	top:17%;
-	margin-left:-202px;
+	left:8%;
+	top:13%;
+    width: 80%;
+    height: 70%;
+    background-color:#fff;
+    padding: 2% 2%;
 	font-family:'Raleway',sans-serif
 }
 form {
