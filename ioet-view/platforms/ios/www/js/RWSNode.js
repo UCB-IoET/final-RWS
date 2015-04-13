@@ -4,6 +4,7 @@ var nodeID = 0;
 //base class, container for node's actual data
 function RWSNode(name) {
 	this.id = nodeID++;
+	console.log("node name", name)
 	this.name = name || "";
 }
 

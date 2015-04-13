@@ -2,9 +2,7 @@ available_nodes = [];
 var wires = [];
 var selected = null;
 
-var manifestURL = "https://github.com/UCB-IoET/svc/blob/master/manifest.json";
-
-
+//just to set up shadow effects for selection
 function setupDropShadows(svg) {
 	// filter chain comes from:
 	// https://github.com/wbzyl/d3-notes/blob/master/hello-drop-shadow.html
@@ -66,58 +64,6 @@ function refreshVisualization() {
 	});
 
 	visualize();
-}
-
-function forceVis() {
-	var svg = d3.select('svg');
-	//svg.selectAll("*").remove();
-
-	force = d3.layout.force()
-	    .size([400, 400])
-	    .nodes(visNodes)
-	    .links(wires);
-
-	force.linkDistance(120);
-
-	force.gravity(0);
-
-	var link = svg.selectAll('line').data(wires);
-
-	var node = svg.selectAll('.node').data(visNodes);
-
-    force.on('tick', function() {
-
-	    // When this function executes, the force layout
-	    // calculations have concluded. The layout will
-	    // have set various properties in our nodes and
-	    // links objects that we can use to position them
-	    // within the SVG container.
-
-	    // First let's reposition the nodes. As the force
-	    // layout runs it updates the `x` and `y` properties
-	    // that define where the node should be centered.
-	    // To move the node, we set the appropriate SVG
-	    // attributes to their new values. We also have to
-	    // give the node a non-zero radius so that it's visible
-	    // in the container.
-	    node.attr('transform', function(d) { return 'translate( ' + d.x + ',' + d.y +')'; })
-		
-	    // We also need to update positions of the links.
-	    // For those elements, the force layout sets the
-	    // `source` and `target` properties, specifying
-	    // `x` and `y` values in each case.
-
-	    link.attr('x1', function(d) { return d.source.x; })
-	        .attr('y1', function(d) { return d.source.y; })
-	        .attr('x2', function(d) { return d.target.x; })
-	        .attr('y2', function(d) { return d.target.y; });
-
-	});
-
-	// Okay, everything is set up now so it's time to turn
-	// things over to the force layout. Here we go.
-
-	force.start();
 }
 
 function visualize() {
