@@ -2,33 +2,24 @@
 function RWSSMAPInterface(root_url, available_nodes) {
 	var smap = this;
 	smap.nodes = []
-	this.find_nodes = function() {
-		function tree_walk_helper(url, response) {
-			var data = response;
-			if(data['Contents'] && data['Contents'].length > 0) {
-				data['Contents'].forEach(function(val) {
-					var newUrl = url + '/' + val;
-					$.get(newUrl, function(resp) {
-						tree_walk_helper(newUrl, resp)
-					});
-				});
-			}
-			//now check if this is a node
-			if(data['Metadata'] && data['Metadata']['Type']) {
-				if(data['Metadata']['Type'] == 'Reading') {
-					var node = new RWSSensor(data['uuid'], data['Properties']['ReadingType']);
-					smap.add_node(node);
-				} else if(data['Metadata']['Type'] == 'Command') {
-					var node = new RWSActuator(data['uuid']);
-					smap.add_node(node);
-				}
-			}
-		}
-
-		$.get(root_url, function(response) {
-			tree_walk_helper(root_url, response)
-		});
-	}
+    this.find_nodes = function() {
+        
+        //first sensors
+		$.post(root_url, 'select * where Metadata/Type="Sensor"', function(data) {
+           data.forEach(function(datum) {
+                smap.add_node(new RWSSensor(datum["Path"], datum["Properties"]["ReadingType"]));
+           });
+               
+         });
+        
+        //then actuators
+        $.post(root_url, 'select * where has Actuator', function(data) {
+            data.forEach(function(datum) {
+                console.log(datum);
+                smap.add_node(new RWSActuator(datum["Path"], datum["Properties"]["ReadingType"]));
+            });
+        });
+	};
 
 	this.add_node = function(node) {
 		if(!containsObject(this.nodes,node))
