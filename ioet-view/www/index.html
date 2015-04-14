@@ -39,7 +39,7 @@
         <div class="app">
             <h1>PhoneGap</h1>
             <div id="addNodeMask" class="grayMask">     <!-- Popup Div Starts Here -->
-            <div id="popupContact"> <!-- Contact Us Form -->
+            <div class="popup">
             <form action="" id="addNodeForm" method="post" name="addNodeForm">
             <!-- <img id="close" src="images/3.png" onclick ="div_hide()"> -->
             <h2>Add Node</h2>
@@ -52,7 +52,11 @@
             </div>  <!-- Display Popup Button -->
 
             <div id="listNodeMask" class="grayMask">
-
+                <div id="listNodePopup" class="popup">
+                    <ul>
+                        
+                    </ul>
+                </div>
             </div>
             <button id="addNodeButton" class="rwsButton" onclick="show_add_popup()">Add Node</button>
             <button id="findNodeButton" class="rwsButton" onclick="find_nearby_nodes()">Find Nodes</button>

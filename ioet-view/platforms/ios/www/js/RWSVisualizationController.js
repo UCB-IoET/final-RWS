@@ -160,9 +160,14 @@ function find_nearby_nodes() {
 	// document.getElementById('findNodeMask').style.display = "block";
 	//here we look for nearby nodes using svcd
 	//hardcoded for now
-	console.log(available_nodes);
-	smap = new RWSSMAPInterface('http://proj.storm.pm:8081/data/buildinggeneral', available_nodes);
+	smap = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query', available_nodes);
 	smap.find_nodes();
+    document.getElementById('listNodeMask').style.display = "block";
+    d3.select("#listNodePopup").html();
+    console.log("data:", smap.entries);
+    d3.select("#listNodePopup").append("ul").selectAll("li").data(smap.entries).enter()
+        .append("li")
+        .text(function(d) { console.log("in here"); return "Path: " + d["Path"] });
 }
 
 window.addEventListener("DOMContentLoaded", function() {
