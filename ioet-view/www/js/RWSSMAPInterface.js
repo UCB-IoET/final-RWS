@@ -1,3 +1,4 @@
+var NEW_LINE = '<br/>';
 //NOTE: THIS WON'T Work until we aren't running in the browser because of CORS issues
 function RWSSMAPInterface(root_url, available_nodes) {
 	var smap = this;
@@ -39,11 +40,24 @@ function RWSSMAPInterface(root_url, available_nodes) {
         }
 	}
     
-    this.select_entry = function(index) {
-        if(!containsObject(available_nodes, smap.entries[index])) {
-            console.log('pushing on node', smap.entries[index]);
-            available_nodes.push(smap.entries[index]);
+    this.select_entry = function(entry) {
+        if(!containsObject(available_nodes, entry)) {
+        	//rework
+            available_nodes.push(new RWSNode("SMAP", entry));
         }
+    }
+
+    this.html_for_entry = function(entry) {
+    	str = '';
+    	if(entry['Actuator']) {
+    		str += 'Actuator' + NEW_LINE;
+    		str += 'Path: ' + entry['Path'] + NEW_LINE;
+    	} else if(entry['Metadata']['Type'] == 'Sensor') {
+    		str += 'Sensor: ' + entry['Metadata']['Sensor'] + NEW_LINE;
+    		str += 'Units: ' + entry['Properties']['UnitofMeasure'] + NEW_LINE;
+    		str += 'Path: ' + entry['Path'] + NEW_LINE;
+    	}
+    	return str;
     }
 }
 

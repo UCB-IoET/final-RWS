@@ -21,9 +21,9 @@ div.popup {
 	top:13%;
     width: 80%;
     height: 70%;
-    background-color:#fff;
-    padding: 2% 2%;
-	font-family:'Raleway',sans-serif
+    background-color:#eee;
+	font-family:'Raleway',sans-serif;
+	overflow-y:scroll;
 }
 form {
 	max-width:300px;
@@ -88,7 +88,6 @@ span {
 	font-weight:700
 }
 button {
-	width:10%;
 	height:45px;
 	border-radius:3px;
 	background-color:#cd853f;
@@ -96,4 +95,18 @@ button {
 	font-family:'Raleway',sans-serif;
 	font-size:18px;
 	cursor:pointer
+}
+ul {
+	list-style: none;
+	width: 100%;
+	padding-left: 0;
+}
+.smapEntry {
+	display:block;
+	background-color:#eee;
+	padding-left: 0;
+	width: 96%;
+	border:5px solid #777;
+	text-decoration:none;
+	color:#8ca1c1;
 }
