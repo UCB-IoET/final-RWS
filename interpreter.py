@@ -37,10 +37,7 @@ else:
     json.dump(addresses, open('.smap_interpreter','wb'))
 
 
-global_env = {'__parent':None}
-
-binop_map = {'+' : add, '-' : sub, '*' : mul,'/' : truediv,
-             '==': eq,'>' : gt, '< ': lt,'!=': ne}
+env = {}
 
 literal_map = {'int': int,
                'float': float,
@@ -67,10 +64,128 @@ def bind(e, name, value):
 def def_prim(name, fn):
     bind(primitives, name, fn)
 
+_ast_docs = []
+_func_docs = []
+_node_switch_table = {}
+_func_switch_table = {}
+
+def node(name, fields, notes=None):
+    def decorator(fn):
+        _node_switch_table[name] = fn
+    _ast_docs.append({'type': name,
+                      'fields':fields,
+                      'notes':notes})
+    return decorator
+
+def function(name, args, returns=None, notes=None):
+    def decorator(fn):
+        _func_switch_table[name] = fn
+    _func_docs.append({'name': name,
+                       'args':
+                       'returns': returns,
+                       'notes': notes})
+    return decorator
+
+@node('program',
+      {'password': 'authorization key for remote interpreter',
+       'top': 'list of node IDs that must be executed first',
+       '<IDs:nodes>' :'mappings of IDs to nodes'})
+def _(ast):
+    global env;
+    env = program
+    list(map(run_id, program.get('top',[])))
+
+@node('literal',
+      {'val': 'a literal number or string'}
+      {'out': 'output wire'})
+def num(ast):
+      set_and_signal(ast['out'], ast['n'])
+
+@node('binop',
+      {'op' : 'the operation, +, *, ==, >, ...',
+       'left': 'a wire for the left hand side input',
+       'right': 'a wire for the right hand side input',
+       'out': 'output wire'})
+def binop(ast):
+    result = binop_map[ast['op']](wire_get(ast['left']), wire_get(ast['right']))
+    set_and_signal(ast['out'], result)
+
+binop_map = {'+' : add, '-' : sub, '*' : mul,'/' : truediv,
+             '==': eq,'>' : gt, '< ': lt,'!=': ne}
+
+@node('if',
+      {'cond': 'condition',
+       'true': "run when 'cond' is True'",
+       'false': "run when 'cond' is False'"})
+def _(ast):
+    cond = wire_get(ast['cond'])
+    signal(ast['true'] if cond else ast['false'])
+
+@node('call',
+      {'name': 'name of built-in procedure to call',
+       'in': 'the parameters - a list of input wires',
+       'out': 'output wire for return value'})
+def _(ast):
+    fn = _func_switch_table[ast['name']]
+    if not fn:
+        error("call -- procedure '{}' was not found".format(ast['name']))
+    set_and_signal(ast['out'], fn(*[wire_get(x) for x in ast['in']]))
+
 ################################################################################
+@function('print',
+          {'val': 'a value to print'})
+def _(val):
+    print(val)
+    return val
+
 ################################################################################
-def load_json(s):
-    return json.loads(s, object_hook=_decode_dict)
+def signal(wire):
+    assert_exists('signal', wire)
+    x = env[wire]
+    x and run(x)
+
+def wire_set(wire, val):
+    env[wire] = val
+
+def set_and_signal(wire, val):
+    set_wire(wire, val)
+    signal(var)
+
+def wire_get(wire):
+    assert_exists('wire_get', wire)
+    return env[wire]
+
+def assert_exists(fn, wire):
+    if wire not in env:
+        error("{} -- var '{}' not found".format(fn, var))
+
+def gen_doc():
+    print "TODO"
+
+def error(msg):
+    print "Error: {}".format(msg)
+    exit(1)
+
+################################################################################
+#OLD:
+
+
+
+def lookup(var):
+    if var in env:
+        return env[var]
+    print "Error: '{}' not found in env".format(var)
+
+def run(ast):
+    fn = _node_switch_table(ast['type'])
+    if fn:
+        fn(ast)
+    else:
+        print "Error: unknown ast node {}".format(ast)
+
+def run_id(x):
+    ast = env.get(x)
+    return ast and run(ast)
 
 
 def evalu(ast, e):
@@ -119,7 +234,7 @@ while True:
         msg = load_json(data)
     print "RECEIVED>>>", msg
     print "FROM>>>", addr
-    
+
     if str(msg['key']) != "password":
         print("Authentication failed")
         continue
