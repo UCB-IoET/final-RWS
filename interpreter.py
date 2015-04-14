@@ -36,34 +36,6 @@ else:
     addresses = md
     json.dump(addresses, open('.smap_interpreter','wb'))
 
-
-env = {}
-
-literal_map = {'int': int,
-               'float': float,
-               'str' :str,
-               'list': lambda e: [eval(x, _env) for x in e],
-               'dict': lambda e: {}}
-
-def p(x):
-    print x
-    return x
-
-primitives = {'print': p,
-              'put_request': lambda x: requests.put(x),
-              'sleep': lambda x: time.sleep(x)}
-
-def lookup(e, name):
-    #TODO: fix for false values
-    return e.get(name) or (e['__parent'] and lookup(e['__parent'], name))
-
-def bind(e, name, value):
-    e[name] = value
-    return value
-
-def def_prim(name, fn):
-    bind(primitives, name, fn)
-
 _ast_docs = []
 _func_docs = []
 _node_switch_table = {}
@@ -167,64 +139,6 @@ def error(msg):
     exit(1)
 
 ################################################################################
-#OLD:
-
-
-
-def lookup(var):
-    if var in env:
-        return env[var]
-    print "Error: '{}' not found in env".format(var)
-
-def run(ast):
-    fn = _node_switch_table(ast['type'])
-    if fn:
-        fn(ast)
-    else:
-        print "Error: unknown ast node {}".format(ast)
-
-def run_id(x):
-    ast = env.get(x)
-    return ast and run(ast)
-
-
-def evalu(ast, e):
-    typ = ast.get('type')
-    if not typ:
-        print("Error: ast field has no type: " + str(ast))
-
-    if typ == 'lit':
-        return literal_map[ast['ltype']](ast.get('val'))
-    elif typ == 'binop':
-        return binop_map[ast['op']](evalu(ast['left'], e), evalu(ast['right'],e))
-    elif typ == 'if':
-        return evalu(ast['true'] if evalu(ast['cond'], e) else ast['false'], e)
-    elif typ == 'while':
-        cond, body = ast['cond'], ast['body']
-        ret = None
-        while evalu(cond, e): ret = evalu(body, e)
-        return ret
-    elif typ == 'call':
-        fn = lookup(e, ast['name'])
-        new = ast['env']
-        args = [bind(new,n,evalu(x, e)) for n,x in zip(fn['params'],ast['args'])]
-        return [evalu(exp, new) for exp in ast['body']][-1]
-    elif typ == 'prim':
-        fn = primitives[ast['name']]
-        args = [evalu(x, e) for x in ast['args']]
-        return fn(*args)
-    elif typ == 'def':
-        fn = {'params': ast['params'], 'body': ast['body'], 'env': {'__parent':e}}
-        bind(e, ast.get('name','lambda'), fn)
-        return fn
-    elif typ == 'varget':
-        return lookup(e, ast['name'])
-    elif typ == 'varset':
-        return bind(e, ast['name'], evalu(ast['expr'], e))
-    elif typ == 'begin':
-        return [evalu(exp, e) for exp in ast['exprs']][-1]
-    else:
-        print("Error: unknown AST node: " + str(ast))
 
 while True:
     data, addr = sock.recvfrom(buffer_size)
