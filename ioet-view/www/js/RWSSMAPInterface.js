@@ -35,16 +35,14 @@ function RWSSMAPInterface(root_url, available_nodes) {
 	};
 
 	this.add_entry = function(entry) {
-        if(!containsObject(this.entries,entry)) {
-			this.entries.push(entry);
-        }
+        //need to check for duplicates
+		this.entries.push(entry);
 	}
     
     this.select_entry = function(entry) {
-        if(!containsObject(available_nodes, entry)) {
-        	//rework
-            available_nodes.push(new RWSNode("SMAP", entry));
-        }
+        var node = new RWSNode("SMAP", entry);
+        //need to check for duplicates
+        available_nodes.push(node);
     }
 
     this.html_for_entry = function(entry) {
@@ -59,15 +57,4 @@ function RWSSMAPInterface(root_url, available_nodes) {
     	}
     	return str;
     }
-}
-
-function containsObject(list, obj) {
-    var i;
-    for (i = 0; i < list.length; i++) {
-        if (list[i] === obj) {
-            return true;
-        }
-    }
-
-    return false;
 }
