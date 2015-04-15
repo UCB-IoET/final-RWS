@@ -34,9 +34,9 @@ function RWSNode(type, infoDict) {
         	var interval = (nodeWidth - (ioSize*2)*this.inputs.length) / (this.inputs.length + 1);
         	for(var i = 0; i < this.inputs.length; i++) {
 				context.beginPath();
-			    context.moveTo(this.x + interval, this.y);
-			    context.lineTo(this.x + interval + ioSize , this.y - ioSize);
-			    context.lineTo(this.x + interval + ioSize*2, this.y);
+			    context.moveTo(this.x + interval*(i+1), this.y);
+			    context.lineTo(this.x + interval*(i+1) + ioSize , this.y - ioSize);
+			    context.lineTo(this.x + interval*(i+1) + ioSize*2, this.y);
 			    context.fill(); //automatically closes path
 			}
         }
@@ -46,9 +46,9 @@ function RWSNode(type, infoDict) {
         	var interval = (nodeWidth - (ioSize*2)*this.outputs.length) / (this.outputs.length + 1);
         	for(var i = 0; i < this.outputs.length; i++) {
 				context.beginPath();
-			    context.moveTo(this.x + interval, this.y + nodeHeight);
-			    context.lineTo(this.x + interval + ioSize, this.y + nodeHeight + ioSize);
-			    context.lineTo(this.x + interval + ioSize*2, this.y + nodeHeight);
+			    context.moveTo(this.x + interval*(i+1), this.y + nodeHeight);
+			    context.lineTo(this.x + interval*(i+1) + ioSize, this.y + nodeHeight + ioSize);
+			    context.lineTo(this.x + interval*(i+1) + ioSize*2, this.y + nodeHeight);
 			    context.fill(); //automatically closes path
 			}
         }
@@ -56,5 +56,20 @@ function RWSNode(type, infoDict) {
 
 	this.rectContains = function(pos) {
 		return this.x <= pos['x'] && pos['x'] <= this.x + nodeWidth && this.y <= pos['y'] && pos['y'] <= this.y + nodeHeight;
+	}
+
+	this.ioContains = function(pos) {
+    	var interval = (nodeWidth - (ioSize*2)*this.inputs.length) / (this.inputs.length + 1);
+    	for(var i = 0; i < this.inputs.length; i++) {
+    		if(this.x + interval*(i+1) < pos['x'] && this.x + interval*(i+1)  + ioSize*2 > pos['x'] && this.y > pos['y'] && this.y - ioSize < pos['y']) {
+    			return this.inputs[i];
+    		}
+    	}
+    	interval = (nodeWidth - (ioSize*2)*this.outputs.length) / (this.outputs.length + 1);
+    	for(var i = 0; i < this.outputs.length; i++) {
+    		if(this.x + interval*(i+1) < pos['x'] && this.x + interval*(i+1)  + ioSize*2 > pos['x'] && this.y + nodeHeight < pos['y'] && this.y + nodeHeight + ioSize > pos['y']) {
+    			return this.outputs[i];
+    		}
+    	}
 	}
 }

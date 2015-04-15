@@ -1,9 +1,10 @@
 available_nodes = [];
 var wires = [];
 var selected = null;
-var dragging = false;
+var dragging = null;
 var dragoffx = 0;
 var dragoffy = 0;
+var valid = false;
 
 function clear(ctx) {
    	ctx.clearRect(0, 0, canvas.width, canvas.height);   
@@ -27,12 +28,13 @@ function drawString(ctx, text, posX, posY, textColor, rotation, font, fontSize) 
 }
 
 function visualize() {
-	if(canvas) {
+	if(canvas && !valid) {
 		var ctx = canvas.getContext('2d');
 		clear(ctx);
 		available_nodes.forEach(function(node) {
 			node.draw(ctx);
 		});
+		valid = true;
 	}
 }
 
@@ -48,7 +50,7 @@ function find_nearby_nodes() {
         .on('click', function(d, i) { 
         	smap.select_entry(d);
         	document.getElementById('listNodeMask').style.display = "none";
-        	visualize();
+        	valid = false;
         })
         .html(function(d) { return smap.html_for_entry(d); });
 }
@@ -76,12 +78,17 @@ function onMouseDown(e) {
 	if(canvas) {
 		var mouse = getMouse(e);
 		e.preventDefault();
-	    dragging = false;
+	    dragging = null;
 		available_nodes.forEach(function(node) {
 			if(node.rectContains(mouse)) {
-				selected = node;
-				dragging = true;
+				dragging = node;
 				dragoffset = mouse;
+			} else {
+				var io = node.ioContains(mouse);
+				if(io != null) {
+					selected = io;
+					valid = false;
+				}
 			}
 		});
 	}
@@ -94,16 +101,17 @@ function onMouseMove(e) {
 		var mouse = getMouse(e);
 		var deltaX = mouse.x - dragoffset['x'];
 		var deltaY = mouse.y - dragoffset['y'];
-		selected.x += deltaX;
-		selected.y += deltaY;
+		dragging.x += deltaX;
+		dragging.y += deltaY;
 		dragoffset = mouse;
+		valid = false;
 	}
 }
 
 
 
 window.addEventListener("DOMContentLoaded", function() {
-    var canvas = $('canvas')[0];
+    canvas = $('canvas')[0];
     canvas.addEventListener('touchstart', onMouseDown, false);
     canvas.addEventListener('touchmove', onMouseMove, false);
 	setInterval(visualize, 50);
