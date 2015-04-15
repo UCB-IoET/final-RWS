@@ -41,6 +41,12 @@ function RWSSMAPInterface(root_url, available_nodes) {
     
     this.select_entry = function(entry) {
         var node = new RWSNode("SMAP", entry);
+
+        if(entry['Actuator']) {
+          node.inputs.push(0);
+        } else if(entry['Metadata']['Type'] == 'Sensor') {
+          node.outputs.push(0);
+        }
         //need to check for duplicates
         available_nodes.push(node);
     }
