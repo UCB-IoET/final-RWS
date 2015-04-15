@@ -10,9 +10,9 @@ function RWSSMAPInterface(root_url, available_nodes) {
         url: root_url,
         data: 'select * where Metadata/Type="Sensor"',
         success: function(data) {
-            data.forEach(function(datum) {
+          data.forEach(function(datum) {
             smap.add_entry(datum);
-            });
+          });
         }
         ,
        async:false
@@ -24,9 +24,9 @@ function RWSSMAPInterface(root_url, available_nodes) {
        url: root_url,
        data: 'select * where has Actuator',
        success: function(data) {
-           data.forEach(function(datum) {
-            smap.add_entry(datum);
-            });
+          data.forEach(function(datum) {
+              smap.add_entry(datum);
+          });
        }
        ,
        async:false

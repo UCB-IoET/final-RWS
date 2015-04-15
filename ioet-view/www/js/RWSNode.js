@@ -7,7 +7,7 @@ var nodeColor = '#AAAAAA';
 var nodeWidth = 80;
 var nodeHeight = 40;
 
-var ioSize = 10;
+var ioSize = 10; // size of a triangle for input/output
 
 //base class, container for node's actual data
 function RWSNode(type, infoDict) {
@@ -46,15 +46,15 @@ function RWSNode(type, infoDict) {
         	var interval = (nodeWidth - (ioSize*2)*this.outputs.length) / (this.outputs.length + 1);
         	for(var i = 0; i < this.outputs.length; i++) {
 				context.beginPath();
-			    context.moveTo(this.x + interval, this.y+ nodeHeight);
-			    context.lineTo(this.x + interval + ioSize , this.y + nodeHeight + ioSize);
+			    context.moveTo(this.x + interval, this.y + nodeHeight);
+			    context.lineTo(this.x + interval + ioSize, this.y + nodeHeight + ioSize);
 			    context.lineTo(this.x + interval + ioSize*2, this.y + nodeHeight);
 			    context.fill(); //automatically closes path
 			}
         }
 	}
 
-	this.contains = function(pos) {
+	this.rectContains = function(pos) {
 		return this.x <= pos['x'] && pos['x'] <= this.x + nodeWidth && this.y <= pos['y'] && pos['y'] <= this.y + nodeHeight;
 	}
 }

@@ -5,7 +5,6 @@ var dragging = false;
 var dragoffx = 0;
 var dragoffy = 0;
 
-
 function clear(ctx) {
    	ctx.clearRect(0, 0, canvas.width, canvas.height);   
  }
@@ -39,7 +38,6 @@ function visualize() {
 
 function find_nearby_nodes() {
 	//here we look for nearby nodes using smap
-	//hardcoded for now
 	var smap = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query', available_nodes);
 	smap.find_nodes();
     document.getElementById('listNodeMask').style.display = "block";
@@ -80,7 +78,7 @@ function onMouseDown(e) {
 		e.preventDefault();
 	    dragging = false;
 		available_nodes.forEach(function(node) {
-			if(node.contains(mouse)) {
+			if(node.rectContains(mouse)) {
 				selected = node;
 				dragging = true;
 				dragoffset = mouse;
@@ -105,7 +103,7 @@ function onMouseMove(e) {
 
 
 window.addEventListener("DOMContentLoaded", function() {
-    canvas = $('canvas')[0];
+    var canvas = $('canvas')[0];
     canvas.addEventListener('touchstart', onMouseDown, false);
     canvas.addEventListener('touchmove', onMouseMove, false);
 	setInterval(visualize, 50);
