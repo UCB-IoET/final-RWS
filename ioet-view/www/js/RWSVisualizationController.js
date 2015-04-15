@@ -1,17 +1,10 @@
 available_nodes = [];
 var wires = [];
 var selected = null;
+var dragging = false;
+var dragoffx = 0;
+var dragoffy = 0;
 
-
-// function refreshVisualization() {
-// 	visNodes = [];
-
-// 	available_nodes.forEach(function (node) {
-// 		visNodes.push(new VisualizationNode(node));
-// 	});
-
-// 	visualize();
-// }
 
 function clear(ctx) {
    	ctx.clearRect(0, 0, canvas.width, canvas.height);   
@@ -40,14 +33,14 @@ function visualize() {
 		clear(ctx);
 		available_nodes.forEach(function(node) {
 			node.draw(ctx);
-		})
+		});
 	}
 }
 
 function find_nearby_nodes() {
 	//here we look for nearby nodes using smap
 	//hardcoded for now
-	smap = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query', available_nodes);
+	var smap = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query', available_nodes);
 	smap.find_nodes();
     document.getElementById('listNodeMask').style.display = "block";
     d3.select("#listNodePopup").html();
@@ -62,6 +55,58 @@ function find_nearby_nodes() {
         .html(function(d) { return smap.html_for_entry(d); });
 }
 
+function getMouse(e) {
+	var canvas = $('canvas')[0];
+	offsetX = 0;
+	offsetY = 0;
+    // Compute the total offset
+    if (canvas.offsetParent !== undefined) {
+      do {
+        offsetX += canvas.offsetLeft;
+        offsetY += canvas.offsetTop;
+      } while ((canvas = canvas.offsetParent));
+    }
+
+    mx = e.pageX - offsetX;
+    my = e.pageY - offsetY;
+
+    return {'x': mx, 'y': my};
+}
+
+function onMouseDown(e) {
+	var canvas = $('canvas')[0];
+	if(canvas) {
+		var mouse = getMouse(e);
+		e.preventDefault();
+	    dragging = false;
+		available_nodes.forEach(function(node) {
+			if(node.contains(mouse)) {
+				selected = node;
+				dragging = true;
+				dragoffset = mouse;
+			}
+		});
+	}
+}
+
+function onMouseMove(e) {
+	var canvas = $('canvas')[0];
+	if(canvas && dragging) {
+		e.preventDefault();
+		var mouse = getMouse(e);
+		var deltaX = mouse.x - dragoffset['x'];
+		var deltaY = mouse.y - dragoffset['y'];
+		selected.x += deltaX;
+		selected.y += deltaY;
+		dragoffset = mouse;
+	}
+}
+
+
+
 window.addEventListener("DOMContentLoaded", function() {
     canvas = $('canvas')[0];
+    canvas.addEventListener('touchstart', onMouseDown, false);
+    canvas.addEventListener('touchmove', onMouseMove, false);
+	setInterval(visualize, 50);
 }, false);

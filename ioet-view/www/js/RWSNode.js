@@ -11,20 +11,22 @@ var ioSize = 10;
 
 //base class, container for node's actual data
 function RWSNode(type, infoDict) {
+	//metadata
 	this.id = nodeID++;
 	this.name = "";
 	this.description = "";
-	this.x = Math.floor((Math.random() * 200) + 30);
-	this.y = Math.floor((Math.random() * 200) + 30);
 	this.inputs = [];
 	this.outputs = [];
 	this.infoDict = infoDict;
+
+	//visual representation info
+	this.x = Math.floor((Math.random() * 200) + 30);
+	this.y = Math.floor((Math.random() * 200) + 30);
 
 	this.draw = function(context) {
         context.fillStyle="rgba(150, 150, 150, 1)";
 		context.fillRect(this.x, this.y, nodeWidth, nodeHeight);
 		drawString(context, this.name + '\n' + this.description, this.x + 5, this.y + 10, "#333333", 0, 'serif', 12);
-       
         context.fillStyle="rgba(50, 50, 50, .7)";
         
         //draw triangles for inputs
@@ -50,6 +52,9 @@ function RWSNode(type, infoDict) {
 			    context.fill(); //automatically closes path
 			}
         }
-        
+	}
+
+	this.contains = function(pos) {
+		return this.x <= pos['x'] && pos['x'] <= this.x + nodeWidth && this.y <= pos['y'] && pos['y'] <= this.y + nodeHeight;
 	}
 }
