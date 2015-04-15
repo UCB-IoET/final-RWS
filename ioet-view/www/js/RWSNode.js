@@ -13,6 +13,7 @@ var ioSize = 10;
 function RWSNode(type, infoDict) {
 	this.id = nodeID++;
 	this.name = "";
+	this.description = "";
 	this.x = Math.floor((Math.random() * 200) + 30);
 	this.y = Math.floor((Math.random() * 200) + 30);
 	this.inputs = [];
@@ -35,9 +36,10 @@ function RWSNode(type, infoDict) {
 	this.draw = function(context) {
         context.fillStyle="rgba(150, 150, 150, 1)";
 		context.fillRect(this.x, this.y, nodeWidth, nodeHeight);
-		context.fillStyle="#333333";
-        context.fillText(this.name, this.x + nodeWidth/2 - context.measureText(this.name).width/2, this.y + 10);
-
+		drawString(context, this.name + '\n' + this.description, this.x + 5, this.y + 10, "#333333", 0, 'serif', 12);
+       // context.fillText(this.name, this.x + nodeWidth/2 - context.measureText(this.name).width/2, this.y + 10);
+        //context.fillText(this.description, this.x + nodeWidth/2 - context.measureText(this.description).width/2, this.y + 20);
+        context.fillStyle="rgba(50, 50, 50, .7)";
         //draw triangles for inputs
         if(this.inputs.length > 0) {
         	var interval = (nodeWidth - (ioSize*2)*this.inputs.length) / (this.inputs.length + 1);

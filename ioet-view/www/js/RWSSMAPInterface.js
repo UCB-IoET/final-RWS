@@ -46,6 +46,8 @@ function RWSSMAPInterface(root_url, available_nodes) {
           node.inputs.push(0);
         } else if(entry['Metadata']['Type'] == 'Sensor') {
           node.outputs.push(0);
+          node.description = 'Sensor: ' + entry['Metadata']['Sensor'] + '\n'
+          node.description += 'Units: ' + entry['Properties']['UnitofMeasure'];
         }
         //need to check for duplicates
         available_nodes.push(node);

@@ -17,6 +17,22 @@ function clear(ctx) {
    	ctx.clearRect(0, 0, canvas.width, canvas.height);   
  }
 
+function drawString(ctx, text, posX, posY, textColor, rotation, font, fontSize) {
+	var lines = text.split("\n");
+	if (!rotation) rotation = 0;
+	if (!font) font = "'serif'";
+	if (!fontSize) fontSize = 16;
+	if (!textColor) textColor = '#000000';
+	ctx.save();
+	ctx.font = fontSize + "px " + font;
+	ctx.fillStyle = textColor;
+	ctx.translate(posX, posY);
+	ctx.rotate(rotation * Math.PI / 180);
+	for (i = 0; i < lines.length; i++) {
+ 		ctx.fillText(lines[i],0, i*fontSize);
+	}
+	ctx.restore();
+}
 
 function visualize() {
 	if(canvas) {
