@@ -1,112 +1,46 @@
 available_nodes = [];
 var wires = [];
 var selected = null;
+var dragging = null;
+var dragoffx = 0;
+var dragoffy = 0;
+var valid = false;
 
+function clear(ctx) {
+   	ctx.clearRect(0, 0, canvas.width, canvas.height);   
+ }
 
-function refreshVisualization() {
-	visNodes = [];
-
-	available_nodes.forEach(function (node) {
-		visNodes.push(new VisualizationNode(node));
-	});
-
-	visualize();
+function drawString(ctx, text, posX, posY, textColor, rotation, font, fontSize) {
+	var lines = text.split("\n");
+	if (!rotation) rotation = 0;
+	if (!font) font = "'serif'";
+	if (!fontSize) fontSize = 16;
+	if (!textColor) textColor = '#000000';
+	ctx.save();
+	ctx.font = fontSize + "px " + font;
+	ctx.fillStyle = textColor;
+	ctx.translate(posX, posY);
+	ctx.rotate(rotation * Math.PI / 180);
+	for (i = 0; i < lines.length; i++) {
+ 		ctx.fillText(lines[i],0, i*fontSize);
+	}
+	ctx.restore();
 }
 
 function visualize() {
-	var svgContainer = d3.select('svg');
-
-	//returns all the nodes
-	var nodeGs = svgContainer.selectAll("g")
-		.data(visNodes);
-
-	//only the new nodes that just got added
-	var nodeEnter = nodeGs.enter().append("g");
-	nodeGs
-		.attr('transform', function(d) { return 'translate( ' + d.x + ',' + d.y +')'; })
-		.attr('class', 'node')
-		.on('mousedown', function() {
-			if(selected && selected.node.id != this.__data__.node.id) {
-				wires.push(new RWSWire(selected, this.__data__));
-				selected.selected = false;
-				selected = null;
-				visualize()
-			} else if(selected) {
-				selected.selected = false;
-				selected = null;
-			} else {
-				this.__data__.selected = true;
-				selected = this.__data__;
-			}
-			visualize()
+	if(canvas && !valid) {
+		var ctx = canvas.getContext('2d');
+		clear(ctx);
+		available_nodes.forEach(function(node) {
+			node.draw(ctx);
 		});
-	//Add circles
-	nodeEnter.append("circle")
-
-	//all the circle elements
-	var circles = nodeGs.selectAll("circle");
-	var circleAttributes = circles
-		.attr("cx", function (d) { return 0; })
-		.attr("cy", function (d) { return 0; })
-		.attr("r", function (d) { return d.r; })
-		.attr("fill", "purple")
-		.style("filter", function(d) { 
-			if(selected && selected.node.id == d.node.id) {
-				return "url(#glow)";
-			}
-			return "";
-		});
-
-	
-	nodeEnter.append("text");
-
-	//all the text elements
-	var texts = nodeGs.selectAll("text");
-	//Add Labels
-	var textLabels = texts
-	    .attr("dy", ".35em")
-		.text(function (d) { return d.node.name; })
-		.style("font-size", function(d) {
-        	return "12px"; 
-       	})
-		.attr("y", function(d) { return 0; })
-		.attr("x", function(d) { return - this.getComputedTextLength()/2; })
-
-
-	var links = svgContainer.selectAll("line")
-		.data(wires);
-
-	var linksEnter = links.enter().append("line");
-	links
-		.attr("x1", function(d) { return d.source.x})
-		.attr("y1", function(d) { return d.source.y})
-		.attr("x2", function(d) { return d.target.x})
-		.attr("y2", function(d) { return d.target.y})
-		.attr("stroke-width", 2)
-		.attr("stroke", "black");
-
-}
-
-function show_add_popup() {
-	document.getElementById('addNodeMask').style.display = "block";
-}
-
-function add_node() {
-	var name = d3.select('#addNodeName').property('value');
-	var type = d3.select('#addNodeType').property('value');
-	var node = new RWSSensor(name);
-	available_nodes.push(node);
-	visNodes.push(new VisualizationNode(node));
-	d3.select('#addNodeName').property('value','');
-	d3.select('#addNodeType').property('value','');
-	document.getElementById('addNodeMask').style.display = "none";
-	visualize();
+		valid = true;
+	}
 }
 
 function find_nearby_nodes() {
 	//here we look for nearby nodes using smap
-	//hardcoded for now
-	smap = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query', available_nodes);
+	var smap = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query', available_nodes);
 	smap.find_nodes();
     document.getElementById('listNodeMask').style.display = "block";
     d3.select("#listNodePopup").html();
@@ -116,11 +50,69 @@ function find_nearby_nodes() {
         .on('click', function(d, i) { 
         	smap.select_entry(d);
         	document.getElementById('listNodeMask').style.display = "none";
-        	visualize();
+        	valid = false;
         })
         .html(function(d) { return smap.html_for_entry(d); });
 }
 
+function getMouse(e) {
+	var canvas = $('canvas')[0];
+	offsetX = 0;
+	offsetY = 0;
+    // Compute the total offset
+    if (canvas.offsetParent !== undefined) {
+      do {
+        offsetX += canvas.offsetLeft;
+        offsetY += canvas.offsetTop;
+      } while ((canvas = canvas.offsetParent));
+    }
+
+    mx = e.pageX - offsetX;
+    my = e.pageY - offsetY;
+
+    return {'x': mx, 'y': my};
+}
+
+function onMouseDown(e) {
+	var canvas = $('canvas')[0];
+	if(canvas) {
+		var mouse = getMouse(e);
+		e.preventDefault();
+	    dragging = null;
+		available_nodes.forEach(function(node) {
+			if(node.rectContains(mouse)) {
+				dragging = node;
+				dragoffset = mouse;
+			} else {
+				var io = node.ioContains(mouse);
+				if(io != null) {
+					selected = io;
+					valid = false;
+				}
+			}
+		});
+	}
+}
+
+function onMouseMove(e) {
+	var canvas = $('canvas')[0];
+	if(canvas && dragging) {
+		e.preventDefault();
+		var mouse = getMouse(e);
+		var deltaX = mouse.x - dragoffset['x'];
+		var deltaY = mouse.y - dragoffset['y'];
+		dragging.x += deltaX;
+		dragging.y += deltaY;
+		dragoffset = mouse;
+		valid = false;
+	}
+}
+
+
+
 window.addEventListener("DOMContentLoaded", function() {
-    refreshVisualization()
+    canvas = $('canvas')[0];
+    canvas.addEventListener('touchstart', onMouseDown, false);
+    canvas.addEventListener('touchmove', onMouseMove, false);
+	setInterval(visualize, 50);
 }, false);
