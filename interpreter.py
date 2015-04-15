@@ -9,7 +9,8 @@ void = void()
 nodes = {}
 wireV = {} # wire values
 wireS = {} # wire subscriptions
-ready = []
+ready_q = []
+ready = set()
 _ast_docs = []
 _func_docs = []
 _node_switch_table = {}
@@ -43,13 +44,16 @@ def _(ast):
     run_program(ast)
 def run_program(ast):
     print "run_program()"
-    global nodes, wireV, wireS, ready
+    global nodes, wireV, wireS, ready, ready_q
     nodes = ast['nodes']
-    wireV = {}#{name : void for name in ast['wires']}
+    wireV = {str(name) : void for name in range(ast['nwires'])}
     wireS = ast['connections']
-    ready = ast.get('initial',[])
-    while ready:
-        run_id(ready.pop(0))
+    ready_q = ast.get('initial',[])
+    ready = set(ready_q)
+    while ready_q:
+        node = ready_q.pop(0)
+        ready.remove(node)
+        run_id(node)
 
 @node('literal',
       {'val': 'a literal number or string',
@@ -64,21 +68,27 @@ def _(ast):
        'right': 'a wire for the right hand side input',
        'out': 'output wire'})
 def binop(ast):
-    if debug: print "binop: {}".format(ast['op'])
-
+    if debug: print "binop: {}({},{})".format(ast['op'], wire_get(ast['left']), wire_get(ast['right']))
+    if wire_get(ast['left']) is void or wire_get(ast['right']) is void:
+        print("some node wires not ready yet")
+        return
     result = binop_map[ast['op']](wire_get(ast['left']), wire_get(ast['right']))
     set_and_signal(ast['out'], result)
 
 binop_map = {'+' : add, '-' : sub, '*' : mul,'/' : truediv,
-             '==': eq,'>' : gt, '< ': lt,'!=': ne}
+             '==': eq, '>': gt, '<': lt,'!=': ne}
 
 @node('if',
       {'cond': 'condition',
        'true': "run when 'cond' is True'",
        'false': "run when 'cond' is False'"})
 def _(ast):
+    if debug:
+        print "if: {} -> {}, {}".format(ast['cond'], ast['true'], ast['false'])
     cond = wire_get(ast['cond'])
-    signal(ast['true'] if cond else ast['false'])
+    true, false = ('true', 'false') if cond else ('false', 'true')
+    wire_set(ast[false], False)
+    set_and_signal(ast[true], cond)
 
 
 @node('call',
@@ -113,10 +123,8 @@ def run(ast):
         print "Error: unknown node {}".format(ast)
 
 def run_id(x):
-    print "run_id()"
-    print "nodes = {}".format(nodes)
+    #print "nodes = {}".format(nodes)
     node = nodes.get(x)
-    print "ast = {}".format(node)
     return node and run(node)
 
 
@@ -127,9 +135,13 @@ def subscribe(wire, node):
     s.append(node)
 
 def signal(wire):
+    global ready
     assert_exists('signal', wire)
     nodes = wireS.get(wire)
-    nodes and ready.extend(nodes)
+    if nodes:
+        new = set(nodes).difference(ready)
+        ready = ready.union(new)
+        ready_q.extend(list(new))
 
 def wire_set(wire, val):
     wireV[wire] = val
@@ -143,11 +155,13 @@ def wire_get(wire):
     return wireV[wire]
 
 def set_ready(node_id):
-    ready.append(node_id)
+    if node_id not in ready:
+        ready.add(node_id)
+        ready_q.append(node_id)
 
 def assert_exists(fn, wire):
     if wire not in wireV:
-        error("{} -- var '{}' not found".format(fn, var))
+        error("{} -- var '{}' not found".format(fn, wire))
 
 def gen_doc():
     print "TODO"
