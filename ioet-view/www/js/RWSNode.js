@@ -1,25 +1,25 @@
 //RWSNode.js
 var nodeID = 0;
 
+var TYPES = ["SMAP", "SVCD"];
+
 //base class, container for node's actual data
-function RWSNode(name) {
+function RWSNode(type, infoDict) {
 	this.id = nodeID++;
-	console.log("node name", name)
-	this.name = name || "";
+	this.name = "";
+	this.inputs = [];
+	this.outputs = [];
+	this.infoDict = infoDict;
+	if(type === TYPES[0]) { //SMAP
+		if ("Name" in this.infoDict) {
+			this.name = this.infoDict["Name"];
+		} else {
+			this.name = this.infoDict["Path"];
+		}
+	} else if(type === TYPES[1]) { //SVCD
+
+	}
 }
-
-function RWSSensor(name, readingType) {
-	RWSNode.call(this, name);
-	this.readingType = readingType;
-}
-RWSSensor.prototype = new RWSNode;
-
-
-function RWSActuator(name) {
-	RWSNode.call(this, name);
-}
-RWSActuator.prototype = new RWSNode;
-
 
 //layer of abstraction for rendering this node onscreen, not stored
 function VisualizationNode(node, x, y, r) {

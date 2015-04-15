@@ -2,59 +2,6 @@ available_nodes = [];
 var wires = [];
 var selected = null;
 
-//just to set up shadow effects for selection
-function setupDropShadows(svg) {
-	// filter chain comes from:
-	// https://github.com/wbzyl/d3-notes/blob/master/hello-drop-shadow.html
-	// cpbotha added explanatory comments
-	// read more about SVG filter effects here: http://www.w3.org/TR/SVG/filters.html
-	 
-	// filters go in defs element
-	var defs = svg.append("defs");
-	 
-	// create filter with id #drop-shadow
-	// height=130% so that the shadow is not clipped
-	var filter = defs.append("filter")
-	    .attr("id", "drop-shadow")
-	    .attr("height", "150%")
- 	    .attr("width", "150%");
-
-	// SourceAlpha refers to opacity of graphic that this filter will be applied to
-	// convolve that with a Gaussian with standard deviation 3 and store result
-	// in blur
-	filter.append("feGaussianBlur")
-	    .attr("in", "SourceAlpha")
-	    .attr("stdDeviation", 3)
-	    .attr("result", "blur");
-	 
-	// translate output of Gaussian blur to the right and downwards with 2px
-	// store result in offsetBlur
-	filter.append("feOffset")
-	    .attr("in", "blur")
-	    .attr("dx", 0)
-	    .attr("dy", 0)
-	    .attr("result", "offsetBlur");
-	 
-	// overlay original SourceGraphic over translated blurred opacity by using
-	// feMerge filter. Order of specifying inputs is important!
-	var feMerge = filter.append("feMerge");
-	 
-	feMerge.append("feMergeNode")
-	    .attr("in", "offsetBlur")
-	feMerge.append("feMergeNode")
-	    .attr("in", "SourceGraphic");
-}
-
-function startVisualization() {
-
-	var svg = d3.select('body').append('svg')
-    .attr('width', 320)
-    .attr('height', 400);
-
-    setupDropShadows(svg);
-
-    refreshVisualization();
-}
 
 function refreshVisualization() {
 	visNodes = [];
@@ -105,7 +52,7 @@ function visualize() {
 		.attr("fill", "purple")
 		.style("filter", function(d) { 
 			if(selected && selected.node.id == d.node.id) {
-				return "url(#drop-shadow)";
+				return "url(#glow)";
 			}
 			return "";
 		});
@@ -120,7 +67,7 @@ function visualize() {
 	    .attr("dy", ".35em")
 		.text(function (d) { return d.node.name; })
 		.style("font-size", function(d) {
-         return Math.min(2 * d.r, (2 * d.r - 8) / this.getComputedTextLength() * 16) + "px"; 
+        	return "12px"; 
        	})
 		.attr("y", function(d) { return 0; })
 		.attr("x", function(d) { return - this.getComputedTextLength()/2; })
@@ -157,8 +104,7 @@ function add_node() {
 }
 
 function find_nearby_nodes() {
-	// document.getElementById('findNodeMask').style.display = "block";
-	//here we look for nearby nodes using svcd
+	//here we look for nearby nodes using smap
 	//hardcoded for now
 	smap = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query', available_nodes);
 	smap.find_nodes();
@@ -166,9 +112,15 @@ function find_nearby_nodes() {
     d3.select("#listNodePopup").html();
     d3.select("#listNodePopup").append("ul").selectAll("li").data(smap.entries).enter()
         .append("li")
-        .text(function(d) { console.log("in here"); return "Path: " + d["Path"] });
+        .attr('class', 'smapEntry')
+        .on('click', function(d, i) { 
+        	smap.select_entry(d);
+        	document.getElementById('listNodeMask').style.display = "none";
+        	visualize();
+        })
+        .html(function(d) { return smap.html_for_entry(d); });
 }
 
 window.addEventListener("DOMContentLoaded", function() {
-    startVisualization()
+    refreshVisualization()
 }, false);

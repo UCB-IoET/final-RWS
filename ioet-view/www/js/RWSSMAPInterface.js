@@ -1,3 +1,4 @@
+var NEW_LINE = '<br/>';
 //NOTE: THIS WON'T Work until we aren't running in the browser because of CORS issues
 function RWSSMAPInterface(root_url, available_nodes) {
 	var smap = this;
@@ -34,26 +35,26 @@ function RWSSMAPInterface(root_url, available_nodes) {
 	};
 
 	this.add_entry = function(entry) {
-        if(!containsObject(this.entries,entry)) {
-			this.entries.push(entry);
-        }
+        //need to check for duplicates
+		this.entries.push(entry);
 	}
     
-    this.select_entry = function(index) {
-        if(!containsObject(available_nodes, smap.entries[index])) {
-            console.log('pushing on node', smap.entries[index]);
-            available_nodes.push(smap.entries[index]);
-        }
-    }
-}
-
-function containsObject(list, obj) {
-    var i;
-    for (i = 0; i < list.length; i++) {
-        if (list[i] === obj) {
-            return true;
-        }
+    this.select_entry = function(entry) {
+        var node = new RWSNode("SMAP", entry);
+        //need to check for duplicates
+        available_nodes.push(node);
     }
 
-    return false;
+    this.html_for_entry = function(entry) {
+    	str = '';
+    	if(entry['Actuator']) {
+    		str += 'Actuator' + NEW_LINE;
+    		str += 'Path: ' + entry['Path'] + NEW_LINE;
+    	} else if(entry['Metadata']['Type'] == 'Sensor') {
+    		str += 'Sensor: ' + entry['Metadata']['Sensor'] + NEW_LINE;
+    		str += 'Units: ' + entry['Properties']['UnitofMeasure'] + NEW_LINE;
+    		str += 'Path: ' + entry['Path'] + NEW_LINE;
+    	}
+    	return str;
+    }
 }
