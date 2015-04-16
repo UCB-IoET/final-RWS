@@ -9,6 +9,83 @@ var nodeHeight = 40;
 
 var ioSize = 10; // size of a triangle for input/output
 
+
+//a port entry; Has a mode(input or output) and a wire attached to it
+function RWSIOPort(mode, wire) { // 0 for input, 1 for output
+	this.mode = mode;
+	this.wire = wire || null;
+	this.x = 0;
+	this.y = 0;
+
+	this.linkTo = function(port) {
+		if(this != port && this.mode != port.mode) { //can only link inputs to outputs
+			if(this.wire)
+				this.wire.destroy();
+			this.wire = new RWSWire(this, port);
+			if(port.wire)
+				port.wire.destroy();
+			port.wire = this.wire;
+		}
+	}
+
+	this.draw = function(context) {
+		context.beginPath();
+		if(this.mode == 1) {
+			context.moveTo(this.x, this.y + nodeHeight);
+			context.lineTo(this.x + ioSize , this.y + nodeHeight + ioSize);
+			context.lineTo(this.x + ioSize*2, this.y + nodeHeight);
+		} else {
+			context.moveTo(this.x, this.y);
+			context.lineTo(this.x + ioSize , this.y - ioSize);
+			context.lineTo(this.x + ioSize*2, this.y);
+		}
+		context.fill(); //automatically closes path
+		if(this.wire) {
+			this.wire.draw(context);
+		}
+	};
+
+	this.contains = function(pos) {
+		if(this.mode == 1) {
+			return this.x < pos.x && this.x + ioSize*2 > pos.x && this.y < pos.y && this.y + ioSize > pos.y;
+		} else {
+			return this.x < pos.x && this.x + ioSize*2 > pos.x && this.y > pos.y && this.y - ioSize < pos.y;
+		}
+	}
+
+	this.getConnectionPoint = function() {
+		if(this.mode == 1) {
+			return {'x': this.x + ioSize, 'y': this.y + ioSize};
+		} else {
+			return {'x': this.x + ioSize, 'y': this.y - ioSize};
+		}
+	}
+}
+
+//a wire, linking two ports together
+function RWSWire(port1, port2) {
+	//link between 2 nodes
+	this.source = port1;
+	this.target = port2;
+	//each wire is drawn twice atm, maybe we can fix this later
+	this.draw = function(context) {
+		context.strokeStyle='black'
+		context.beginPath();
+		pt1 = this.source.getConnectionPoint();
+		pt2 = this.target.getConnectionPoint();
+		context.moveTo(pt1['x'], pt1['y']);
+		context.lineTo(pt2['x'], pt2['y']);
+		context.stroke();
+		context.closePath();
+	}
+
+	//remove self from both source and target
+	this.destroy = function() {
+		this.source.wire = null;
+		this.target.wire = null;
+	}
+}
+
 //base class, container for node's actual data
 function RWSNode(type, infoDict) {
 	//metadata
@@ -31,13 +108,11 @@ function RWSNode(type, infoDict) {
         
         //draw triangles for inputs
         if(this.inputs.length > 0) {
-        	var interval = (nodeWidth - (ioSize*2)*this.inputs.length) / (this.inputs.length + 1);
         	for(var i = 0; i < this.inputs.length; i++) {
-				context.beginPath();
-			    context.moveTo(this.x + interval*(i+1), this.y);
-			    context.lineTo(this.x + interval*(i+1) + ioSize , this.y - ioSize);
-			    context.lineTo(this.x + interval*(i+1) + ioSize*2, this.y);
-			    context.fill(); //automatically closes path
+				this.inputs[i].draw(context);
+			    if(this.inputs[i].wire) {
+			    	this.inputs[i].wire.draw(context);
+			    }
 			}
         }
 
@@ -50,6 +125,9 @@ function RWSNode(type, infoDict) {
 			    context.lineTo(this.x + interval*(i+1) + ioSize, this.y + nodeHeight + ioSize);
 			    context.lineTo(this.x + interval*(i+1) + ioSize*2, this.y + nodeHeight);
 			    context.fill(); //automatically closes path
+			    if(this.outputs[i].wire) {
+			    	this.outputs[i].wire.draw(context);
+			    }
 			}
         }
 	}
@@ -58,18 +136,50 @@ function RWSNode(type, infoDict) {
 		return this.x <= pos['x'] && pos['x'] <= this.x + nodeWidth && this.y <= pos['y'] && pos['y'] <= this.y + nodeHeight;
 	}
 
-	this.ioContains = function(pos) {
+	this.add_input = function() {
+		var port = new RWSIOPort(0);
+		this.inputs.push(port);
     	var interval = (nodeWidth - (ioSize*2)*this.inputs.length) / (this.inputs.length + 1);
     	for(var i = 0; i < this.inputs.length; i++) {
-    		if(this.x + interval*(i+1) < pos['x'] && this.x + interval*(i+1)  + ioSize*2 > pos['x'] && this.y > pos['y'] && this.y - ioSize < pos['y']) {
+    		this.inputs[i].x = this.x + interval*(i+1);
+    		this.inputs[i].y = this.y;
+    	}
+	}
+
+	this.add_output = function() {
+		var port = new RWSIOPort(1);
+		this.outputs.push(port);
+    	var interval = (nodeWidth - (ioSize*2)*this.outputs.length) / (this.outputs.length + 1);
+    	for(var i = 0; i < this.outputs.length; i++) {
+    		this.outputs[i].x = this.x + interval*(i+1);
+    		this.outputs[i].y = this.y + nodeHeight;
+    	}
+    }
+
+	this.ioContains = function(pos) {
+    	for(var i = 0; i < this.inputs.length; i++) {
+    		if(this.inputs[i].contains(pos)) {
     			return this.inputs[i];
     		}
     	}
-    	interval = (nodeWidth - (ioSize*2)*this.outputs.length) / (this.outputs.length + 1);
+
     	for(var i = 0; i < this.outputs.length; i++) {
-    		if(this.x + interval*(i+1) < pos['x'] && this.x + interval*(i+1)  + ioSize*2 > pos['x'] && this.y + nodeHeight < pos['y'] && this.y + nodeHeight + ioSize > pos['y']) {
+    		if(this.outputs[i].contains(pos)) {
     			return this.outputs[i];
     		}
+    	}
+	}
+
+	this.updatePorts = function() {
+    	var interval = (nodeWidth - (ioSize*2)*this.inputs.length) / (this.inputs.length + 1);
+    	for(var i = 0; i < this.inputs.length; i++) {
+    		this.inputs[i].x = this.x + interval*(i+1);
+    		this.inputs[i].y = this.y;
+    	}
+    	interval = (nodeWidth - (ioSize*2)*this.outputs.length) / (this.outputs.length + 1);
+    	for(var i = 0; i < this.outputs.length; i++) {
+    		this.outputs[i].x = this.x + interval*(i+1);
+    		this.outputs[i].y = this.y + nodeHeight;
     	}
 	}
 }

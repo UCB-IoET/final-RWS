@@ -83,14 +83,35 @@ function onMouseDown(e) {
 			if(node.rectContains(mouse)) {
 				dragging = node;
 				dragoffset = mouse;
-			} else {
-				var io = node.ioContains(mouse);
+			}
+		});
+	}
+}
+
+function onMouseUp(e) {
+	var canvas = $('canvas')[0];
+	if(canvas) {
+		var mouse = getMouse(e);
+		var clickedPort = false;
+		available_nodes.forEach(function(node) {
+			var io = node.ioContains(mouse);
+			if(!selected) {
 				if(io != null) {
+					clickedPort = true;
 					selected = io;
+					valid = false;
+				}
+			} else {
+				if(io != null) {
+					selected.linkTo(io);
+					selected = null;
 					valid = false;
 				}
 			}
 		});
+		if(!clickedPort) {
+			selected = null;
+		}
 	}
 }
 
@@ -103,6 +124,7 @@ function onMouseMove(e) {
 		var deltaY = mouse.y - dragoffset['y'];
 		dragging.x += deltaX;
 		dragging.y += deltaY;
+		dragging.updatePorts();
 		dragoffset = mouse;
 		valid = false;
 	}
@@ -113,6 +135,7 @@ function onMouseMove(e) {
 window.addEventListener("DOMContentLoaded", function() {
     canvas = $('canvas')[0];
     canvas.addEventListener('touchstart', onMouseDown, false);
+    canvas.addEventListener('touchend', onMouseUp, false);
     canvas.addEventListener('touchmove', onMouseMove, false);
 	setInterval(visualize, 50);
 }, false);

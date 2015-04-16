@@ -45,12 +45,12 @@ function RWSSMAPInterface(root_url, available_nodes) {
       }
       node.uuid = entry['uuid'];
       if(entry['Actuator']) {
-        node.inputs.push('actuation');
+        node.add_input();
         if(entry['Metadata']['Type'] == 'Reading') {
-          node.outputs.push('reading');
+          node.add_output();
         }
       } else if(entry['Metadata']['Type'] == 'Sensor') {
-        node.outputs.push('sensor');
+        node.add_output();
         node.description = 'Sensor: ' + entry['Metadata']['Sensor'] + '\n'
         node.description += 'Units: ' + entry['Properties']['UnitofMeasure'];
       }
