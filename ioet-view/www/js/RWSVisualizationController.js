@@ -130,6 +130,18 @@ function onMouseMove(e) {
 	}
 }
 
+function show_add_popup() {
+	document.getElementById('addNodeMask').style.display = "block";
+	d3.select('#addPrimitivePopup').html('');
+	d3.select('#addPrimitivePopup').append('ul').selectAll('li').data(PRIMITIVES).enter()
+		.append('li').attr('class','smapEntry')
+		.on('click', function(d, i) { 
+			available_nodes.push(new RWSPrimitive(d));
+        	document.getElementById('addNodeMask').style.display = "none";
+        	valid = false;
+        })
+        .html(function(d) { return d; });
+}
 
 
 window.addEventListener("DOMContentLoaded", function() {

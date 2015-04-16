@@ -30,6 +30,7 @@
         <script type="text/javascript" src="js/d3.js"></script>
         <script type="text/javascript" src="js/jquery-2.1.3.min.js"></script>
         <script type="text/javascript" src="js/RWSNode.js"></script>
+        <script type="text/javascript" src="js/RWSPrimitive.js"></script>
         <script type="text/javascript" src="js/RWSSMAPInterface.js"></script>
         <script type="text/javascript" src="js/RWSVisualizationController.js"></script>
         <title>IoET-View</title>
@@ -38,16 +39,8 @@
         <div class="app">
             <h1>PhoneGap</h1>
             <div id="addNodeMask" class="grayMask">     <!-- Popup Div Starts Here -->
-            <div class="popup">
-            <form action="" id="addNodeForm" method="post" name="addNodeForm">
-            <!-- <img id="close" src="images/3.png" onclick ="div_hide()"> -->
-            <h2>Add Node</h2>
-            <hr>
-            <input id="addNodeName" name="name" placeholder="Name" type="text">
-            <input id="addNodeType" name="type" placeholder="Type" type="text">
-            <a href="javascript:%20add_node()" id="submit">Add</a>
-            </form>
-            </div>  <!-- Popup Div Ends Here -->
+                <div class="popup" id="addPrimitivePopup">
+                </div>  <!-- Popup Div Ends Here -->
             </div>  <!-- Display Popup Button -->
 
             <div id="listNodeMask" class="grayMask" onclick="document.getElementById('listNodeMask').style.display = 'none'">
@@ -57,7 +50,7 @@
                     </ul>
                 </div>
             </div>
-            <!-- <button id="addNodeButton" class="rwsButton" onclick="show_add_popup()">Add Node</button> -->
+            <button id="addPrimitiveButton" class="rwsButton" onclick="show_add_popup()">Add Primitive</button>
             <button id="findNodeButton" class="rwsButton" onclick="find_nearby_nodes()">Find Nodes</button>
             <!-- <button id="refreshButton" class="rwsButton" onclick="visualize()">Refresh</button> -->
             <canvas width="340" height="400">

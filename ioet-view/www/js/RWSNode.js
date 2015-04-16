@@ -1,7 +1,7 @@
 //RWSNode.js
 var nodeID = 0;
 
-var TYPES = ["SMAP", "SVCD"];
+var TYPES = ["SMAP", "SVCD", "PRIMITIVE"];
 var nodeColor = '#AAAAAA';
 
 var nodeWidth = 80;
@@ -11,8 +11,9 @@ var ioSize = 10; // size of a triangle for input/output
 
 
 //a port entry; Has a mode(input or output) and a wire attached to it
-function RWSIOPort(mode, wire) { // 0 for input, 1 for output
+function RWSIOPort(mode, name, wire) { // 0 for input, 1 for output
 	this.mode = mode;
+	this.name = name || "";
 	this.wire = wire || null;
 	this.x = 0;
 	this.y = 0;
@@ -31,9 +32,9 @@ function RWSIOPort(mode, wire) { // 0 for input, 1 for output
 	this.draw = function(context) {
 		context.beginPath();
 		if(this.mode == 1) {
-			context.moveTo(this.x, this.y + nodeHeight);
-			context.lineTo(this.x + ioSize , this.y + nodeHeight + ioSize);
-			context.lineTo(this.x + ioSize*2, this.y + nodeHeight);
+			context.moveTo(this.x, this.y);
+			context.lineTo(this.x + ioSize , this.y + ioSize);
+			context.lineTo(this.x + ioSize*2, this.y);
 		} else {
 			context.moveTo(this.x, this.y);
 			context.lineTo(this.x + ioSize , this.y - ioSize);
@@ -118,13 +119,8 @@ function RWSNode(type, infoDict) {
 
         //draw triangles for outputs
         if(this.outputs.length > 0) {
-        	var interval = (nodeWidth - (ioSize*2)*this.outputs.length) / (this.outputs.length + 1);
         	for(var i = 0; i < this.outputs.length; i++) {
-				context.beginPath();
-			    context.moveTo(this.x + interval*(i+1), this.y + nodeHeight);
-			    context.lineTo(this.x + interval*(i+1) + ioSize, this.y + nodeHeight + ioSize);
-			    context.lineTo(this.x + interval*(i+1) + ioSize*2, this.y + nodeHeight);
-			    context.fill(); //automatically closes path
+				this.outputs[i].draw(context);
 			    if(this.outputs[i].wire) {
 			    	this.outputs[i].wire.draw(context);
 			    }
