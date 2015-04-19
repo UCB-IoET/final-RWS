@@ -89,6 +89,7 @@ function RWSWire(port1, port2) {
 
 //base class, container for node's actual data
 function RWSNode(type, infoDict) {
+	console.log(available_nodes);
 	//metadata
 	this.id = nodeID++;
 	this.name = "";

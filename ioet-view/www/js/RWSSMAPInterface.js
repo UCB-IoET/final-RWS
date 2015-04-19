@@ -8,7 +8,7 @@ function RWSSMAPInterface(root_url, available_nodes) {
     $.ajax({
         type: 'POST',
         url: root_url,
-        data: 'select * where Metadata/Type="Sensor"',
+        data: 'select * where Metadata/Type="Sensor";',
         success: function(data) {
           data.forEach(function(datum) {
             smap.add_entry(datum);
@@ -22,7 +22,7 @@ function RWSSMAPInterface(root_url, available_nodes) {
     $.ajax({
        type: 'POST',
        url: root_url,
-       data: 'select * where has Actuator',
+       data: 'select * where has Actuator;',
        success: function(data) {
           data.forEach(function(datum) {
               smap.add_entry(datum);
