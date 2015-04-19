@@ -4,16 +4,31 @@ import time
 
 import socket
 
+#nodes are represented with brackets in the form
+#  [<NODE_ID>:...] and wires in the form -WIRE_ID-
+#
+# Equivalent of the program "print(4+8)":
+#
 # [0:4] -0-[2:+]-2-[3:print]
 # [1:8] -1-/
 
 program = {'type':'program',
            'password': 'password',
+           #a list of the nodes that are ready to run.
+           #These are the nodes that don't have a parent.
            'initial': ['0', '1'],
+           #'connections' maps wires to lists of nodes that are connected to them
            'connections':{'0' : ['2'],
                           '1' : ['2'],
                           '2' : ['3']},
+           #the total number of wires. I think this may not be necessary
            'nwires' : 3,
+           #mapping of node IDs to nodes
+           # each node must have a 'type' field.
+           # some other node fields:
+           #    'out': the id of the nodes output wire, if any
+           #           we currently only support 1 output
+           #     'in': a list of the nodes input wires, if any
            'nodes':{'0' : {'type': 'literal',
                            'val': 4,
                            'out': '0'},
