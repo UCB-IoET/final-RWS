@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.dot circle {
+  fill: lightsteelblue;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.dot circle.dragging {
+  fill: red;
+  stroke: brown;
+}
+
+.axis line {
+  fill: none;
+  stroke: #ddd;
+  shape-rendering: crispEdges;
+  vector-effect: non-scaling-stroke;
+}
+
+</style>
+<body>
+
+<section> 
+<div id="sidebar" style="float:left">
+
+</div> 
+
+<div id="main_container" style="margin-left:300px;"> 
+</div> 
+
+</section> 
+
+
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+/*
+var margin = {top: -5, right: -5, bottom: -5, left: 300},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+*/ 
+
+var zoom = d3.behavior.zoom()
+    .scaleExtent([1, 10])
+    .on("zoom", zoomed);
+
+var drag = d3.behavior.drag()
+    .origin(function(d) { return d; })
+    .on("dragstart", dragstarted)
+    .on("drag", dragged)
+    .on("dragend", dragended);
+
+//var width = 960
+//var height = 500
+
+// svg canvas - side container
+var sidebar = d3.select("#sidebar").append("svg")
+      .attr("width", 290)
+      .attr("height", 800)
+      .style("background-color", "#C5E89B")
+
+//
+
+/*
+var drag = d3.behavior.drag();
+  drag.on("drag", function() {
+      d3.select(this).attr("x", +d3.select(this).attr("x") + d3.event.dx);
+      d3.select(this).attr("y", +d3.select(this).attr("y") + d3.event.dy);
+  })
+
+*/ 
+
+
+// adding examples
+
+d = [{x:0, y:0}]
+
+var sensor = sidebar.data(d).append("g")
+                  .attr("transform", function (d) { return        "translate(" + d.x + "," + d.y + ")"; })
+                  .call(onDragDrop(dragmove));
+                    
+
+function onDragDrop(dragHandler, dropHandler) {
+        var drag = d3.behavior.drag();
+
+    drag.on("drag", dragHandler)
+    //.on("dragend", dropHandler);
+    return drag;
+}
+
+
+function dragmove(d) {
+            d.x += d3.event.dx;
+            d.y += d3.event.dy;
+            d3.select(this).attr("transform", "translate(" + d.x + "," + d.y + ")");
+  }
+
+
+sensor.append("rect")
+  .attr("width", 100)
+  .attr("height", 100)
+  .attr("fill", "white")
+
+
+sensor.append("text")
+  .attr("dy", "0.35em")
+  .text("Add sensor")
+
+
+
+/*
+
+//.attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
+  function onDragDrop(dragHandler, dropHandler) {
+        var drag = d3.behavior.drag();
+
+    drag.on("drag", dragHandler)
+    .on("dragend", dropHandler);
+    return drag;
+    }
+
+      var d = [{ x: 20, y: 20 }];
+
+        var g = d3.select("body").select("svg").data(d).append("g").attr("transform", function (d) { return        "translate(" + d.x + "," + d.y + ")"; })
+         .call(onDragDrop(dragmove, dropHandler));
+
+    g.append("rect")
+    .attr("width", 40)
+    .attr("height", 40)
+    .attr("stroke", "red")
+    .attr("fill","transparent")
+    .attr("x", "20" )
+    .attr("y", "20")
+
+    g.append("text")
+    .text("Any Text")
+    .attr("x", "20" )
+    .attr("y", "20")
+    
+    function dropHandler(d) {
+        alert('dropped');
+    }
+
+  function dragmove(d) {
+            d.x += d3.event.dx;
+            d.y += d3.event.dy;
+            d3.select(this).attr("transform", "translate(" + d.x + "," + d.y + ")");
+  }
+
+*/ 
+
+
+
+/*
+// var main_background
+
+// svg canvas - sidebar 
+// main container
+
+/*
+var main = svg.append("rect")
+    .attr("x", 300)
+    .attr("width", 960)
+    .attr("height", 500)
+    .attr("fill", "#C5E89B")
+*/ 
+
+/*
+// this is the svg window 
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+    .call(zoom);
+
+// this is the container
+var rect = svg.append("rect")
+    .attr("x", 300)
+    .attr("y", 100)
+    .attr("width", width)
+    .attr("height", height)
+    .style("fill", "none")
+    .style("pointer-events", "all");
+*/ 
+
+
+
+/*
+var actuator
+
+var connection 
+*/ 
+
+// svg canvas - main container 
+var main = d3.select("#main_container").append("svg")
+      .attr("width", 660)
+      .attr("height", 800)
+      .style("background-color", "#297A4A")
+
+
+
+
+/*
+// this is the sidebar
+var sidebar = svg.append("rect")
+    .attr("width", 100)
+    .attr("height", 200)
+    .attr("fill", "grey")
+    .attr("text-align", "right")
+
+*/ 
+
+ 
+var container = main.append("g");
+
+
+
+/*
+container.append("g")
+    .attr("class", "x axis")
+  .selectAll("line")
+    .data(d3.range(0, width, 10))
+  .enter().append("line")
+    .attr("x1", function(d) { return d; })
+    .attr("y1", 0)
+    .attr("x2", function(d) { return d; })
+    .attr("y2", height);
+
+container.append("g")
+    .attr("class", "y axis")
+  .selectAll("line")
+    .data(d3.range(0, height, 10))
+  .enter().append("line")
+    .attr("x1", 0)
+    .attr("y1", function(d) { return d; })
+    .attr("x2", width)
+    .attr("y2", function(d) { return d; });
+*/ 
+
+d3.tsv("dots.tsv", dottype, function(error, dots) {
+  dot = container.append("g")
+      .attr("class", "dot")
+    .selectAll("circle")
+      .data(dots)
+    .enter().append("circle")
+      .attr("r", 50)
+      .attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; })
+      .call(drag);
+});
+
+function dottype(d) {
+  d.x = +d.x;
+  d.y = +d.y;
+  return d;
+}
+
+function zoomed() {
+  container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
+
+function dragstarted(d) {
+  d3.event.sourceEvent.stopPropagation();
+  d3.select(this).classed("dragging", true);
+}
+
+function dragged(d) {
+  d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+}
+
+function dragended(d) {
+  d3.select(this).classed("dragging", false);
+}
+
+</script>

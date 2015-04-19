@@ -1,0 +1,68 @@
+<head>
+  <link rel="stylesheet" href="style.css" />
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+</head>
+
+<body>
+  <h1>Draggable SVG Path</h1>
+
+  <script>
+    renderPath();
+
+    function renderPath() {
+
+      var data = [{
+        "x": 1,
+        "y": 5
+      }, {
+        "x": 20,
+        "y": 20
+      }];
+      var w = 200;
+      var h = 200;
+
+      var drag = d3.behavior.drag() // <-A
+      .on("drag", move);
+
+      function move(d) {
+        var x = d3.event.x,
+          y = d3.event.y;
+
+        if (inBoundaries(x, y))
+          d3.select(this)
+            .attr("transform", function(d) {
+              return "translate(" + x + ", " + y + ")";
+            });
+      }
+
+      // Line creation function configured to do simple linear transformation.
+      var lineFunction = d3.svg.line()
+        .x(function(d) {
+          return d.x;
+        })
+        .y(function(d) {
+          return d.y;
+        })
+        .interpolate("linear");
+
+      //The SVG Container
+      var svgContainer = d3.select("body").append("svg")
+        .attr("width", w)
+        .attr("height", h);
+
+      //The line SVG Path we draw
+      var lineGraph = svgContainer.append("path")
+        .attr("d", lineFunction(data))
+        .attr("stroke", "blue")
+        .attr("stroke-width", 2)
+        .attr("fill", "none")
+        .call(drag);
+
+      function inBoundaries(x, y) {
+        return (x >= (0 + 5) && x <= (w - 5)) && (y >= (0 + 5) && y <= (h - 5));
+      }
+    }
+  </script>
+</body>
+
+</html>
