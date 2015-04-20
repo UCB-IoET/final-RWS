@@ -8,7 +8,7 @@ function RWSSMAPInterface(root_url, available_nodes) {
     $.ajax({
         type: 'POST',
         url: root_url,
-        data: 'select * where Metadata/Type="Sensor"',
+        data: 'select * where Metadata/Type="Sensor";',
         success: function(data) {
           data.forEach(function(datum) {
             smap.add_entry(datum);
@@ -22,7 +22,7 @@ function RWSSMAPInterface(root_url, available_nodes) {
     $.ajax({
        type: 'POST',
        url: root_url,
-       data: 'select * where has Actuator',
+       data: 'select * where has Actuator;',
        success: function(data) {
           data.forEach(function(datum) {
               smap.add_entry(datum);
@@ -62,11 +62,13 @@ function RWSSMAPInterface(root_url, available_nodes) {
   	str = '';
   	if(entry['Actuator']) {
   		str += 'Actuator' + NEW_LINE;
-  		str += 'Path: ' + entry['Path'] + NEW_LINE;
+      if(entry['Metadata']['Name'])
+    		str += 'Name: ' + entry['Metadata']['Name'] + NEW_LINE;
   	} else if(entry['Metadata']['Type'] == 'Sensor') {
   		str += 'Sensor: ' + entry['Metadata']['Sensor'] + NEW_LINE;
   		str += 'Units: ' + entry['Properties']['UnitofMeasure'] + NEW_LINE;
-  		str += 'Path: ' + entry['Path'] + NEW_LINE;
+      if(entry['Metadata']['Name'])
+    		str += 'Name: ' + entry['Metadata']['Name'] + NEW_LINE;
   	}
   	return str;
   }
