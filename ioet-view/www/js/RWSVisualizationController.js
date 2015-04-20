@@ -1,5 +1,7 @@
 global_nodes = [];
 global_wires = [];
+// add url to your server here - format should be: http://10.142.34.191:1444 
+server_url = "http://127.0.0.1:1444"
 
 var selected = null;
 var dragging = null;
@@ -157,7 +159,7 @@ function show_add_popup() {
 
 
 function send_model() {
-	export_application(global_nodes, global_wires);
+	export_application(global_nodes, global_wires, server_url);
 
 
 /*
