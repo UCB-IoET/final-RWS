@@ -1,4 +1,10 @@
+#!/usr/bin/env python
+
 from operator import *
+from sys import argv
+from util import *
+import json
+
 debug = False
 class void:
     def __repr__(self):
@@ -43,7 +49,6 @@ def function(name, args, returns=None, notes=None):
 def _(ast):
     run_program(ast)
 def run_program(ast):
-    print "run_program()"
     global nodes, wireV, wireS, ready, ready_q
     nodes = ast['nodes']
     wireV = {str(name) : void for name in range(ast['nwires'])}
@@ -68,7 +73,8 @@ def _(ast):
        'right': 'a wire for the right hand side input',
        'out': 'output wire'})
 def binop(ast):
-    if debug: print "binop: {}({},{})".format(ast['op'], wire_get(ast['left']), wire_get(ast['right']))
+    if debug:
+        print "binop: {}({},{})".format(ast['op'], wire_get(ast['left']), wire_get(ast['right']))
     if wire_get(ast['left']) is void or wire_get(ast['right']) is void:
         print("some node wires not ready yet")
         return
@@ -77,6 +83,7 @@ def binop(ast):
 
 binop_map = {'+' : add, '-' : sub, '*' : mul,'/' : truediv,
              '==': eq, '>': gt, '<': lt,'!=': ne}
+#le, ge
 
 @node('if',
       {'cond': 'condition',
@@ -90,6 +97,8 @@ def _(ast):
     wire_set(ast[false], False)
     set_and_signal(ast[true], cond)
 
+#should the true and false wires from an if just be used for signaling
+#or should they also carry value?
 
 @node('call',
       {'name': 'name of built-in procedure to call',
@@ -169,3 +178,18 @@ def gen_doc():
 def error(msg):
     print "Error: {}".format(msg)
     exit(1)
+
+
+if __name__ == '__main__':
+    if len(argv) != 2:
+        print('Usage:')
+        print('  ./interpreter.py <filename>')
+        exit(1)
+    filename = argv[1]
+    try:
+        f = open(filename, 'r')
+    except IOError:
+        print('Error: where is "{}"?'.format(filename))
+        exit(1)
+    json = load_json(f.read());
+    run_program(json)

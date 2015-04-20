@@ -58,6 +58,19 @@ program = {'type':'program',
 #           [4:100]                         /
 #                                  [8:"no"]/8
 #
+# A node should fire everytime one of its outputs changes
+# but only when all of its outputs have been set at least once.
+# Example above: '>' will be called before '+' is done
+
+#
+# should > always output a value, even when it is false?
+# if yes, we need 'if'
+# if no, we could remove 'if' but then
+# we need a false output of the condition
+# OR: we could
+# =>NO explicit if
+#     -but then how should would you do print(a==b)?
+
 program2 = {'type':'program',
             'password': 'password',
             'initial': ['n0', 'n1', 'n4', 'n6', 'n8'],
@@ -111,6 +124,10 @@ program2 = {'type':'program',
 IP = "2607:f140:400:a001:189e:1858:2c10:b972"
 IP = "2607:f140:400:a009:189e:1858:2c10:b972"
 IP = "2607:f140:400:a009:dcf:408a:3d67:c81a"
+IP = "2001:470:4956:1:6c33:67a1:427b:7cb8"
+IP = "2607:f140:400:a009:6c33:67a1:427b:7cb8"
+     
+
 PORT=8888
 BUFFER_SIZE = 1024
 UDP_PORT = 1263
