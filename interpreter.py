@@ -59,7 +59,6 @@ def run_program(ast):
         node = ready_q.pop(0)
         ready.remove(node)
         run_id(node)
-        print 'executing'
 
 @node('literal',
       {'val': 'a literal number or string',
