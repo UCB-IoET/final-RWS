@@ -74,8 +74,13 @@ function RWSIOPort(mode, node, name, wire) { // 0 for input, 1 for output
 function RWSWire(port1, port2) {
 	//link between 2 nodes
 	this.id = wireID++;
-	this.source = port1;
-	this.target = port2;
+	if(port1.mode == 1) {
+		this.source = port1;
+		this.target = port2;
+	} else {
+		this.source = port2;
+		this.target = port1;
+	}
 	global_wires.push(this);
 	//each wire is drawn twice atm, maybe we can fix this later
 	this.draw = function(context) {

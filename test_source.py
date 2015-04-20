@@ -12,38 +12,35 @@ import socket
 # [0:4] -0-[2:+]-2-[3:print]
 # [1:8] -1-/
 
-program = {'type':'program',
-           'password': 'password',
-           #a list of the nodes that are ready to run.
-           #These are the nodes that don't have a parent.
-           'initial': ['n0', 'n1'],
-           #'connections' maps wires to lists of nodes that are connected to them
-           'connections':{'w0' : ['n2'],
-                          'w1' : ['n2'],
-                          'w2' : ['n3']},
-           #the total number of wires. I think this may not be necessary
-           'nwires' : 3,
-           #mapping of node IDs to nodes
-           # each node must have a 'type' field.
-           # some other node fields:
-           #    'out': the id of the nodes output wire, if any
-           #           we currently only support 1 output
-           #     'in': a list of the nodes input wires, if any
-           'nodes':{'n0' : {'type': 'literal',
-                           'val': 4,
-                           'out': 'w0'},
-                    'n1' : {'type': 'literal',
-                           'val': 8,
-                           'out': 'w1'},
-                    'n2' : {'type': 'binop',
-                           'op': '+',
-                           'left': 'w0',
-                           'right': '1',
-                           'out': 'w2'},
-                    'n3' : {'type': 'call',
-                           'name': 'print',
-                           'in': ['w2']}}}
-
+program = {
+    "type": "program",
+    "password": "password",
+    "initial": [
+        "1"
+    ],
+    "connections": {
+        "0": "2"
+    },
+    "nodes": {
+        "1": {
+            "inputs": [],
+            "outputs": [
+                "0"
+            ],
+            "type": "literal",
+            "name": "literal",
+            "val": 5
+        },
+        "2": {
+            "inputs": [
+                "0"
+            ],
+            "outputs": [],
+            "type": "call",
+            "name": "print"
+        }
+    }
+}
 #if (4 + 8 > 3):
 #  print("yes")
 #else:
@@ -111,6 +108,7 @@ program2 = {'type':'program',
 IP = "2607:f140:400:a001:189e:1858:2c10:b972"
 IP = "2607:f140:400:a009:189e:1858:2c10:b972"
 IP = "2607:f140:400:a009:dcf:408a:3d67:c81a"
+IP = "2607:f140:400:a008:189b:da42:324b:2d29"
 PORT=8888
 BUFFER_SIZE = 1024
 UDP_PORT = 1263

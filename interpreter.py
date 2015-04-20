@@ -46,27 +46,28 @@ def run_program(ast):
     print "run_program()"
     global nodes, wireV, wireS, ready, ready_q
     nodes = ast['nodes']
-    wireV = {str(name) : void for name in range(ast['nwires'])}
     wireS = ast['connections']
+    wireV = {str(name) : void for name in range(len(wireS))}
     ready_q = ast.get('initial',[])
     ready = set(ready_q)
     while ready_q:
         node = ready_q.pop(0)
         ready.remove(node)
         run_id(node)
+        print 'executing'
 
 @node('literal',
       {'val': 'a literal number or string',
-       'out': 'output wire'})
+       'outputs': 'output wire'})
 def _(ast):
     if debug: print('literal: {}'.format(ast['val']))
-    set_and_signal(ast['out'], ast['val'])
+    set_and_signal(ast['outputs'][0], ast['val'])
 
 @node('binop',
       {'op' : 'the operation, +, *, ==, >, ...',
-       'left': 'a wire for the left hand side input',
-       'right': 'a wire for the right hand side input',
-       'out': 'output wire'})
+       'inputs': 'a wire for the left hand side input',
+       'inputs': 'a wire for the right hand side input',
+       'outputs': 'output wire'})
 def binop(ast):
     if debug: print "binop: {}({},{})".format(ast['op'], wire_get(ast['left']), wire_get(ast['right']))
     if wire_get(ast['left']) is void or wire_get(ast['right']) is void:
@@ -93,25 +94,25 @@ def _(ast):
 
 @node('call',
       {'name': 'name of built-in procedure to call',
-       'in': 'the parameters - a list of input wires',
-       'out': 'output wire for return value'})
+       'inputs': 'the parameters - a list of input wires',
+       'outputs': 'output wire for return value'})
 def _(ast):
-    if debug: print "call: {}{}".format(ast['name'], str(ast['in']))
+    if debug: print "call: {}{}".format(ast['name'], str(ast['input'][0]))
     fn = _func_switch_table[ast['name']]
     if not fn:
         error("call -- procedure '{}' was not found".format(ast['name']))
-    ret = fn(*[wire_get(x) for x in ast['in']])
-    out = ast.get('out')
+    ret = fn(*[wire_get(x) for x in ast['inputs']])
+    out = ast.get('outputs')
     if out:
         set_and_signal(out, ret)
 
 
 ################################################################################
 @function('print',
-          {'val': 'a value to print'})
-def _(val):
-    print(val)
-    return val
+          {'inputs': 'a value to print'})
+def _(input):
+    print(input)
+    return input
 
 ################################################################################
 

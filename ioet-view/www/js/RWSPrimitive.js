@@ -1,7 +1,9 @@
 var PRIMITIVES = 	['IF',
 					'THRESHOLD',
 					'ROUND',
-					'BINARY'];
+					'BINARY',
+					'literal',
+					'print'];
 
 function RWSPrimitive(primitiveName) {
 	RWSNode.call(this, "PRIMITIVE", {});
@@ -29,6 +31,15 @@ function RWSPrimitive(primitiveName) {
 			this.add_output(new RWSIOPort(1, this, 'output'));
 			break;
 
+		case 'literal':
+			this.value = 5;
+			this.add_output(new RWSIOPort(1, this, 'output'));
+			break;
+
+		case 'print':
+			this.add_input(new RWSIOPort(0, this, 'input'));
+			break;
+
 	}
 
 	this.getExportRepresentation = function() {
@@ -45,9 +56,11 @@ function RWSPrimitive(primitiveName) {
 	    		obj['outputs'].push(String(port.wire.id));
     	});
 
-    	obj['type'] = this.name;
+    	obj['type'] = 'call';
+    	obj['name'] = this.name;
     	if(this.name == 'literal') {
     		obj['val'] = this.value;
+    		obj['type'] = this.name;
     	}
     	return obj;
 	}

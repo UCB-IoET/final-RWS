@@ -1,0 +1,36 @@
+{
+    "type": "program",
+    "password": "password",
+    "initial": [
+        "2"
+    ],
+    "connections": {
+        "0": "1",
+        "1": "1"
+    },
+    "nodes": {
+        "1": {
+            "inputs": [
+                "0"
+            ],
+            "outputs": [
+                "1"
+            ],
+            "type": "ROUND"
+        },
+        "2": {
+            "type": "SMAP",
+            "inputs": [],
+            "outputs": [
+                "0"
+            ]
+        },
+        "3": {
+            "type": "SMAP",
+            "inputs": [
+                "1"
+            ],
+            "outputs": []
+        }
+    }
+}
