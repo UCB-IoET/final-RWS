@@ -140,21 +140,13 @@ function RWSNode(type, infoDict) {
 	this.add_input = function(p) {
 		var port = p || new RWSIOPort(0); 
 		this.inputs.push(port);
-    	var interval = (nodeWidth - (ioSize*2)*this.inputs.length) / (this.inputs.length + 1);
-    	for(var i = 0; i < this.inputs.length; i++) {
-    		this.inputs[i].x = this.x + interval*(i+1);
-    		this.inputs[i].y = this.y;
-    	}
+    	this.updatePorts();
 	}
 
 	this.add_output = function(p) {
 		var port = p || new RWSIOPort(1); 
 		this.outputs.push(port);
-    	var interval = (nodeWidth - (ioSize*2)*this.outputs.length) / (this.outputs.length + 1);
-    	for(var i = 0; i < this.outputs.length; i++) {
-    		this.outputs[i].x = this.x + interval*(i+1);
-    		this.outputs[i].y = this.y + nodeHeight;
-    	}
+    	this.updatePorts();
     }
 
 	this.ioContains = function(pos) {
@@ -172,14 +164,14 @@ function RWSNode(type, infoDict) {
 	}
 
 	this.updatePorts = function() {
-    	var interval = (nodeWidth - (ioSize*2)*this.inputs.length) / (this.inputs.length + 1);
+    	var interval = (nodeWidth) / (this.inputs.length + 1);
     	for(var i = 0; i < this.inputs.length; i++) {
-    		this.inputs[i].x = this.x + interval*(i+1);
+    		this.inputs[i].x = this.x + interval*(i+1) - ioSize;
     		this.inputs[i].y = this.y;
     	}
-    	interval = (nodeWidth - (ioSize*2)*this.outputs.length) / (this.outputs.length + 1);
+    	interval = (nodeWidth) / (this.outputs.length + 1) ;
     	for(var i = 0; i < this.outputs.length; i++) {
-    		this.outputs[i].x = this.x + interval*(i+1);
+    		this.outputs[i].x = this.x + interval*(i+1) - ioSize;
     		this.outputs[i].y = this.y + nodeHeight;
     	}
 	}

@@ -6,6 +6,7 @@ var dragging = null;
 var dragoffx = 0;
 var dragoffy = 0;
 var valid = false;
+var scaling = 1;
 
 function clear(ctx) {
    	ctx.clearRect(0, 0, canvas.width, canvas.height);   
@@ -32,9 +33,12 @@ function visualize() {
 	if(canvas && !valid) {
 		var ctx = canvas.getContext('2d');
 		clear(ctx);
+	    ctx.save();
+		ctx.scale(scaling, scaling);
 		available_nodes.forEach(function(node) {
 			node.draw(ctx);
 		});
+		ctx.restore();
 		valid = true;
 	}
 }
@@ -58,6 +62,7 @@ function find_nearby_nodes() {
 
 function getMouse(e) {
 	var canvas = $('canvas')[0];
+
 	offsetX = 0;
 	offsetY = 0;
     // Compute the total offset
@@ -68,8 +73,9 @@ function getMouse(e) {
       } while ((canvas = canvas.offsetParent));
     }
 
-    mx = e.pageX - offsetX;
-    my = e.pageY - offsetY;
+    var mx = (e.pageX - offsetX)  / scaling;
+    var my = (e.pageY - offsetY)  / scaling;
+    console.log('mx, offset', mx, e.pageX - offsetX);
 
     return {'x': mx, 'y': my};
 }
@@ -131,6 +137,12 @@ function onMouseMove(e) {
 	}
 }
 
+function onGestureEnd(e) {
+    scaling *= e.scale;
+    valid = false;
+    console.log('scaling', scaling);
+}
+
 function show_add_popup() {
 	document.getElementById('addNodeMask').style.display = "block";
 	d3.select('#addPrimitivePopup').html('');
@@ -144,6 +156,8 @@ function show_add_popup() {
         })
         .html(function(d) { return d; });
 }
+
+
 
 function send_model() {
 
@@ -241,5 +255,6 @@ window.addEventListener("DOMContentLoaded", function() {
     canvas.addEventListener('touchstart', onMouseDown, false);
     canvas.addEventListener('touchend', onMouseUp, false);
     canvas.addEventListener('touchmove', onMouseMove, false);
+    canvas.addEventListener('gestureend', onGestureEnd, false);
 	setInterval(visualize, 50);
 }, false);
