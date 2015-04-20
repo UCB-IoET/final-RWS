@@ -85,7 +85,7 @@ sock.bind((UDP_IP, UDP_PORT))
 '''
 
 #Function for handling connections. This will be used to create threads
-def clientthread(conn, msg):
+def clientthread(conn, sock):
         print("thread run")
         conn.send('Welcome to the server.')
         process_count = 0
@@ -93,7 +93,8 @@ def clientthread(conn, msg):
         md['/processes3'] = {'uuid': str(uuid.uuid1()),
                             'Metadata': {'SourceName': 'interpreter3'},
                             'Properties': {'UnitofTime': 'ms', 'UnitofMeasure': 'count'}}
-
+        data, addr = sock.recvfrom(buffer_size)
+        msg = data 
         # We don't want to generate new uuids on every run, just the first
         if os.path.exists('.smap_interpreter'):
             addresses = json.load(open('.smap_interpreter'))
@@ -101,6 +102,7 @@ def clientthread(conn, msg):
             addresses = md
             json.dump(addresses, open('.smap_interpreter','wb'))
 
+        
         while True:
             data, addr = sock.recvfrom(buffer_size)
             if USE_MSGPACK:
@@ -141,6 +143,7 @@ def clientthread(conn, msg):
                 print (e)
 
             run_program(msg)
+        
 
 HOST = ''   # Symbolic name meaning all available interfaces
 PORT = 1263 # Arbitrary non-privileged port
@@ -164,18 +167,14 @@ sock.listen(10)
 print 'Socket now listening'
 
 
- 
-
-#note nested in While True - may change up this structure 
 while 1:
     #wait to accept a connection - blocking call
     conn, addr = sock.accept()
     print 'Connected with ' + addr[0] + ':' + str(addr[1])
+    print(sock)
     
-    data, addr = sock.recvfrom(buffer_size)
-    msg = data 
     #start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
-    thread.start_new_thread(clientthread ,(conn, msg))
+    thread.start_new_thread(clientthread ,(conn, sock))
  
 s.close()
 
