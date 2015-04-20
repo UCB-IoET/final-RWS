@@ -93,7 +93,7 @@ function RWSWire(port1, port2) {
 	this.destroy = function() {
 		this.source.wire = null;
 		this.target.wire = null;
-		global_wires.remove(this);
+		global_wires.splice(global_wires.indexOf(this),1);
 	}
 }
 
@@ -188,13 +188,13 @@ function RWSNode(type, infoDict) {
     	obj['inputs'] = [];
     	this.inputs.forEach(function(port) {
     		if(port.wire)
-	    		obj['inputs'].push(port.wire.id);
+	    		obj['inputs'].push(String(port.wire.id));
     	});
 
     	obj['outputs'] = [];
     	this.outputs.forEach(function(port) {
     		if(port.wire)
-	    		obj['outputs'].push(port.wire.id);
+	    		obj['outputs'].push(String(port.wire.id));
     	});
     	return obj;
 	}

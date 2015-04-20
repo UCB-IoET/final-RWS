@@ -32,7 +32,19 @@ function RWSPrimitive(primitiveName) {
 	}
 
 	this.getExportRepresentation = function() {
-		var obj = RWSNode.getExportRepresentation.call(this);
+		var obj = {};
+    	obj['inputs'] = [];
+    	this.inputs.forEach(function(port) {
+    		if(port.wire)
+	    		obj['inputs'].push(String(port.wire.id));
+    	});
+
+    	obj['outputs'] = [];
+    	this.outputs.forEach(function(port) {
+    		if(port.wire)
+	    		obj['outputs'].push(String(port.wire.id));
+    	});
+
     	obj['type'] = this.name;
     	if(this.name == 'literal') {
     		obj['val'] = this.value;
