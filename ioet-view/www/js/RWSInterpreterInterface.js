@@ -1,4 +1,4 @@
-function export_application(nodes, wires) {
+function export_application(nodes, wires, server_url) {
     var exportObject = {'type' : 'program', 'password' : 'password'};
 
     var initialNodes = [];
@@ -27,6 +27,19 @@ function export_application(nodes, wires) {
     });
     exportObject['nodes'] = nodeDict;
 
-    console.log(JSON.stringify(exportObject))
+    console.log(JSON.stringify(exportObject));
+
+    json_dict = JSON.stringify(exportObject);
+
+    $.ajax({
+       type: 'POST',
+       url: server_url,
+       data: json_dict,
+       success: function(data) {
+          print(data)
+       }
+       ,
+       async:true
+    });
 
 }

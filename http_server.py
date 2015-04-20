@@ -98,7 +98,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 Handler = ServerHandler
 
-httpd = SocketServer.TCPServer(("", PORT), Handler)
+httpd = SocketServer.TCPServer(("127.0.0.1", PORT), Handler)
 
 print("Server active")
 httpd.serve_forever()

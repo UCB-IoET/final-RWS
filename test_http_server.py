@@ -35,6 +35,7 @@ program = {'type':'program',
 
 
 req = urllib2.Request('http://10.142.34.191:1444')
+req = urllib2.Request('http://127.0.0.1:1444')
 
 req.add_header('Content-Type', 'application/json')
 
