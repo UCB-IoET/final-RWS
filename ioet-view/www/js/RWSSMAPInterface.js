@@ -62,11 +62,13 @@ function RWSSMAPInterface(root_url, available_nodes) {
   	str = '';
   	if(entry['Actuator']) {
   		str += 'Actuator' + NEW_LINE;
-  		str += 'Path: ' + entry['Path'] + NEW_LINE;
+      if(entry['Metadata']['Name'])
+    		str += 'Name: ' + entry['Metadata']['Name'] + NEW_LINE;
   	} else if(entry['Metadata']['Type'] == 'Sensor') {
   		str += 'Sensor: ' + entry['Metadata']['Sensor'] + NEW_LINE;
   		str += 'Units: ' + entry['Properties']['UnitofMeasure'] + NEW_LINE;
-  		str += 'Path: ' + entry['Path'] + NEW_LINE;
+      if(entry['Metadata']['Name'])
+    		str += 'Name: ' + entry['Metadata']['Name'] + NEW_LINE;
   	}
   	return str;
   }

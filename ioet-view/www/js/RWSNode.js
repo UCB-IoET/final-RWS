@@ -35,12 +35,17 @@ function RWSIOPort(mode, name, wire) { // 0 for input, 1 for output
 			context.moveTo(this.x, this.y);
 			context.lineTo(this.x + ioSize , this.y + ioSize);
 			context.lineTo(this.x + ioSize*2, this.y);
+			context.fill(); //automatically closes path
+			if(this.name)
+				drawString(context, this.name, this.x, this.y - 4,"#333333", 0, 'serif', 10);
 		} else {
 			context.moveTo(this.x, this.y);
 			context.lineTo(this.x + ioSize , this.y - ioSize);
 			context.lineTo(this.x + ioSize*2, this.y);
+			context.fill(); //automatically closes path
+			if(this.name)
+				drawString(context, this.name, this.x, this.y,"#333333", 0, 'serif', 10);
 		}
-		context.fill(); //automatically closes path
 		if(this.wire) {
 			this.wire.draw(context);
 		}
@@ -89,7 +94,6 @@ function RWSWire(port1, port2) {
 
 //base class, container for node's actual data
 function RWSNode(type, infoDict) {
-	console.log(available_nodes);
 	//metadata
 	this.id = nodeID++;
 	this.name = "";
@@ -133,8 +137,8 @@ function RWSNode(type, infoDict) {
 		return this.x <= pos['x'] && pos['x'] <= this.x + nodeWidth && this.y <= pos['y'] && pos['y'] <= this.y + nodeHeight;
 	}
 
-	this.add_input = function() {
-		var port = new RWSIOPort(0);
+	this.add_input = function(p) {
+		var port = p || new RWSIOPort(0); 
 		this.inputs.push(port);
     	var interval = (nodeWidth - (ioSize*2)*this.inputs.length) / (this.inputs.length + 1);
     	for(var i = 0; i < this.inputs.length; i++) {
@@ -143,8 +147,8 @@ function RWSNode(type, infoDict) {
     	}
 	}
 
-	this.add_output = function() {
-		var port = new RWSIOPort(1);
+	this.add_output = function(p) {
+		var port = p || new RWSIOPort(1); 
 		this.outputs.push(port);
     	var interval = (nodeWidth - (ioSize*2)*this.outputs.length) / (this.outputs.length + 1);
     	for(var i = 0; i < this.outputs.length; i++) {

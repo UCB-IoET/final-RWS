@@ -1,5 +1,5 @@
 available_nodes = [];
-console.log("hello");
+
 var wires = [];
 var selected = null;
 var dragging = null;
