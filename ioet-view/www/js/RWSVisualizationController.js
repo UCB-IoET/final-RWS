@@ -1,6 +1,6 @@
-available_nodes = [];
+global_nodes = [];
+global_wires = [];
 
-var wires = [];
 var selected = null;
 var dragging = null;
 var dragoffx = 0;
@@ -35,7 +35,7 @@ function visualize() {
 		clear(ctx);
 	    ctx.save();
 		ctx.scale(scaling, scaling);
-		available_nodes.forEach(function(node) {
+		global_nodes.forEach(function(node) {
 			node.draw(ctx);
 		});
 		ctx.restore();
@@ -45,7 +45,7 @@ function visualize() {
 
 function find_nearby_nodes() {
 	//here we look for nearby nodes using smap
-	var smap = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query', available_nodes);
+	var smap = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query', global_nodes);
 	smap.find_nodes();
     document.getElementById('listNodeMask').style.display = "block";
     d3.select("#listNodePopup").html();
@@ -75,7 +75,6 @@ function getMouse(e) {
 
     var mx = (e.pageX - offsetX)  / scaling;
     var my = (e.pageY - offsetY)  / scaling;
-    console.log('mx, offset', mx, e.pageX - offsetX);
 
     return {'x': mx, 'y': my};
 }
@@ -86,7 +85,7 @@ function onMouseDown(e) {
 		var mouse = getMouse(e);
 		e.preventDefault();
 	    dragging = null;
-		available_nodes.forEach(function(node) {
+		global_nodes.forEach(function(node) {
 			if(node.rectContains(mouse)) {
 				dragging = node;
 				dragoffset = mouse;
@@ -100,7 +99,7 @@ function onMouseUp(e) {
 	if(canvas) {
 		var mouse = getMouse(e);
 		var clickedPort = false;
-		available_nodes.forEach(function(node) {
+		global_nodes.forEach(function(node) {
 			var io = node.ioContains(mouse);
 			if(!selected) {
 				if(io != null) {
@@ -140,7 +139,6 @@ function onMouseMove(e) {
 function onGestureEnd(e) {
     scaling *= e.scale;
     valid = false;
-    console.log('scaling', scaling);
 }
 
 function show_add_popup() {
@@ -149,8 +147,7 @@ function show_add_popup() {
 	d3.select('#addPrimitivePopup').append('ul').selectAll('li').data(PRIMITIVES).enter()
 		.append('li').attr('class','smapEntry')
 		.on('click', function(d, i) { 
-			console.log(available_nodes);
-			available_nodes.push(new RWSPrimitive(d));
+			global_nodes.push(new RWSPrimitive(d));
         	document.getElementById('addNodeMask').style.display = "none";
         	valid = false;
         })
@@ -160,28 +157,8 @@ function show_add_popup() {
 
 
 function send_model() {
+	export_application(global_nodes, global_wires);
 
-program = {'type':'program',
-           'password': 'password',
-           'initial': ['0', '1'],
-           'connections':{'0' : ['2'],
-                          '1' : ['2'],
-                          '2' : ['3']},
-           'nwires' : 3,
-           'nodes':{'0' : {'type': 'literal',
-                           'val': 4,
-                           'out': '0'},
-                    '1' : {'type': 'literal',
-                           'val': 8,
-                           'out': '1'},
-                    '2' : {'type': 'binop',
-                           'op': '+',
-                           'left': '0',
-                           'right': '1',
-                           'out': '2'},
-                    '3' : {'type': 'call',
-                           'name': 'print',
-                           'in': ['2']}}}
 
 /*
 $.ajax({

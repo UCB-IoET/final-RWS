@@ -1,5 +1,6 @@
 //RWSNode.js
 var nodeID = 0;
+var wireID = 0;
 
 var TYPES = ["SMAP", "SVCD", "PRIMITIVE"];
 var nodeColor = '#AAAAAA';
@@ -11,8 +12,9 @@ var ioSize = 10; // size of a triangle for input/output
 
 
 //a port entry; Has a mode(input or output) and a wire attached to it
-function RWSIOPort(mode, name, wire) { // 0 for input, 1 for output
+function RWSIOPort(mode, node, name, wire) { // 0 for input, 1 for output
 	this.mode = mode;
+	this.node = node || null;
 	this.name = name || "";
 	this.wire = wire || null;
 	this.x = 0;
@@ -71,8 +73,10 @@ function RWSIOPort(mode, name, wire) { // 0 for input, 1 for output
 //a wire, linking two ports together
 function RWSWire(port1, port2) {
 	//link between 2 nodes
+	this.id = wireID++;
 	this.source = port1;
 	this.target = port2;
+	global_wires.push(this);
 	//each wire is drawn twice atm, maybe we can fix this later
 	this.draw = function(context) {
 		context.strokeStyle='black'
@@ -89,6 +93,7 @@ function RWSWire(port1, port2) {
 	this.destroy = function() {
 		this.source.wire = null;
 		this.target.wire = null;
+		global_wires.remove(this);
 	}
 }
 
@@ -96,6 +101,7 @@ function RWSWire(port1, port2) {
 function RWSNode(type, infoDict) {
 	//metadata
 	this.id = nodeID++;
+	this.type = type;
 	this.name = "";
 	this.description = "";
 	this.inputs = [];
@@ -138,13 +144,13 @@ function RWSNode(type, infoDict) {
 	}
 
 	this.add_input = function(p) {
-		var port = p || new RWSIOPort(0); 
+		var port = p || new RWSIOPort(0, this); 
 		this.inputs.push(port);
     	this.updatePorts();
 	}
 
 	this.add_output = function(p) {
-		var port = p || new RWSIOPort(1); 
+		var port = p || new RWSIOPort(1, this); 
 		this.outputs.push(port);
     	this.updatePorts();
     }
@@ -174,5 +180,22 @@ function RWSNode(type, infoDict) {
     		this.outputs[i].x = this.x + interval*(i+1) - ioSize;
     		this.outputs[i].y = this.y + nodeHeight;
     	}
+	}
+
+	this.getExportRepresentation = function() {
+		var obj = {};
+    	obj['type'] = this.type;
+    	obj['inputs'] = [];
+    	this.inputs.forEach(function(port) {
+    		if(port.wire)
+	    		obj['inputs'].push(port.wire.id);
+    	});
+
+    	obj['outputs'] = [];
+    	this.outputs.forEach(function(port) {
+    		if(port.wire)
+	    		obj['outputs'].push(port.wire.id);
+    	});
+    	return obj;
 	}
 }
