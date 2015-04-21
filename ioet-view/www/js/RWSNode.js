@@ -203,4 +203,11 @@ function RWSNode(type, infoDict) {
     	});
     	return obj;
 	}
+
+	this.getInfoPopup = function () {
+		var html = '';
+
+
+		return html;
+	}
 }

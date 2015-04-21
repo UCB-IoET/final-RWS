@@ -7,8 +7,12 @@ var selected = null;
 var dragging = null;
 var dragoffx = 0;
 var dragoffy = 0;
+var popupTimer = null
+var dragDist = 0;
 var valid = false;
 var scaling = 1;
+var panX = 0;
+var panY =  0;
 
 function clear(ctx) {
    	ctx.clearRect(0, 0, canvas.width, canvas.height);   
@@ -36,6 +40,7 @@ function visualize() {
 		var ctx = canvas.getContext('2d');
 		clear(ctx);
 	    ctx.save();
+		ctx.translate(panX, panY);
 		ctx.scale(scaling, scaling);
 		global_nodes.forEach(function(node) {
 			node.draw(ctx);
@@ -75,8 +80,8 @@ function getMouse(e) {
       } while ((canvas = canvas.offsetParent));
     }
 
-    var mx = (e.pageX - offsetX)  / scaling;
-    var my = (e.pageY - offsetY)  / scaling;
+    var mx = (e.pageX - offsetX - panX)  / scaling;
+    var my = (e.pageY - offsetY - panY)  / scaling;
 
     return {'x': mx, 'y': my};
 }
@@ -87,12 +92,19 @@ function onMouseDown(e) {
 		var mouse = getMouse(e);
 		e.preventDefault();
 	    dragging = null;
-		global_nodes.forEach(function(node) {
-			if(node.rectContains(mouse)) {
-				dragging = node;
-				dragoffset = mouse;
-			}
-		});
+	    dragDist = 0;
+	    if(e.touches.length == 1) {
+			global_nodes.forEach(function(node) {
+				if(node.rectContains(mouse)) {
+					dragging = node;
+					dragoffset = mouse;
+					popupTimer = setTimeout(nodeInfoPopup, 1200, node); //open up the node info popup
+				}
+			});
+	    } else if(e.touches.length == 2) {
+			dragging = 'canvas';
+			dragoffset = mouse;
+	    }
 	}
 }
 
@@ -125,7 +137,7 @@ function onMouseUp(e) {
 
 function onMouseMove(e) {
 	var canvas = $('canvas')[0];
-	if(canvas && dragging) {
+	if(canvas && dragging && dragging != 'canvas') {
 		e.preventDefault();
 		var mouse = getMouse(e);
 		var deltaX = mouse.x - dragoffset['x'];
@@ -134,11 +146,26 @@ function onMouseMove(e) {
 		dragging.y += deltaY;
 		dragging.updatePorts();
 		dragoffset = mouse;
+		dragDist += Math.sqrt(Math.pow(deltaX ,2) + Math.pow(deltaY,2));
+		if(dragDist > 30 && popupTimer) {
+			clearTimeout(popupTimer);
+			popupTimer = null
+		}
+		valid = false;
+	} else if(dragging == 'canvas') {
+		e.preventDefault();
+		var mouse = getMouse(e);
+		var deltaX = mouse.x - dragoffset['x'];
+		var deltaY = mouse.y - dragoffset['y'];
+		panX += deltaX * 2;
+		panY += deltaY * 2;
+		dragoffset = mouse;
 		valid = false;
 	}
 }
 
 function onGestureEnd(e) {
+	var mouse = getMouse(e);
     scaling *= e.scale;
     valid = false;
 }
@@ -156,75 +183,22 @@ function show_add_popup() {
         .html(function(d) { return d; });
 }
 
+function nodeInfoPopup(node) {
+	console.log("SHOWING NODE INFO");
+	document.getElementById('nodeInfoMask').style.display = "block";
+	$('#nodeInfoPopup').html(node.getInfoPopup());
+	$('#nodeInfoPopup').on('click', function(e) {
+		e.stopPropagation();
+	});
+	$('#nodeInfoMask').on('click', function() {
+		document.getElementById('nodeInfoMask').style.display = "none";
+	});
+
+}
 
 
 function send_model() {
 	export_application(global_nodes, global_wires, server_url);
-
-
-/*
-$.ajax({
-	type: "POST",
-	url: 
-})
-
-example1: 
-$.ajax({
-    type       : "POST",
-    url        : "http://domain/public/login",
-    crossDomain: true,
-    beforeSend : function() {$.mobile.loading('show')},
-    complete   : function() {$.mobile.loading('hide')},
-    data       : {username : 'subin', password : 'passwordx'},
-    dataType   : 'json',
-    success    : function(response) {
-        //console.error(JSON.stringify(response));
-        alert('Works!');
-    },
-    error      : function() {
-        //console.error("error");
-        alert('Now working!');                  
-    }
-});  
-
-example2: 
-var http = new XMLHttpRequest();
-var url = "get_data.php";
-var params = "lorem=ipsum&name=binny";
-http.open("POST", url, true);
-
-//Send the proper header information along with the request
-http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-http.setRequestHeader("Content-length", params.length);
-http.setRequestHeader("Connection", "close");
-
-http.onreadystatechange = function() {//Call a function when the state changes.
-    if(http.readyState == 4 && http.status == 200) {
-        alert(http.responseText);
-    }
-}
-http.send(params);
-
-http://stackoverflow.com/questions/9713058/sending-post-data-with-a-xmlhttprequest
-
-
-IP = "2607:f140:400:a001:189e:1858:2c10:b972"
-IP = "2607:f140:400:a009:189e:1858:2c10:b972"
-PORT=8888
-BUFFER_SIZE = 1024
-UDP_PORT = 1263
-
-s = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
-
-s.connect((IP, UDP_PORT))
-
-resp = s.send(json.dumps(program))
-
-print(resp)
-
-
-*/
-
 }
 
 
