@@ -41,20 +41,12 @@ function RWSPrimitive(primitiveName) {
 			break;
 
 	}
+}
 
-	this.getExportRepresentation = function() {
-		var obj = {};
-    	obj['inputs'] = [];
-    	this.inputs.forEach(function(port) {
-    		if(port.wire)
-	    		obj['inputs'].push(String(port.wire.id));
-    	});
+RWSPrimitive.prototype = new RWSNode();
 
-    	obj['outputs'] = [];
-    	this.outputs.forEach(function(port) {
-    		if(port.wire)
-	    		obj['outputs'].push(String(port.wire.id));
-    	});
+RWSPrimitive.prototype.getExportRepresentation = function() {
+		var obj = RWSNode.prototype.getExportRepresentation.call(this);
 
     	obj['type'] = 'call';
     	obj['name'] = this.name;
@@ -64,6 +56,3 @@ function RWSPrimitive(primitiveName) {
     	}
     	return obj;
 	}
-}
-
-RWSPrimitive.prototype = new RWSNode;

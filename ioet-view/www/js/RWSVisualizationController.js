@@ -184,7 +184,6 @@ function show_add_popup() {
 }
 
 function nodeInfoPopup(node) {
-	console.log("SHOWING NODE INFO");
 	document.getElementById('nodeInfoMask').style.display = "block";
 	$('#nodeInfoPopup').html(node.getInfoPopup());
 	$('#nodeInfoPopup').on('click', function(e) {

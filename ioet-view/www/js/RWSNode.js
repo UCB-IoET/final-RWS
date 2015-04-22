@@ -116,98 +116,98 @@ function RWSNode(type, infoDict) {
 	//visual representation info
 	this.x = Math.floor((Math.random() * 200) + 30);
 	this.y = Math.floor((Math.random() * 200) + 30);
+}
 
-	this.draw = function(context) {
-        context.fillStyle="rgba(150, 150, 150, 1)";
-		context.fillRect(this.x, this.y, nodeWidth, nodeHeight);
-		drawString(context, this.name + '\n' + this.description, this.x + 5, this.y + 10, "#333333", 0, 'serif', 12);
-        context.fillStyle="rgba(50, 50, 50, .7)";
-        
-        //draw triangles for inputs
-        if(this.inputs.length > 0) {
-        	for(var i = 0; i < this.inputs.length; i++) {
-				this.inputs[i].draw(context);
-			    if(this.inputs[i].wire) {
-			    	this.inputs[i].wire.draw(context);
-			    }
-			}
-        }
-
-        //draw triangles for outputs
-        if(this.outputs.length > 0) {
-        	for(var i = 0; i < this.outputs.length; i++) {
-				this.outputs[i].draw(context);
-			    if(this.outputs[i].wire) {
-			    	this.outputs[i].wire.draw(context);
-			    }
-			}
-        }
-	}
-
-	this.rectContains = function(pos) {
-		return this.x <= pos['x'] && pos['x'] <= this.x + nodeWidth && this.y <= pos['y'] && pos['y'] <= this.y + nodeHeight;
-	}
-
-	this.add_input = function(p) {
-		var port = p || new RWSIOPort(0, this); 
-		this.inputs.push(port);
-    	this.updatePorts();
-	}
-
-	this.add_output = function(p) {
-		var port = p || new RWSIOPort(1, this); 
-		this.outputs.push(port);
-    	this.updatePorts();
+RWSNode.prototype.draw = function(context) {
+    context.fillStyle="rgba(150, 150, 150, 1)";
+	context.fillRect(this.x, this.y, nodeWidth, nodeHeight);
+	drawString(context, this.name + '\n' + this.description, this.x + 5, this.y + 10, "#333333", 0, 'serif', 12);
+    context.fillStyle="rgba(50, 50, 50, .7)";
+    
+    //draw triangles for inputs
+    if(this.inputs.length > 0) {
+    	for(var i = 0; i < this.inputs.length; i++) {
+			this.inputs[i].draw(context);
+		    if(this.inputs[i].wire) {
+		    	this.inputs[i].wire.draw(context);
+		    }
+		}
     }
 
-	this.ioContains = function(pos) {
-    	for(var i = 0; i < this.inputs.length; i++) {
-    		if(this.inputs[i].contains(pos)) {
-    			return this.inputs[i];
-    		}
-    	}
-
+    //draw triangles for outputs
+    if(this.outputs.length > 0) {
     	for(var i = 0; i < this.outputs.length; i++) {
-    		if(this.outputs[i].contains(pos)) {
-    			return this.outputs[i];
-    		}
-    	}
+			this.outputs[i].draw(context);
+		    if(this.outputs[i].wire) {
+		    	this.outputs[i].wire.draw(context);
+		    }
+		}
+    }
+}
+
+RWSNode.prototype.rectContains = function(pos) {
+	return this.x <= pos['x'] && pos['x'] <= this.x + nodeWidth && this.y <= pos['y'] && pos['y'] <= this.y + nodeHeight;
+}
+
+RWSNode.prototype.add_input = function(p) {
+	var port = p || new RWSIOPort(0, this); 
+	this.inputs.push(port);
+	this.updatePorts();
+}
+
+RWSNode.prototype.add_output = function(p) {
+	var port = p || new RWSIOPort(1, this); 
+	this.outputs.push(port);
+	this.updatePorts();
+}
+
+RWSNode.prototype.ioContains = function(pos) {
+	for(var i = 0; i < this.inputs.length; i++) {
+		if(this.inputs[i].contains(pos)) {
+			return this.inputs[i];
+		}
 	}
 
-	this.updatePorts = function() {
-    	var interval = (nodeWidth) / (this.inputs.length + 1);
-    	for(var i = 0; i < this.inputs.length; i++) {
-    		this.inputs[i].x = this.x + interval*(i+1) - ioSize;
-    		this.inputs[i].y = this.y;
-    	}
-    	interval = (nodeWidth) / (this.outputs.length + 1) ;
-    	for(var i = 0; i < this.outputs.length; i++) {
-    		this.outputs[i].x = this.x + interval*(i+1) - ioSize;
-    		this.outputs[i].y = this.y + nodeHeight;
-    	}
+	for(var i = 0; i < this.outputs.length; i++) {
+		if(this.outputs[i].contains(pos)) {
+			return this.outputs[i];
+		}
 	}
+}
 
-	this.getExportRepresentation = function() {
-		var obj = {};
-    	obj['type'] = this.type;
-    	obj['inputs'] = [];
-    	this.inputs.forEach(function(port) {
-    		if(port.wire)
-	    		obj['inputs'].push(String(port.wire.id));
-    	});
-
-    	obj['outputs'] = [];
-    	this.outputs.forEach(function(port) {
-    		if(port.wire)
-	    		obj['outputs'].push(String(port.wire.id));
-    	});
-    	return obj;
+RWSNode.prototype.updatePorts = function() {
+	var interval = (nodeWidth) / (this.inputs.length + 1);
+	for(var i = 0; i < this.inputs.length; i++) {
+		this.inputs[i].x = this.x + interval*(i+1) - ioSize;
+		this.inputs[i].y = this.y;
 	}
-
-	this.getInfoPopup = function () {
-		var html = '';
-
-
-		return html;
+	interval = (nodeWidth) / (this.outputs.length + 1) ;
+	for(var i = 0; i < this.outputs.length; i++) {
+		this.outputs[i].x = this.x + interval*(i+1) - ioSize;
+		this.outputs[i].y = this.y + nodeHeight;
 	}
+}
+
+RWSNode.prototype.getExportRepresentation = function() {
+	var obj = {};
+	obj['type'] = this.type;
+	obj['inputs'] = [];
+	this.inputs.forEach(function(port) {
+		if(port.wire)
+    		obj['inputs'].push(String(port.wire.id));
+	});
+
+	obj['outputs'] = [];
+	this.outputs.forEach(function(port) {
+		if(port.wire)
+    		obj['outputs'].push(String(port.wire.id));
+	});
+	return obj;
+}
+
+RWSNode.prototype.getInfoPopup = function () {
+	var html = '';
+
+
+	return html;
 }
