@@ -138,3 +138,7 @@ ul {
 	text-decoration:none;
 	color:#8ca1c1;
 }
+
+.literalInput {
+	width: 80%;
+}

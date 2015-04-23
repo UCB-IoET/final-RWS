@@ -205,9 +205,26 @@ RWSNode.prototype.getExportRepresentation = function() {
 	return obj;
 }
 
-RWSNode.prototype.getInfoPopup = function () {
+function dict_to_html(dict) {
 	var html = '';
+	for(var key in dict) {
+		if(typeof dict[key] === 'string') {
+			html += '<p>'+key+': ' + dict[key] + '</p>';
+		} else {
+			html += '<hr>';
+			html += '<p><strong>'+key+': ' + '</strong></p>';
+			html += dict_to_html(dict[key]); //ahh recursion
+			html += '<hr>';
+		}
+	}
+	return html
+}
 
-
-	return html;
+RWSNode.prototype.populateInfoPopup = function (container) {
+	var html = '';
+	if(this.type == "SMAP") {
+		//display the info dictionary
+		html = dict_to_html(this.infoDict);
+	}
+	container.html(html);
 }

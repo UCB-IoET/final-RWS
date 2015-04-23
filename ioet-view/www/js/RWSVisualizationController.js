@@ -109,8 +109,14 @@ function onMouseDown(e) {
 }
 
 function onMouseUp(e) {
+	if(popupTimer) {
+		clearTimeout(popupTimer);
+		popupTimer = null
+	}
+
 	var canvas = $('canvas')[0];
 	if(canvas) {
+
 		var mouse = getMouse(e);
 		var clickedPort = false;
 		global_nodes.forEach(function(node) {
@@ -149,7 +155,7 @@ function onMouseMove(e) {
 		dragDist += Math.sqrt(Math.pow(deltaX ,2) + Math.pow(deltaY,2));
 		if(dragDist > 30 && popupTimer) {
 			clearTimeout(popupTimer);
-			popupTimer = null
+			popupTimer = null;
 		}
 		valid = false;
 	} else if(dragging == 'canvas') {
@@ -176,7 +182,11 @@ function show_add_popup() {
 	d3.select('#addPrimitivePopup').append('ul').selectAll('li').data(PRIMITIVES).enter()
 		.append('li').attr('class','smapEntry')
 		.on('click', function(d, i) { 
-			global_nodes.push(new RWSPrimitive(d));
+			if(d == 'literal') {
+				global_nodes.push(new RWSLiteral('string'));
+			} else {
+				global_nodes.push(new RWSPrimitive(d));
+			}
         	document.getElementById('addNodeMask').style.display = "none";
         	valid = false;
         })
@@ -185,7 +195,7 @@ function show_add_popup() {
 
 function nodeInfoPopup(node) {
 	document.getElementById('nodeInfoMask').style.display = "block";
-	$('#nodeInfoPopup').html(node.getInfoPopup());
+	node.populateInfoPopup($('#nodeInfoPopup'));
 	$('#nodeInfoPopup').on('click', function(e) {
 		e.stopPropagation();
 	});

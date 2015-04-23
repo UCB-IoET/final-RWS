@@ -6,7 +6,7 @@ var PRIMITIVES = 	['IF',
 					'print'];
 
 function RWSPrimitive(primitiveName) {
-	RWSNode.call(this, "PRIMITIVE", {});
+	RWSNode.call(this, primitiveName, {});
 	this.name = primitiveName;
 
 	//add ports depending on the primitive
@@ -31,11 +31,6 @@ function RWSPrimitive(primitiveName) {
 			this.add_output(new RWSIOPort(1, this, 'output'));
 			break;
 
-		case 'literal':
-			this.value = 5;
-			this.add_output(new RWSIOPort(1, this, 'output'));
-			break;
-
 		case 'print':
 			this.add_input(new RWSIOPort(0, this, 'input'));
 			break;
@@ -46,13 +41,13 @@ function RWSPrimitive(primitiveName) {
 RWSPrimitive.prototype = new RWSNode();
 
 RWSPrimitive.prototype.getExportRepresentation = function() {
-		var obj = RWSNode.prototype.getExportRepresentation.call(this);
+	var obj = RWSNode.prototype.getExportRepresentation.call(this);
 
-    	obj['type'] = 'call';
-    	obj['name'] = this.name;
-    	if(this.name == 'literal') {
-    		obj['val'] = this.value;
-    		obj['type'] = this.name;
-    	}
-    	return obj;
-	}
+	obj['type'] = 'call';
+	obj['name'] = this.name;
+	return obj;
+}
+
+RWSPrimitive.prototype.populateInfoPopup = function(container) {
+	container.html(this.name);
+}
