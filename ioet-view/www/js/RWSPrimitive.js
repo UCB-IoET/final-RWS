@@ -45,37 +45,21 @@ function load_primitives() {
 	};
 }
 
-function RWSPrimitive(category, primitiveName) {
+function RWSPrimitive(category, primitiveName, obj) {
 	RWSNode.call(this, primitiveName, {});
 	this.name = primitiveName;
 	this.type = category;
 
-	//add ports depending on the primitive
-	switch(this.name) {
-		case "IF":
-			this.add_input(new RWSIOPort(0, this, "condition"));
-			this.add_output(new RWSIOPort(1, this, "done"));
-			break;
-		case "THRESHOLD":
-			this.add_input(new RWSIOPort(0, this, "threshold"));
-			this.add_input(new RWSIOPort(0, this, "inputValue"));
-			this.add_output(new RWSIOPort(1, this, "greater"));
-			break;
+	if(obj['inputs'] && obj['inputs'].length > 0) {
+		for(var input in obj['inputs']) {
+			this.add_input(new RWSIOPort(0,this,obj['inputs'][input]));
+		}
+	}
 
-		case "ROUND":
-			this.add_input(new RWSIOPort(0, this, "input"));
-			this.add_output(new RWSIOPort(1, this, "output"));
-			break;
-
-		case "BINARY":
-			this.add_input(new RWSIOPort(0, this, "input"));
-			this.add_output(new RWSIOPort(1, this, "output"));
-			break;
-
-		case "print":
-			this.add_input(new RWSIOPort(0, this, "input"));
-			break;
-
+	if(obj['outputs'] && obj['outputs'].length > 0) {
+		for(var output in obj['outputs']) {
+			this.add_output(new RWSIOPort(1,this,obj['outputs'][output]));
+		}
 	}
 }
 

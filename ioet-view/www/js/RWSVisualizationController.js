@@ -181,16 +181,28 @@ function show_add_popup() {
 	$('#addPrimitivePopup').html('');
 	var html = '';
 	var primitives = load_primitives();
-	for(var category in primitives) {
-		html += '<p><strong>' + category + '</strong></p>';
-		html += '<ul>';
-		for(var name in primitives[category]) {
-			html += '<li class="smapEntry">' + name + '</li>'
-		}
-		html += '</ul>';
-		html += '<hr>';
+	function add_click(entry, cat, nam, obj) {
+		entry.on('click', function() {
+			global_nodes.push(new RWSPrimitive(cat, nam, obj));
+	    	document.getElementById('addNodeMask').style.display = "none";
+	    	valid = false;
+		});
 	}
-	$('#addPrimitivePopup').html(html);
+
+	for(var category in primitives) {
+		$('#addPrimitivePopup').append('<p><strong>' + category + '</strong></p>');
+		var list = $('<ul>')
+		$('#addPrimitivePopup').append(list);
+		for(var name in primitives[category]) {
+			var entry = $('<li class="smapEntry" >' + name + '</li>')
+			list.append(entry);
+			add_click(entry, category, name, primitives[category][name]);
+
+		}
+		$('#addPrimitivePopup').append('</ul>');
+		$('#addPrimitivePopup').append('<hr>');
+	}
+	// $('#addPrimitivePopup').html(html);
 
 	// $('#addPrimitivePopup').find('li').on('click', function(d, i) { 
 	// 	if(d == 'literal') {

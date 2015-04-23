@@ -46,7 +46,7 @@ function RWSIOPort(mode, node, name, wire) { // 0 for input, 1 for output
 			context.lineTo(this.x + ioSize*2, this.y);
 			context.fill(); //automatically closes path
 			if(this.name)
-				drawString(context, this.name, this.x, this.y,"#333333", 0, 'serif', 10);
+				drawString(context, this.name, this.x, this.y + ioSize,"#333333", 0, 'serif', 10);
 		}
 		if(this.wire) {
 			this.wire.draw(context);
@@ -121,7 +121,7 @@ function RWSNode(type, infoDict) {
 RWSNode.prototype.draw = function(context) {
     context.fillStyle="rgba(150, 150, 150, 1)";
 	context.fillRect(this.x, this.y, nodeWidth, nodeHeight);
-	drawString(context, this.name + '\n' + this.description, this.x + 5, this.y + 10, "#333333", 0, 'serif', 12);
+	drawString(context, this.name + '\n' + this.description, this.x + 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
     context.fillStyle="rgba(50, 50, 50, .7)";
     
     //draw triangles for inputs
