@@ -1,6 +1,6 @@
 //highest level is category, second level is actual node type
 {
-	'static' : { 
+	'literals' : { 
 		'number' : { 
 			'value',
 			'outputs' : ['outputVal']

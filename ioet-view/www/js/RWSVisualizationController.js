@@ -178,19 +178,29 @@ function onGestureEnd(e) {
 
 function show_add_popup() {
 	document.getElementById('addNodeMask').style.display = "block";
-	d3.select('#addPrimitivePopup').html('');
-	d3.select('#addPrimitivePopup').append('ul').selectAll('li').data(PRIMITIVES).enter()
-		.append('li').attr('class','smapEntry')
-		.on('click', function(d, i) { 
-			if(d == 'literal') {
-				global_nodes.push(new RWSLiteral('string'));
-			} else {
-				global_nodes.push(new RWSPrimitive(d));
-			}
-        	document.getElementById('addNodeMask').style.display = "none";
-        	valid = false;
-        })
-        .html(function(d) { return d; });
+	$('#addPrimitivePopup').html('');
+	var html = '';
+	var primitives = load_primitives();
+	for(var category in primitives) {
+		html += '<p><strong>' + category + '</strong></p>';
+		html += '<ul>';
+		for(var name in primitives[category]) {
+			html += '<li class="smapEntry">' + name + '</li>'
+		}
+		html += '</ul>';
+		html += '<hr>';
+	}
+	$('#addPrimitivePopup').html(html);
+
+	// $('#addPrimitivePopup').find('li').on('click', function(d, i) { 
+	// 	if(d == 'literal') {
+	// 		global_nodes.push(new RWSLiteral('string'));
+	// 	} else {
+	// 		global_nodes.push(new RWSPrimitive(d));
+	// 	}
+ //    	document.getElementById('addNodeMask').style.display = "none";
+ //    	valid = false;
+ //    })
 }
 
 function nodeInfoPopup(node) {
