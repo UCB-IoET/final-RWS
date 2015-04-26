@@ -21,6 +21,26 @@ _ast_docs = []
 _func_docs = []
 _node_switch_table = {}
 _func_switch_table = {}
+_node_configs = {} #maps categories to lists of member nodes
+
+def def_node_config(category, sub_category, node_type, inputs, outputs, other=None):
+    if category not in _node_configs:
+        _node_configs[category] = {}
+    c = _node_configs[category][sub_category] = {}
+    c['type'] = node_type
+    if inputs:
+        if type(inputs) is not list: inputs = [inputs]
+        c['inputs'] = inputs
+    if outputs:
+        if type(outputs) is not list: outputs = [outputs]
+        c['outputs'] = outputs
+    if other:
+        c.update(other)
+
+def gen_node_configs(f='primitiveConfig.js'):
+    f = open(f,'w')
+    f.write(json.dumps(_node_configs))
+    f.close()
 
 def node(name, fields, notes=None):
     def decorator(fn):
@@ -37,6 +57,7 @@ def function(name, args, returns=None, notes=None):
                        'args': args,
                        'returns': returns,
                        'notes': notes})
+    def_node_config('call', name, 'call', args, returns, {'name':name})
     return decorator
 
 @node('program',
@@ -66,6 +87,8 @@ def run_program(ast):
 def _(ast):
     if debug: print('literal: {}'.format(ast['val']))
     set_and_signal(ast['outputs'][0], ast['val'])
+def_node_config('literal', 'number', 'literal', 'outputVal','num',{'value':True})
+def_node_config('literal', 'string', 'literal', 'outputVal','str',{'value':True})
 
 @node('binop',
       {'op' : 'the operation, +, *, ==, >, ...',
@@ -81,9 +104,15 @@ def binop(ast):
     result = binop_map[ast['op']](wire_get(ast['left']), wire_get(ast['right']))
     set_and_signal(ast['out'], result)
 
-binop_map = {'+' : add, '-' : sub, '*' : mul,'/' : truediv,
-             '==': eq, '>': gt, '<': lt,'!=': ne}
-#le, ge
+cmp_map = {'==': eq, '>': gt, '<': lt,'!=': ne}
+math_map = {'+': add, '-': sub, '*' : mul,'/': truediv}
+for x in cmp_map:
+    def_node_config('comparison', x, x, ['threshold', 'value'], 'result')
+for x in math_map:
+    def_node_config('math', x, x, ['threshold', 'value'], 'result')
+
+binop_map = cmp_map
+binop_map.update(math_map)
 
 @node('if',
       {'cond': 'condition',
@@ -96,6 +125,7 @@ def _(ast):
     true, false = ('true', 'false') if cond else ('false', 'true')
     wire_set(ast[false], False)
     set_and_signal(ast[true], cond)
+def_node_config('comparison', 'if', 'if', 'value', ['true', 'false'])
 
 #should the true and false wires from an if just be used for signaling
 #or should they also carry value?
@@ -185,9 +215,15 @@ if __name__ == '__main__':
         print('Usage:')
         print('  ./interpreter.py <filename>')
         exit(1)
-    filename = argv[1]
+    x = argv[1]
+    if x == 'gen:prim':
+        gen_node_configs()
+        exit(0)
+    elif x == 'gen:doc':
+        gen_doc()
+        exit(0)
     try:
-        f = open(filename, 'r')
+        f = open(x, 'r')
     except IOError:
         print('Error: where is "{}"?'.format(filename))
         exit(1)
