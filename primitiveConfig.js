@@ -1,45 +1,74 @@
-//highest level is category, second level is actual node type
 {
-	'literals' : { 
-		'number' : { 
-			'value',
-			'outputs' : ['outputVal']
-		}
-		'string' : {
-			'value',
-			'outputs' : ['outputVal']
-		}
-	}
-
-	'call' : {
-		'print' : {
-			'inputs' : ['value']
-		}
-	},
-
-	'conditional' : {
-		'>=' : {
-			'inputs' : ['threshold', 'value'],
-			'outputs' : ['result']
-		}, 
-		'<=' : {
-			'inputs' : ['threshold', 'value'],
-			'outputs' : ['result']
-		}, 
-		'if' : {
-			'inputs' : ['value'],
-			'outputs' : ['true', 'false']
-		}
-	},
-
-	'math' : {
-		'round' : {
-			'inputs' : ['value'],
-			'outputs' : ['result']
-		},
-		'binary' : {
-			'inputs' : ['value'],
-			'outputs' : ['result']
-		}
-	}
-};
+    "comparison": {
+        "==": {
+            "inputs": ["threshold", "value"],
+            "type": "==",
+            "outputs": ["result"]
+        },
+        "if": {
+            "inputs": ["value"],
+            "type": "if",
+            "outputs": ["true", "false"]
+        },
+        "!=": {
+            "inputs": ["threshold", "value"],
+            "type": "!=",
+            "outputs": ["result"]
+        },
+        "<": {
+            "inputs": ["threshold", "value"],
+            "type": "<",
+            "outputs": ["result"]
+        },
+        ">": {
+            "inputs": ["threshold", "value"],
+            "type": ">",
+            "outputs": ["result"]
+        }
+    },
+    "literal": {
+        "number": {
+            "inputs": ["outputVal"],
+            "type": "literal",
+            "value": true,
+            "outputs": ["num"]
+        },
+        "string": {
+            "inputs": ["outputVal"],
+            "type": "literal",
+            "value": true,
+            "outputs": ["str"]
+        }
+    },
+    "call": {
+        "print": {
+            "inputs": [{
+                "inputs": "a value to print"
+            }],
+            "type": "call",
+            "name": "print"
+        }
+    },
+    "math": {
+        "+": {
+            "inputs": ["threshold", "value"],
+            "type": "+",
+            "outputs": ["result"]
+        },
+        "*": {
+            "inputs": ["threshold", "value"],
+            "type": "*",
+            "outputs": ["result"]
+        },
+        "-": {
+            "inputs": ["threshold", "value"],
+            "type": "-",
+            "outputs": ["result"]
+        },
+        "/": {
+            "inputs": ["threshold", "value"],
+            "type": "/",
+            "outputs": ["result"]
+        }
+    }
+}
