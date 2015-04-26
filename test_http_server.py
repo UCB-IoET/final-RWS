@@ -1,8 +1,12 @@
 import json
 import urllib2 
 
+PORT='1445'
+
 program = {'type':'program',
+           'uid': 'rws',
            'password': 'password',
+           'pid':'1',
            #a list of the nodes that are ready to run.
            #These are the nodes that don't have a parent.
            'initial': ['n0', 'n1'],
@@ -19,25 +23,25 @@ program = {'type':'program',
            #           we currently only support 1 output
            #     'in': a list of the nodes input wires, if any
            'nodes':{'n0' : {'type': 'literal',
-                           'val': 4,
-                           'out': 'w0'},
+                            'val': 4,
+                            'outputs': ['w0']},
                     'n1' : {'type': 'literal',
-                           'val': 8,
-                           'out': 'w1'},
+                            'val': 8,
+                            'outputs': ['w1']},
                     'n2' : {'type': 'binop',
-                           'op': '+',
-                           'left': 'w0',
-                           'right': '1',
-                           'out': 'w2'},
+                            'op': '+',
+                            'inputs':['w0', 'w1'],
+                            'outputs': ['w2']},
                     'n3' : {'type': 'call',
-                           'name': 'print',
-                           'in': ['w2']}}}
+                            'name': 'print',
+                            'inputs': ['w2']}}}
 
 
-req = urllib2.Request('http://10.142.34.191:1444')
-req = urllib2.Request('http://127.0.0.1:1444')
+req = urllib2.Request('http://10.142.34.191:'+PORT)
+req = urllib2.Request('http://127.0.0.1:'+PORT)
 
 req.add_header('Content-Type', 'application/json')
 
 response = urllib2.urlopen(req, json.dumps(program))
+
 print(response)
