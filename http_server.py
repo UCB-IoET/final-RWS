@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import SimpleHTTPServer
 import SocketServer
 import logging
@@ -10,99 +11,109 @@ import requests
 import json
 from interpreter import run_program
 
-def clientthread(json_dict, addr):
-    data = json_dict
+PORT = 1445
 
-    process_count = 0
-    md = {}
-    md['/processes3'] = {'uuid': str(uuid.uuid1()),
-                        'Metadata': {'SourceName': 'interpreter3'},
-                        'Properties': {'UnitofTime': 'ms', 'UnitofMeasure': 'count'}}
+def client_thread(program, addr, n_threads):
+    #stream some data to the archiver
+    #we have the child do this so the parent can remain responsive
+    update_thread_stream(n_threads)
 
-    # We don't want to generate new uuids on every run, just the first
-    if os.path.exists('.smap_interpreter'):
-        addresses = json.load(open('.smap_interpreter'))
-    else:
-        addresses = md
-        json.dump(addresses, open('.smap_interpreter','wb'))
-
-    while True:
-        #data, addr = sock.recvfrom(buffer_size)
-        msg = data
-        #print "RECEIVED>>>", msg
-        #print "FROM>>>", addr
-
-        if str(msg.get('password')) != "password":
-            print("Authentication failed")
-            continue
-
-        if not all([msg.get(x) for x in ['initial', 'connections', 'nodes']]):
-            print("Invalid program, ignoring.")
-            #print("msg = ",msg)
-            continue
-
-        smap = {}
-        processes = smap['/processes3'] = addresses['/processes3']
-        process_count += 1
-        processes['Readings'] = [[int(time.time()*1000), process_count]]
-
-        try:
-            # We use the IPv4 address because requests sometimes defaults
-            # to ipv6 if you use DNS and the archiver doesn't support that.
-            # This is a hack
-
-            print "sending this to archiver: ", json.dumps(smap)
-
-            x = requests.post('http://54.215.11.207:8079/add/interpreter',
-            #x = requests.post('http://shell.storm.pm:8079/add/interpreter',
-                              data=json.dumps(smap))
-            #x = requests.post('http://pantry.cs.berkeley.edu:8079/add/xyz',
-            #                  data=json.dumps(smap))
-            print "archiver: ", x
-        except Exception as e:
-            print (e)
-
-        run_program(msg)    
+    run_program(program)
+#    try:
+#        run_program(program)
+#    except Exception as e:
+#        print "Error executing program: ", e
 
 
-PORT = 1444
+def update_thread_stream(n_threads):
+    smap = {}
+    processes = smap['/processes3'] = addresses['/processes3']
+    processes['Readings'] = [[int(time.time()*1000), n_threads]]
+    try:
+         # We use the IPv4 address because requests sometimes defaults
+         # to ipv6 if you use DNS and the archiver doesn't support that.
+         # This is a hack
+
+        print "sending this to archiver: ", json.dumps(smap)
+        x = requests.post('http://54.215.11.207:8079/add/interpreter',
+        #x = requests.post('http://shell.storm.pm:8079/add/interpreter',
+                          data=json.dumps(smap))
+        #x = requests.post('http://pantry.cs.berkeley.edu:8079/add/xyz',
+        #                  data=json.dumps(smap))
+        print "archiver: ", x
+    except Exception as e:
+        print (e)
+
 class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def do_POST(self):
+        global n_threads
         logging.warning("======= POST STARTED =======")
         logging.warning(self.headers)
 
-        # load post content 
+        # load post content
         length = int(self.headers['Content-length'])
         post_content = self.rfile.read(length)
 
-        # object is a dictionary 
-        json_dict = util.load_json(post_content)
-        
-        # iterate through available values 
-        #for i in json_dict.keys():
-        #    print(str(i) + " " + str(json_dict[i]))
+        # object is a dictionary
+        program = util.load_json(post_content)
+
+        # iterate through available values
+        #for i in program.keys():
+        #    print(str(i) + " " + str(program[i]))
 
         # feed client address into threadable function
         client_addr = str(self.client_address[0]) + ":" + str(self.client_address[1])
 
-        thread.start_new_thread(clientthread ,(json_dict,client_addr))
+        #check that received json is a valid program
+        if not all([program.get(x) for x in ['password',
+                                             'uid',
+                                             'pid',
+                                             'initial',
+                                             'connections',
+                                             'nodes',
+                                             'type']]):
+            print("Invalid program, ignoring.")
+            #print("msg = ",msg)
+            return
+
+        #check user id and password
+        #TODO: user IDs
+        if str(program['password']) != "password":
+            print("Authentication failed")
+            return
+
+        n_threads += 1
+        tid = thread.start_new_thread(client_thread,
+                                      (program, client_addr, n_threads))
+        #TODO: save this thread id in the users thread list
 
         self.send_response(200)
-        
 
-Handler = ServerHandler
 
-httpd = SocketServer.TCPServer(("127.0.0.1", PORT), Handler)
+################################################################################
+#initialize smap stuff
+n_threads = 0
+md = {}
+md['/processes3'] = {'uuid': str(uuid.uuid1()),
+                    'Metadata': {'SourceName': 'interpreter3'},
+                    'Properties': {'UnitofTime': 'ms', 'UnitofMeasure': 'count'}}
+
+# We don't want to generate new uuids on every run, just the first
+if os.path.exists('.smap_interpreter'):
+    addresses = json.load(open('.smap_interpreter'))
+else:
+    addresses = md
+    json.dump(addresses, open('.smap_interpreter','wb'))
+
+################################################################################
+
+httpd = SocketServer.TCPServer(("127.0.0.1", PORT), ServerHandler)
 
 print("Server active")
 httpd.serve_forever()
 
-
-# 
-
-
-
+#
 
 '''
 if len(sys.argv) > 2:
@@ -135,7 +146,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
         for i in obj.keys():
             print(str(i) + " " + str(obj[i]))
-        
+
 
         print(type(obj))
         print(self.rfile.read(length))
@@ -156,7 +167,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         for item in form.list:
             logging.warning(item)
         logging.warning("\n")
-        
+
         SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
 Handler = ServerHandler
