@@ -10,8 +10,6 @@ import requests
 import json
 from interpreter import run_program
 
-USE_MSGPACK = False
-
 def clientthread(json_dict, addr):
     data = json_dict
 
@@ -30,10 +28,7 @@ def clientthread(json_dict, addr):
 
     while True:
         #data, addr = sock.recvfrom(buffer_size)
-        if USE_MSGPACK:
-            msg = msgpack.unpackb(data)
-        else:
-            msg = data
+        msg = data
         #print "RECEIVED>>>", msg
         #print "FROM>>>", addr
 
