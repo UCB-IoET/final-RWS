@@ -85,24 +85,30 @@ def run_program(ast):
       {'val': 'a literal number or string',
        'outputs': 'output wire'})
 def _(ast):
-    if debug: print('literal: {}'.format(ast['val']))
-    set_and_signal(ast['outputs'][0], ast['val'])
+    val = ast['val']
+    if debug: print('literal: {}'.format(val))
+    set_and_signal(ast['outputs'][0], val)
 def_node_config('literal', 'number', 'literal', 'outputVal','num',{'value':True})
 def_node_config('literal', 'string', 'literal', 'outputVal','str',{'value':True})
 
 @node('binop',
       {'op' : 'the operation, +, *, ==, >, ...',
-       'inputs': 'a wire for the left hand side input',
-       'inputs': 'a wire for the right hand side input',
+       'inputs[0]': 'a wire for the left hand side input',
+       'inputs[1]': 'a wire for the right hand side input',
        'outputs': 'output wire'})
 def binop(ast):
+    left = ast['inputs'][0]
+    right = ast['inputs'][1]
+    out = ast['outputs'][0]
+    op = ast['op']
     if debug:
-        print "binop: {}({},{})".format(ast['op'], wire_get(ast['left']), wire_get(ast['right']))
-    if wire_get(ast['left']) is void or wire_get(ast['right']) is void:
+        print "binop: {}({},{})".format(op, wire_get(left), wire_get(right))
+
+    if wire_get(left) is void or wire_get(right) is void:
         print("some node wires not ready yet")
         return
-    result = binop_map[ast['op']](wire_get(ast['left']), wire_get(ast['right']))
-    set_and_signal(ast['out'], result)
+    result = binop_map[op](wire_get(left), wire_get(right))
+    set_and_signal(out, result)
 
 cmp_map = {'==': eq, '>': gt, '<': lt,'!=': ne}
 math_map = {'+': add, '-': sub, '*' : mul,'/': truediv}
@@ -133,16 +139,16 @@ def_node_config('comparison', 'if', 'if', 'value', ['true', 'false'])
 @node('call',
       {'name': 'name of built-in procedure to call',
        'inputs': 'the parameters - a list of input wires',
-       'outputs': 'output wire for return value'})
+       'outputs': 'list of output wires for return values (only 1 currently)'})
 def _(ast):
-    if debug: print "call: {}{}".format(ast['name'], str(ast['input'][0]))
+    if debug: print "call: {}{}".format(ast['name'], str(ast['inputs'][0]))
     fn = _func_switch_table[ast['name']]
     if not fn:
         error("call -- procedure '{}' was not found".format(ast['name']))
     ret = fn(*[wire_get(x) for x in ast['inputs']])
     out = ast.get('outputs')
     if out:
-        set_and_signal(out, ret)
+        set_and_signal(out[0], ret)#for now, only 1 output
 
 
 ################################################################################
