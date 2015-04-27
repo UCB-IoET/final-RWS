@@ -67,8 +67,8 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
         #check that received json is a valid program
         if not all([program.get(x) for x in ['password',
-                                             'uid',
-                                             'pid',
+                                             # 'uid',
+                                             # 'pid',
                                              'initial',
                                              'connections',
                                              'nodes',
