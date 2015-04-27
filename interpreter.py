@@ -57,7 +57,7 @@ def function(name, args, returns=None, notes=None):
                        'args': args,
                        'returns': returns,
                        'notes': notes})
-    def_node_config('call', name, 'call', args, returns, {'name':name})
+    def_node_config('call', name, 'call', list(args.keys()), returns, {'name':name})
     return decorator
 
 @node('program',
