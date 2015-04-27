@@ -40,9 +40,3 @@ RWSLiteral.prototype.populateInfoPopup = function(container) {
 		return false;
 	});
 }
-
-RWSLiteral.prototype.draw = function(context) {
-	RWSNode.prototype.draw.call(this, context);
-
-
-}

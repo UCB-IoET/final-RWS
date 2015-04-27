@@ -43,7 +43,7 @@ function visualize() {
 		ctx.translate(panX, panY);
 		ctx.scale(scaling, scaling);
 		global_nodes.forEach(function(node) {
-			node.draw(ctx);
+			node.draw(ctx, selected);
 		});
 		ctx.restore();
 		valid = true;
@@ -116,9 +116,9 @@ function onMouseUp(e) {
 
 	var canvas = $('canvas')[0];
 	if(canvas) {
-
 		var mouse = getMouse(e);
 		var clickedPort = false;
+
 		global_nodes.forEach(function(node) {
 			var io = node.ioContains(mouse);
 			if(!selected) {
@@ -135,6 +135,7 @@ function onMouseUp(e) {
 				}
 			}
 		});
+
 		if(!clickedPort) {
 			selected = null;
 		}
