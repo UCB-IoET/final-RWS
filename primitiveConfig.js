@@ -46,9 +46,7 @@
     },
     "call": {
         "print": {
-            "inputs": [{
-                "inputs": "a value to print"
-            }],
+            "inputs": ["inputs"],
             "type": "call",
             "name": "print"
         }
