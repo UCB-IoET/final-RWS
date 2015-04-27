@@ -10,6 +10,7 @@ import time
 import requests
 import json
 from interpreter import run_program
+from interpreter import _node_configs
 
 PORT = 1445
 
@@ -45,6 +46,12 @@ def update_thread_stream(n_threads):
         print (e)
 
 class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if(self.path == '/config'):
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.request.sendall(json.dumps(_node_configs))
 
     def do_POST(self):
         global n_threads
