@@ -32,13 +32,11 @@
     },
     "literal": {
         "number": {
-            "inputs": ["outputVal"],
             "type": "literal",
             "value": true,
             "outputs": ["num"]
         },
         "string": {
-            "inputs": ["outputVal"],
             "type": "literal",
             "value": true,
             "outputs": ["str"]
