@@ -2,7 +2,8 @@
     "comparison": {
         "==": {
             "inputs": ["threshold", "value"],
-            "type": "==",
+            "op": "==",
+            "type": "binop",
             "outputs": ["result"]
         },
         "if": {
@@ -12,17 +13,20 @@
         },
         "!=": {
             "inputs": ["threshold", "value"],
-            "type": "!=",
+            "op": "!=",
+            "type": "binop",
             "outputs": ["result"]
         },
         "<": {
             "inputs": ["threshold", "value"],
-            "type": "<",
+            "op": "<",
+            "type": "binop",
             "outputs": ["result"]
         },
         ">": {
             "inputs": ["threshold", "value"],
-            "type": ">",
+            "op": ">",
+            "type": "binop",
             "outputs": ["result"]
         }
     },
@@ -52,22 +56,26 @@
     "math": {
         "+": {
             "inputs": ["threshold", "value"],
-            "type": "+",
+            "op": "+",
+            "type": "binop",
             "outputs": ["result"]
         },
         "*": {
             "inputs": ["threshold", "value"],
-            "type": "*",
+            "op": "*",
+            "type": "binop",
             "outputs": ["result"]
         },
         "-": {
             "inputs": ["threshold", "value"],
-            "type": "-",
+            "op": "-",
+            "type": "binop",
             "outputs": ["result"]
         },
         "/": {
             "inputs": ["threshold", "value"],
-            "type": "/",
+            "op": "/",
+            "type": "binop",
             "outputs": ["result"]
         }
     }
