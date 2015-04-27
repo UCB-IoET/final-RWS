@@ -32,16 +32,14 @@
     },
     "literal": {
         "number": {
-            "inputs": ["outputVal"],
+            "outputs": ["num"],
             "type": "literal",
-            "value": true,
-            "outputs": ["num"]
+            "value": true
         },
         "string": {
-            "inputs": ["outputVal"],
+            "outputs": ["str"],
             "type": "literal",
-            "value": true,
-            "outputs": ["str"]
+            "value": true
         }
     },
     "call": {
