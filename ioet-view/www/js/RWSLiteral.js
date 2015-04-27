@@ -1,5 +1,5 @@
-function RWSLiteral(type) {
-	RWSNode.call(this, 'literal', {});
+function RWSLiteral(type, obj) {
+	RWSPrimitive.call(this, 'literal', type, obj);
 	this.name = type;
 	switch(type) {
 		case 'number':

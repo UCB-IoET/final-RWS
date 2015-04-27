@@ -14,7 +14,7 @@ function export_application(nodes, wires, server_url) {
     var connections = {};
 
     wires.forEach(function(wire) {
-    	connections[String(wire.id)] = String(wire.target.node.id); // or [String(wire.source.node.id), String(wire.target.node.id)]
+    	connections[String(wire.id)] = [String(wire.target.node.id)]; // or [String(wire.source.node.id), String(wire.target.node.id)]
     });
     exportObject['connections'] = connections;
 

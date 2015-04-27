@@ -190,7 +190,6 @@ RWSNode.prototype.updatePorts = function() {
 
 RWSNode.prototype.getExportRepresentation = function() {
 	var obj = {};
-	obj['type'] = this.type;
 	obj['inputs'] = [];
 	this.inputs.forEach(function(port) {
 		if(port.wire)
@@ -202,6 +201,11 @@ RWSNode.prototype.getExportRepresentation = function() {
 		if(port.wire)
     		obj['outputs'].push(String(port.wire.id));
 	});
+	for(var key in this) {
+		if(RESERVED_KEYS.indexOf(key) == -1)
+			obj[key] = this[key];
+	}
+
 	return obj;
 }
 
