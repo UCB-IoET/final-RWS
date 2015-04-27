@@ -55,11 +55,12 @@ div.popup {
 form {
 	max-width:300px;
 	min-width:250px;
-	padding:10px 50px;
+	padding:20px 15px;
 	border:2px solid gray;
 	border-radius:10px;
 	font-family:raleway;
 	background-color:#fff;
+	margin: 10px;
 }
 p {
 	margin-top:30px
@@ -142,3 +143,4 @@ ul {
 .literalInput {
 	width: 80%;
 }
+
