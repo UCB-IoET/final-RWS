@@ -109,6 +109,7 @@ function RWSNode(type, infoDict) {
 	this.type = type;
 	this.name = "";
 	this.description = "";
+	this.displayString = this.name + '\n' + this.description;
 	this.inputs = [];
 	this.outputs = [];
 	this.infoDict = infoDict;
@@ -119,10 +120,10 @@ function RWSNode(type, infoDict) {
 }
 
 RWSNode.prototype.draw = function(context) {
-    context.fillStyle="rgba(150, 150, 150, 1)";
+  context.fillStyle="rgba(150, 150, 150, 1)";
 	context.fillRect(this.x, this.y, nodeWidth, nodeHeight);
-	drawString(context, this.name + '\n' + this.description, this.x + 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
-    context.fillStyle="rgba(50, 50, 50, .7)";
+	drawString(context, this.displayString, this.x + nodeWidth/2, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
+  context.fillStyle="rgba(50, 50, 50, .7)";
     
     //draw triangles for inputs
     if(this.inputs.length > 0) {

@@ -4,8 +4,12 @@ function RWSLiteral(type, obj) {
 	switch(type) {
 		case 'number':
 			this.value = 0;
+			this.displayString = '' + this.value;
+			break;
 		case 'string':
 			this.value = 'hello';
+			this.displayString = '' + this.value;
+			break;
 	}
 }
 
