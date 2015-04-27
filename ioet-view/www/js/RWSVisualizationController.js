@@ -210,7 +210,7 @@ function show_add_popup() {
 
 function nodeInfoPopup(node) {
 	document.getElementById('nodeInfoMask').style.display = "block";
-	$('#nodeInfoPopup').html();
+	$('#nodeInfoPopup').html('');
 	node.populateInfoPopup($('#nodeInfoPopup'));
 	$('#nodeInfoPopup').on('click', function(e) {
 		e.stopPropagation();
