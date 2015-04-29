@@ -3,10 +3,12 @@ var nodeID = 0;
 var wireID = 0;
 var nodeColor = '#AAAAAA';
 
-var nodeWidth = 80;
-var nodeHeight = 40;
+var nodeWidth = 120;
+var nodeHeight = 60;
+var cornerRadius = 20;
 
-var ioSize = 10; // size of a triangle for input/output
+var ioSize = 15; // size of a triangle for input/output
+
 
 
 //a port entry; Has a mode(input or output) and a wire attached to it
@@ -42,14 +44,14 @@ function RWSIOPort(mode, node, name, wire) { // 0 for input, 1 for output
 			context.lineTo(this.x + ioSize*2, this.y);
 			context.fill(); //automatically closes path
 			if(this.name)
-				drawString(context, this.name, this.x, this.y - 4,"#333333", 0, 'serif', 10);
+				drawString(context, this.name, this.x, this.y - 4,"#333333", 0, 'serif', 12);
 		} else {
 			context.moveTo(this.x, this.y);
 			context.lineTo(this.x + ioSize , this.y - ioSize);
 			context.lineTo(this.x + ioSize*2, this.y);
 			context.fill(); //automatically closes path
 			if(this.name)
-				drawString(context, this.name, this.x, this.y + ioSize,"#333333", 0, 'serif', 10);
+				drawString(context, this.name, this.x, this.y + ioSize,"#333333", 0, 'serif', 12);
 		}
 		if(this.wire) {
 			this.wire.draw(context);
@@ -112,6 +114,7 @@ function RWSNode(type, infoDict) {
 	this.type = type;
 	this.name = "";
 	this.description = "";
+	this.displayString = this.name + '\n' + this.description;
 	this.inputs = [];
 	this.outputs = [];
 	this.infoDict = infoDict;
@@ -121,11 +124,28 @@ function RWSNode(type, infoDict) {
 	this.y = Math.floor((Math.random() * 200) + 30);
 }
 
+
 RWSNode.prototype.draw = function(context, selected) {
-    context.fillStyle="rgba(150, 150, 150, 1)";
-	context.fillRect(this.x, this.y, nodeWidth, nodeHeight);
-	drawString(context, this.name + '\n' + this.description, this.x + 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
-    context.fillStyle="rgba(50, 50, 50, .7)";
+  context.fillStyle="rgba(150, 150, 150, 1)";
+  context.strokeStyle="rgba(150, 150, 150, 1)";
+
+  // save original lineWidth
+  var width = context.lineWidth
+
+	// Set faux rounded corners
+	context.lineJoin = "round";
+	context.lineWidth = cornerRadius;
+
+	// Change origin and dimensions to match true size (a stroke makes the shape a bit larger)
+	context.strokeRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
+	context.fillRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
+	// context.fillRect(this.x, this.y, nodeWidth, nodeHeight);
+
+	drawString(context, this.displayString, this.x + nodeWidth/2 - this.displayString.length * 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
+  context.fillStyle="rgba(50, 50, 50, .7)";
+
+  // set lineWidth back to original
+  context.lineWidth = width;
     
     //draw triangles for inputs
     if(this.inputs.length > 0) {
