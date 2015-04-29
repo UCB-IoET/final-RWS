@@ -1,7 +1,6 @@
-global_nodes = [];
-global_wires = [];
+var application = new RWSApplication([], []);
 // add url to your server here - format should be: http://10.142.34.191:1444 
-server_url = "http://127.0.0.1:1445"
+server_url = "http://127.0.0.1:1456"
 
 var selected = null;
 var dragging = null;
@@ -42,7 +41,7 @@ function visualize() {
 	    ctx.save();
 		ctx.translate(panX, panY);
 		ctx.scale(scaling, scaling);
-		global_nodes.forEach(function(node) {
+		application.nodes.forEach(function(node) {
 			node.draw(ctx, selected);
 		});
 		ctx.restore();
@@ -52,7 +51,7 @@ function visualize() {
 
 function find_nearby_nodes() {
 	//here we look for nearby nodes using smap
-	var smap = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query', global_nodes);
+	var smap = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query', application.nodes);
 	smap.find_nodes();
     document.getElementById('listNodeMask').style.display = "block";
     d3.select("#listNodePopup").html();
@@ -94,7 +93,7 @@ function onMouseDown(e) {
 	    dragging = null;
 	    dragDist = 0;
 	    if(e.touches.length == 1) {
-			global_nodes.forEach(function(node) {
+			application.nodes.forEach(function(node) {
 				if(node.rectContains(mouse)) {
 					dragging = node;
 					dragoffset = mouse;
@@ -119,7 +118,7 @@ function onMouseUp(e) {
 		var mouse = getMouse(e);
 		var clickedPort = false;
 
-		global_nodes.forEach(function(node) {
+		application.nodes.forEach(function(node) {
 			var io = node.ioContains(mouse);
 			if(!selected) {
 				if(io != null) {
@@ -185,9 +184,9 @@ function show_add_popup() {
 	function add_click(entry, cat, nam, obj) {
 		entry.on('click', function() {
 			if(cat == 'literal') {
-				global_nodes.push(new RWSLiteral(nam, obj));
+				application.nodes.push(new RWSLiteral(nam, obj));
 			} else {
-				global_nodes.push(new RWSPrimitive(cat, nam, obj));
+				application.nodes.push(new RWSPrimitive(cat, nam, obj));
 			}
 	    	document.getElementById('addNodeMask').style.display = "none";
 	    	valid = false;
@@ -224,7 +223,7 @@ function nodeInfoPopup(node) {
 
 
 function send_model() {
-	export_application(global_nodes, global_wires, server_url);
+	export_application(application, server_url);
 }
 
 
