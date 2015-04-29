@@ -44,14 +44,14 @@ function RWSIOPort(mode, node, name, wire) { // 0 for input, 1 for output
 			context.lineTo(this.x + ioSize*2, this.y);
 			context.fill(); //automatically closes path
 			if(this.name)
-				drawString(context, this.name, this.x, this.y - 4,"#333333", 0, 'serif', 10);
+				drawString(context, this.name, this.x, this.y - 4,"#333333", 0, 'serif', 12);
 		} else {
 			context.moveTo(this.x, this.y);
 			context.lineTo(this.x + ioSize , this.y - ioSize);
 			context.lineTo(this.x + ioSize*2, this.y);
 			context.fill(); //automatically closes path
 			if(this.name)
-				drawString(context, this.name, this.x, this.y + ioSize,"#333333", 0, 'serif', 10);
+				drawString(context, this.name, this.x, this.y + ioSize,"#333333", 0, 'serif', 12);
 		}
 		if(this.wire) {
 			this.wire.draw(context);
@@ -141,7 +141,7 @@ RWSNode.prototype.draw = function(context, selected) {
 	context.fillRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
 	// context.fillRect(this.x, this.y, nodeWidth, nodeHeight);
 
-	drawString(context, this.displayString, this.x + nodeWidth/2 - this.displayString.length * 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 14);
+	drawString(context, this.displayString, this.x + nodeWidth/2 - this.displayString.length * 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
   context.fillStyle="rgba(50, 50, 50, .7)";
 
   // set lineWidth back to original
