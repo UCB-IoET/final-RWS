@@ -84,7 +84,7 @@ function RWSWire(port1, port2) {
 		this.source = port2;
 		this.target = port1;
 	}
-	global_wires.push(this);
+	application.wires.push(this);
 	//each wire is drawn twice atm, maybe we can fix this later
 	this.draw = function(context) {
 		context.strokeStyle='black'
@@ -101,7 +101,7 @@ function RWSWire(port1, port2) {
 	this.destroy = function() {
 		this.source.wire = null;
 		this.target.wire = null;
-		global_wires.splice(global_wires.indexOf(this),1);
+		application.wires.splice(application.wires.indexOf(this),1);
 	}
 }
 

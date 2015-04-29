@@ -1,13 +1,34 @@
 var NEW_LINE = '<br/>';
 
-
 function RWSSMAPNode(obj) {
-    RWSNode.call(this, 'SMAP', obj);
+    RWSNode.call(this, 'smap', obj);
 }
+
 RWSSMAPNode.prototype = new RWSNode();
 
 RWSSMAPNode.prototype.populateInfoPopup = function(container) {
   container.html(dict_to_html(this.infoDict));
+}
+
+RWSSMAPNode.prototype.getExportRepresentation = function() {
+  var obj = {};
+  obj['inputs'] = [];
+  this.inputs.forEach(function(port) {
+    if(port.wire)
+        obj['inputs'].push(String(port.wire.id));
+  });
+
+  obj['outputs'] = [];
+  this.outputs.forEach(function(port) {
+    if(port.wire)
+        obj['outputs'].push(String(port.wire.id));
+  });
+
+  obj['type'] = this.type;
+  obj['smap-type'] = this['smap-type'];
+  obj['uuid'] = this.infoDict['uuid'];
+
+  return obj;
 }
 
 //NOTE: THIS WON'T Work until we aren't running in the browser because of CORS issues
@@ -42,8 +63,10 @@ function RWSSMAPInterface(root_url, available_nodes) {
       }
       node.uuid = entry['uuid'];
       if(entry['Actuator'] && entry['Actuator']['Model']) {
+        node['smap-type'] = 'actuator';
         node.add_input(new RWSIOPort(0, node, entry['Actuator']['Model']));
       } else {
+        node['smap-type'] = 'subscription';
         node.add_output();
       }
       //need to check for duplicates
