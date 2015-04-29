@@ -2,5 +2,4 @@ ioet-view/platforms/*
 */*.pbxproj
 */*.xcworkspace
 
-.smap_interpreter
 *.pyc

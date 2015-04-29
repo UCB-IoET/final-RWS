@@ -4,6 +4,10 @@ from operator import *
 from sys import argv
 from util import *
 import json
+import Queue
+import thread
+from util import load_json
+from ws4py.client.threadedclient import WebSocketClient
 
 debug = False
 class void:
@@ -15,13 +19,16 @@ void = void()
 nodes = {}
 wireV = {} # wire values
 wireS = {} # wire subscriptions
-ready_q = []
+ready_q = Queue.Queue(0)
 ready = set()
 _ast_docs = []
 _func_docs = []
 _node_switch_table = {}
 _func_switch_table = {}
 _node_configs = {} #maps categories to lists of member nodes
+
+smap_subscriptions_p = False #True when smap subscriptions are active
+smap_threads = [] #list of all smap subscription thread IDs
 
 def def_node_config(category, sub_category, node_type, inputs, outputs, other=None):
     if category not in _node_configs:
@@ -73,13 +80,17 @@ def run_program(ast):
     global nodes, wireV, wireS, ready, ready_q
     nodes = ast['nodes']
     wireS = ast['connections']
-    wireV = {str(name) : void for name in range(len(wireS))}
-    ready_q = ast.get('initial',[])
-    ready = set(ready_q)
-    while ready_q:
-        node = ready_q.pop(0)
+    #TODO: need to settle on some kind of name standard or fix this
+    wireV = {"w{}".format(name) : void for name in range(len(wireS))}
+    ready = set(ast.get('initial',[]))
+    for node in ready:
+        ready_q.put(node)
+    while not ready_q.empty() or smap_subscriptions_p:
+        node = ready_q.get()
         ready.remove(node)
+        #TODO: catch errors
         run_id(node)
+    print "DONE"
 
 @node('literal',
       {'val': 'a literal number or string',
@@ -150,6 +161,64 @@ def _(ast):
     if out:
         set_and_signal(out[0], ret)#for now, only 1 output
 
+################################################################################
+# smap related things
+
+next_id = 0;
+class Subscription(WebSocketClient):
+    def __init__(self, url, select, cb):
+        global next_id
+        super(Subscription, self).__init__(url)
+        self.select = select
+        self.cb = cb
+        self.ID = next_id
+        next_id += 1;
+
+    def opened(self):
+        self.send(self.select)
+
+    def closed(self, code, reason=None):
+        print "Closed down", code, reason
+
+    def received_message(self, m):
+        self.cb(m)
+
+
+def smap_subscribe(url, select, cb):
+    try:
+        ws = Subscription(url, select, cb)
+        ws.connect()
+        ws.run_forever()
+    except KeyboardInterrupt:
+        ws.close()
+
+def new_subscription(url, select, output_wires):
+    def cb(m):
+        for out in output_wires:
+            set_and_signal(out, load_json(m.data).get('Readings')[0][1])
+
+    tid = thread.start_new_thread(smap_subscribe, (url, select, cb))
+    smap_threads.append(tid)
+    print "smap: new_subscription('{}',  '{}')".format(url, select)
+
+@node('smap',
+      {'smap-type': 'subscribe, query, actuate',
+       'url': '',
+       'select': '',
+       'outputs': 'list of output wires'})
+def _(ast):
+    global smap_subscriptions_p
+    stype = ast['smap-type']
+    if stype == 'subscribe':
+        new_subscription(ast['url'], ast['select'], ast['outputs'])
+        smap_subscriptions_p = True
+    elif stype == 'query':
+        pass
+    elif stype == 'actuate':
+        pass
+    else:
+        print "invalid smap type"
+
 
 ################################################################################
 @function('print',
@@ -186,7 +255,8 @@ def signal(wire):
     if nodes:
         new = set(nodes).difference(ready)
         ready = ready.union(new)
-        ready_q.extend(list(new))
+        for node in new:
+            ready_q.put(node)
 
 def wire_set(wire, val):
     wireV[wire] = val
@@ -202,7 +272,7 @@ def wire_get(wire):
 def set_ready(node_id):
     if node_id not in ready:
         ready.add(node_id)
-        ready_q.append(node_id)
+        ready_q.put(node_id)
 
 def assert_exists(fn, wire):
     if wire not in wireV:
