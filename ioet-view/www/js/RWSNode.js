@@ -1,8 +1,6 @@
 //RWSNode.js
 var nodeID = 0;
 var wireID = 0;
-
-var TYPES = ["SMAP", "SVCD", "PRIMITIVE"];
 var nodeColor = '#AAAAAA';
 
 var nodeWidth = 80;
@@ -31,8 +29,13 @@ function RWSIOPort(mode, node, name, wire) { // 0 for input, 1 for output
 		}
 	}
 
-	this.draw = function(context) {
+	this.draw = function(context, selected) {
 		context.beginPath();
+		if(selected == this) {
+			context.fillStyle = "rgba(150, 200, 50, .7)";
+		} else {
+			context.fillStyle = "rgba(50, 50, 50, .7)";
+		}
 		if(this.mode == 1) {
 			context.moveTo(this.x, this.y);
 			context.lineTo(this.x + ioSize , this.y + ioSize);
@@ -118,7 +121,7 @@ function RWSNode(type, infoDict) {
 	this.y = Math.floor((Math.random() * 200) + 30);
 }
 
-RWSNode.prototype.draw = function(context) {
+RWSNode.prototype.draw = function(context, selected) {
     context.fillStyle="rgba(150, 150, 150, 1)";
 	context.fillRect(this.x, this.y, nodeWidth, nodeHeight);
 	drawString(context, this.name + '\n' + this.description, this.x + 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
@@ -127,7 +130,7 @@ RWSNode.prototype.draw = function(context) {
     //draw triangles for inputs
     if(this.inputs.length > 0) {
     	for(var i = 0; i < this.inputs.length; i++) {
-			this.inputs[i].draw(context);
+			this.inputs[i].draw(context, selected);
 		    if(this.inputs[i].wire) {
 		    	this.inputs[i].wire.draw(context);
 		    }
@@ -137,7 +140,7 @@ RWSNode.prototype.draw = function(context) {
     //draw triangles for outputs
     if(this.outputs.length > 0) {
     	for(var i = 0; i < this.outputs.length; i++) {
-			this.outputs[i].draw(context);
+			this.outputs[i].draw(context, selected);
 		    if(this.outputs[i].wire) {
 		    	this.outputs[i].wire.draw(context);
 		    }
@@ -190,7 +193,6 @@ RWSNode.prototype.updatePorts = function() {
 
 RWSNode.prototype.getExportRepresentation = function() {
 	var obj = {};
-	obj['type'] = this.type;
 	obj['inputs'] = [];
 	this.inputs.forEach(function(port) {
 		if(port.wire)
@@ -202,6 +204,11 @@ RWSNode.prototype.getExportRepresentation = function() {
 		if(port.wire)
     		obj['outputs'].push(String(port.wire.id));
 	});
+	for(var key in this) {
+		if(RESERVED_KEYS.indexOf(key) == -1)
+			obj[key] = this[key];
+	}
+
 	return obj;
 }
 
@@ -221,10 +228,5 @@ function dict_to_html(dict) {
 }
 
 RWSNode.prototype.populateInfoPopup = function (container) {
-	var html = '';
-	if(this.type == "SMAP") {
-		//display the info dictionary
-		html = dict_to_html(this.infoDict);
-	}
-	container.html(html);
+	container.html(dict_to_html(this));
 }

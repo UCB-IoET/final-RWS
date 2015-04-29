@@ -1,11 +1,13 @@
-function RWSLiteral(type) {
-	RWSNode.call(this, 'literal', {});
+function RWSLiteral(type, obj) {
+	RWSPrimitive.call(this, 'literal', type, obj);
 	this.name = type;
 	switch(type) {
 		case 'number':
 			this.value = 0;
+			break;
 		case 'string':
 			this.value = 'hello';
+			break;
 	}
 }
 
@@ -20,15 +22,21 @@ RWSLiteral.prototype.getExportRepresentation = function() {
 
 RWSLiteral.prototype.populateInfoPopup = function(container) {
 	var node = this;
-	container.append('<form class="literalInput"><input type="text" name="value" id="formValue"><input type="submit" value="change"></form>');
+	if(node.name == 'number') {
+		container.append('<form class="literalInput"><input type="number" step="0.01" name="value" id="formValue"><input type="submit" value="change"></form>');
+		container.append('<p>'+this.value+'</p>')
+	} else {
+		container.append('<form class="literalInput"><input type="text" name="value" id="formValue"><input type="submit" value="change"></form>');
+		container.append('<p>'+this.value+'</p>')
+	}
 	container.find('form').submit(function() {
 		var value = $('#formValue').val();
 		if(node.name == 'number') {
-			node.value = value;
+			node.value = Number(value);
 		} else {
 			node.value = String(value);
 		}
-		console.log(node.value);
+		container.parent()[0].style.display="none";
 		return false;
 	});
 }

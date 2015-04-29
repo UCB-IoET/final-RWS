@@ -1,7 +1,7 @@
 global_nodes = [];
 global_wires = [];
 // add url to your server here - format should be: http://10.142.34.191:1444 
-server_url = "http://127.0.0.1:1444"
+server_url = "http://127.0.0.1:1445"
 
 var selected = null;
 var dragging = null;
@@ -43,7 +43,7 @@ function visualize() {
 		ctx.translate(panX, panY);
 		ctx.scale(scaling, scaling);
 		global_nodes.forEach(function(node) {
-			node.draw(ctx);
+			node.draw(ctx, selected);
 		});
 		ctx.restore();
 		valid = true;
@@ -116,9 +116,9 @@ function onMouseUp(e) {
 
 	var canvas = $('canvas')[0];
 	if(canvas) {
-
 		var mouse = getMouse(e);
 		var clickedPort = false;
+
 		global_nodes.forEach(function(node) {
 			var io = node.ioContains(mouse);
 			if(!selected) {
@@ -135,6 +135,7 @@ function onMouseUp(e) {
 				}
 			}
 		});
+
 		if(!clickedPort) {
 			selected = null;
 		}
@@ -180,10 +181,14 @@ function show_add_popup() {
 	document.getElementById('addNodeMask').style.display = "block";
 	$('#addPrimitivePopup').html('');
 	var html = '';
-	var primitives = load_primitives();
+	var primitives = load_primitives(server_url);
 	function add_click(entry, cat, nam, obj) {
 		entry.on('click', function() {
-			global_nodes.push(new RWSPrimitive(cat, nam, obj));
+			if(cat == 'literal') {
+				global_nodes.push(new RWSLiteral(nam, obj));
+			} else {
+				global_nodes.push(new RWSPrimitive(cat, nam, obj));
+			}
 	    	document.getElementById('addNodeMask').style.display = "none";
 	    	valid = false;
 		});
@@ -202,21 +207,11 @@ function show_add_popup() {
 		$('#addPrimitivePopup').append('</ul>');
 		$('#addPrimitivePopup').append('<hr>');
 	}
-	// $('#addPrimitivePopup').html(html);
-
-	// $('#addPrimitivePopup').find('li').on('click', function(d, i) { 
-	// 	if(d == 'literal') {
-	// 		global_nodes.push(new RWSLiteral('string'));
-	// 	} else {
-	// 		global_nodes.push(new RWSPrimitive(d));
-	// 	}
- //    	document.getElementById('addNodeMask').style.display = "none";
- //    	valid = false;
- //    })
 }
 
 function nodeInfoPopup(node) {
 	document.getElementById('nodeInfoMask').style.display = "block";
+	$('#nodeInfoPopup').html('');
 	node.populateInfoPopup($('#nodeInfoPopup'));
 	$('#nodeInfoPopup').on('click', function(e) {
 		e.stopPropagation();

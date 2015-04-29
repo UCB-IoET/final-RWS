@@ -1,54 +1,25 @@
-function load_primitives() {
-	return { //very temporary obviously
-		"literals" : { 
-			"number" : { 
-				"value" : 0,
-				"outputs" : ["outputVal"]
-			},
-			"string" : {
-				"value": "value",
-				"outputs" : ["outputVal"]
-			}
-		},
-
-		"call" : {
-			"print" : {
-				"inputs" : ["value"]
-			}
-		},
-
-		"conditional" : {
-			">=" : {
-				"inputs" : ["threshold", "value"],
-				"outputs" : ["result"]
-			}, 
-			"<=" : {
-				"inputs" : ["threshold", "value"],
-				"outputs" : ["result"]
-			}, 
-			"if" : {
-				"inputs" : ["value"],
-				"outputs" : ["true", "false"]
-			}
-		},
-
-		"math" : {
-			"round" : {
-				"inputs" : ["value"],
-				"outputs" : ["result"]
-			},
-			"binary" : {
-				"inputs" : ["value"],
-				"outputs" : ["result"]
-			}
-		}
-	};
+var RESERVED_KEYS = ['name', 'inputs', 'outputs']
+function load_primitives(server_url) {
+	var configs = {};
+	$.ajax({
+       type: 'GET',
+       url: server_url+'/config',
+       success: function(data) {
+          configs = data;
+       },
+       async:false
+    });
+    return configs;
 }
 
 function RWSPrimitive(category, primitiveName, obj) {
 	RWSNode.call(this, primitiveName, {});
 	this.name = primitiveName;
-	this.type = category;
+	this.category = category;
+	for(var key in obj) {
+		if(RESERVED_KEYS.indexOf(key) == -1)
+			this[key] = obj[key]
+	}
 
 	if(obj['inputs'] && obj['inputs'].length > 0) {
 		for(var input in obj['inputs']) {
@@ -67,8 +38,6 @@ RWSPrimitive.prototype = new RWSNode();
 
 RWSPrimitive.prototype.getExportRepresentation = function() {
 	var obj = RWSNode.prototype.getExportRepresentation.call(this);
-
-	obj["type"] = "call";
 	obj["name"] = this.name;
 	return obj;
 }

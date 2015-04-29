@@ -124,9 +124,9 @@ def binop(ast):
 cmp_map = {'==': eq, '>': gt, '<': lt,'!=': ne}
 math_map = {'+': add, '-': sub, '*' : mul,'/': truediv}
 for x in cmp_map:
-    def_node_config('comparison', x, 'binop', ['threshold', 'value'], 'result',{'op':x})
+    def_node_config('comparison', x, 'binop', ['val1', 'val2'], 'result',{'op':x})
 for x in math_map:
-    def_node_config('math', x, 'binop', ['threshold', 'value'], 'result',{'op':x})
+    def_node_config('math', x, 'binop', ['val1', 'val2'], 'result',{'op':x})
 
 binop_map = cmp_map
 binop_map.update(math_map)
