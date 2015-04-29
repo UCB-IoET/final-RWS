@@ -1,4 +1,4 @@
-var RESERVED_KEYS = ['name', 'inputs', 'outputs']
+var RESERVED_KEYS = ['name', 'inputs', 'outputs', 'infoDict']
 function load_primitives(server_url) {
 	var configs = {};
 	$.ajax({

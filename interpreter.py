@@ -184,33 +184,33 @@ class Subscription(WebSocketClient):
         self.cb(m)
 
 
-def smap_subscribe(url, select, cb):
+def smap_subscribe(url, uuid, cb):
     try:
-        ws = Subscription(url, select, cb)
+        ws = Subscription(url, "uuid = '{}'".format(uuid), cb)
         ws.connect()
         ws.run_forever()
     except KeyboardInterrupt:
         ws.close()
 
-def new_subscription(url, select, output_wires):
+def new_subscription(url, uuid, output_wires):
     def cb(m):
         for out in output_wires:
             set_and_signal(out, load_json(m.data).get('Readings')[0][1])
-
-    tid = thread.start_new_thread(smap_subscribe, (url, select, cb))
+    
+    tid = thread.start_new_thread(smap_subscribe, (url, uuid, cb))
     smap_threads.append(tid)
-    print "smap: new_subscription('{}',  '{}')".format(url, select)
+    print "smap: new_subscription('{}',  '{}')".format(url, uuid)
 
 @node('smap',
       {'smap-type': 'subscribe, query, actuate',
        'url': '',
-       'select': '',
+       'uuid': '',
        'outputs': 'list of output wires'})
 def _(ast):
     global smap_subscriptions_p
     stype = ast['smap-type']
     if stype == 'subscribe':
-        new_subscription(ast['url'], ast['select'], ast['outputs'])
+        new_subscription(ast['url'], ast['uuid'], ast['outputs'])
         smap_subscriptions_p = True
     elif stype == 'query':
         pass
