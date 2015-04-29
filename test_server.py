@@ -1,7 +1,7 @@
 import json
 import urllib2 
 
-PORT='1455'
+PORT='1456'
 
 program = {'type':'program',
            'uid': 'rws',
@@ -50,7 +50,9 @@ program2 = {'type':'program',
             'nodes':{'n0' : {'type': 'smap',
                              'smap-type': 'subscribe',
                              'url': 'ws://shell.storm.pm:8078/republish',
-                             'select': "Metadata/SourceName = 'Gabe Sine Wave Driver'",
+                             #'select': "Metadata/SourceName = 'Gabe Sine Wave Driver'",
+                             'select': 'uuid = "71be455c-2eac-50d3-ac03-81fae87b0ee3"',
+
                              'outputs': ['w0']},
                      'n1' : {'type': 'literal',
                              'val': 100,

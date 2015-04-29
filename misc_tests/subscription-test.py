@@ -29,7 +29,8 @@ def cb(m):
 try:
 
     ws = Subscription('ws://shell.storm.pm:8078/republish',
-                      "Metadata/SourceName = 'Gabe Sine Wave Driver'",
+                      #"Metadata/SourceName = 'Gabe Sine Wave Driver'",
+                      'uuid = "71be455c-2eac-50d3-ac03-81fae87b0ee3"',
                       cb)
     ws.connect()
     ws.run_forever()
