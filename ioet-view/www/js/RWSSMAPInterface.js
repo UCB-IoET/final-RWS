@@ -27,6 +27,7 @@ RWSSMAPNode.prototype.getExportRepresentation = function() {
   obj['type'] = this.type;
   obj['smap-type'] = this['smap-type'];
   obj['uuid'] = this.infoDict['uuid'];
+  obj['url'] = 'ws://shell.storm.pm:8078/republish';
 
   return obj;
 }
@@ -63,10 +64,10 @@ function RWSSMAPInterface(root_url, available_nodes) {
       }
       node.uuid = entry['uuid'];
       if(entry['Actuator'] && entry['Actuator']['Model']) {
-        node['smap-type'] = 'actuator';
+        node['smap-type'] = 'actuate';
         node.add_input(new RWSIOPort(0, node, entry['Actuator']['Model']));
       } else {
-        node['smap-type'] = 'subscription';
+        node['smap-type'] = 'subscribe';
         node.add_output();
       }
       //need to check for duplicates
