@@ -7,6 +7,9 @@ function load_primitives(server_url) {
        success: function(data) {
           configs = data;
        },
+       error: function() {
+       	  console.log("error retrieving primitives");
+       },
        async:false
     });
     return configs;

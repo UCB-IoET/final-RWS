@@ -37,6 +37,7 @@ function RWSSMAPInterface(root_url, available_nodes) {
 	var smap = this;
 	smap.entries = [];
   this.find_nodes = function() {
+
     //grab all the nodes
     $.ajax({
        type: 'POST',
@@ -46,10 +47,14 @@ function RWSSMAPInterface(root_url, available_nodes) {
           data.forEach(function(datum) {
               smap.add_entry(datum);
           });
-       }
-       ,
+       },
+       error: function() {
+          console.log("error loading nodes");
+       },
        async:false
     });
+
+
   };
 
   this.add_entry = function(entry) {

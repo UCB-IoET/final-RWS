@@ -177,8 +177,13 @@ function onGestureEnd(e) {
 }
 
 function show_add_popup() {
-	document.getElementById('addNodeMask').style.display = "block";
-	$('#addPrimitivePopup').html('');
+	document.getElementById('addPrimitiveMask').style.display = "block";
+	$('#addPrimitivePopup').html('').on('click', function(e) {
+		e.stopPropagation();
+	});
+	$('#addPrimitiveMask').on('click', function() {
+		document.getElementById('addPrimitiveMask').style.display = "none";
+	});
 	var html = '';
 	var primitives = load_primitives(server_url);
 	function add_click(entry, cat, nam, obj) {
@@ -188,7 +193,7 @@ function show_add_popup() {
 			} else {
 				application.nodes.push(new RWSPrimitive(cat, nam, obj));
 			}
-	    	document.getElementById('addNodeMask').style.display = "none";
+	    	document.getElementById('addPrimitiveMask').style.display = "none";
 	    	valid = false;
 		});
 	}

@@ -114,7 +114,6 @@ function RWSNode(type, infoDict) {
 	this.type = type;
 	this.name = "";
 	this.description = "";
-	this.displayString = this.name + '\n' + this.description;
 	this.inputs = [];
 	this.outputs = [];
 	this.infoDict = infoDict;
@@ -122,6 +121,10 @@ function RWSNode(type, infoDict) {
 	//visual representation info
 	this.x = Math.floor((Math.random() * 200) + 30);
 	this.y = Math.floor((Math.random() * 200) + 30);
+}
+
+RWSNode.prototype.getDisplayString = function() {
+	return this.name + '\n' + this.description;
 }
 
 
@@ -139,33 +142,33 @@ RWSNode.prototype.draw = function(context, selected) {
 	// Change origin and dimensions to match true size (a stroke makes the shape a bit larger)
 	context.strokeRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
 	context.fillRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
-	// context.fillRect(this.x, this.y, nodeWidth, nodeHeight);
 
-	drawString(context, this.displayString, this.x + nodeWidth/2 - this.displayString.length * 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
+	var displayString = this.getDisplayString()
+	drawString(context, displayString, this.x + nodeWidth/2 - displayString.length * 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
   context.fillStyle="rgba(50, 50, 50, .7)";
 
   // set lineWidth back to original
   context.lineWidth = width;
     
     //draw triangles for inputs
-    if(this.inputs.length > 0) {
+  if(this.inputs.length > 0) {
     	for(var i = 0; i < this.inputs.length; i++) {
 			this.inputs[i].draw(context, selected);
 		    if(this.inputs[i].wire) {
 		    	this.inputs[i].wire.draw(context);
 		    }
 		}
-    }
+  }
 
     //draw triangles for outputs
-    if(this.outputs.length > 0) {
+  if(this.outputs.length > 0) {
     	for(var i = 0; i < this.outputs.length; i++) {
 			this.outputs[i].draw(context, selected);
 		    if(this.outputs[i].wire) {
 		    	this.outputs[i].wire.draw(context);
 		    }
 		}
-    }
+  }
 }
 
 RWSNode.prototype.rectContains = function(pos) {
