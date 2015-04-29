@@ -41,7 +41,7 @@ function RWSSMAPInterface(root_url, available_nodes) {
     $.ajax({
        type: 'POST',
        url: root_url,
-       data: 'select * where has Metadata/Name;',
+       data: 'select * where has Metadata/SourceName;',
        success: function(data) {
           data.forEach(function(datum) {
               smap.add_entry(datum);
@@ -53,14 +53,13 @@ function RWSSMAPInterface(root_url, available_nodes) {
   };
 
   this.add_entry = function(entry) {
-        //need to check for duplicates
   	this.entries.push(entry);
   }
     
   this.select_entry = function(entry) {
       var node = new RWSSMAPNode(entry);
-      if(entry['Metadata']['Name']) {
-        node.name = entry['Metadata']['Name'];
+      if(entry['Metadata']['SourceName']) {
+        node.name = entry['Metadata']['SourceName'];
       }
       node.uuid = entry['uuid'];
       if(entry['Actuator'] && entry['Actuator']['Model']) {
@@ -78,12 +77,12 @@ function RWSSMAPInterface(root_url, available_nodes) {
   	str = '';
   	if(entry['Actuator'] && entry['Actuator']['Model']) {
   		str += 'Actuator' + NEW_LINE;
-      if(entry['Metadata']['Name'])
-    		str += 'Name: ' + entry['Metadata']['Name'] + NEW_LINE;
+      if(entry['Metadata']['SourceName'])
+    		str += 'Name: ' + entry['Metadata']['SourceName'] + NEW_LINE;
   	} else {
       str += 'Input' + NEW_LINE;
-      if(entry['Metadata']['Name'])
-    		str += 'Name: ' + entry['Metadata']['Name'] + NEW_LINE;
+      if(entry['Metadata']['SourceName'])
+    		str += 'Name: ' + entry['Metadata']['SourceName'] + NEW_LINE;
       if(entry['Metadata']['Sensor'])
         str += 'Sensor: ' + entry['Metadata']['Sensor'] + NEW_LINE;
       if(entry['Properties'] && entry['Properties']['UnitofMeasure'])
