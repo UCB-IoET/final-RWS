@@ -18,8 +18,11 @@ def client_thread(program, addr, n_threads):
     #stream some data to the archiver
     #we have the child do this so the parent can remain responsive
     update_thread_stream(n_threads)
-
-    run_program(program)
+    program['status'] = 'running'
+    if(run_program(program) == 0): #success
+        program['status'] = 'completed'
+    else:
+        program['status'] = 'terminated'
 
 
 def update_thread_stream(n_threads):
@@ -40,8 +43,22 @@ def update_thread_stream(n_threads):
     except Exception as e:
         print (e)
 
-class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+
+class ProgramCache:
     programs = {}
+
+    def store_program(self, program):
+        self.programs[str(program['uid'])] = program
+        program['status'] = 'Not Started'
+
+    def get_program(self, uid):
+        print 'looking for ', uid, 'in', self.programs
+        if uid in self.programs:
+            return self.programs[uid]
+        return None
+
+class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+    cache = ProgramCache()
     def do_GET(self):
         if(self.path == '/config'):
             self.send_response(200)
@@ -77,23 +94,49 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 print("Authentication failed")
                 self.send_response(500)
                 return
-            self.programs[str(program['uid'])] = program
+
+            self.cache.store_program(program)
             self.send_response(200)
 
-        elif(self.path == '/start'):
+        elif(self.path == '/start'): #TODO: Authentication of start request
             length = int(self.headers['Content-length'])
             uid = str(self.rfile.read(length))
-            if uid in self.programs:
+            program = self.cache.get_program(uid)
+            if program:
                 print "Starting process for program: ", uid
-                program = self.programs[uid]
                 # feed client address into threadable function
                 client_addr = str(self.client_address[0]) + ":" + str(self.client_address[1])
                 n_threads += 1
                 tid = thread.start_new_thread(client_thread,
                                       (program, client_addr, n_threads))
+                program['tid'] = tid;
                 self.send_response(200)
             else:
-                print("No such program: ", uid)
+                print "No such program: ", uid
+                self.send_response(500)
+        elif(self.path == '/stop'): # not actually doing anything atm...need to make threads killable
+            length = int(self.headers['Content-length'])
+            uid = str(self.rfile.read(length))
+            program = self.cache.get_program(uid)
+            if program:
+                print "Stopping process for program: ", uid
+                # n_threads -= 1
+                # tid = thread.start_new_thread(client_thread,
+                #                       (program, client_addr, n_threads))
+                # program['tid'] = tid;
+                self.send_response(200)
+            else:
+                print "No such program: ", uid
+                self.send_response(500)
+        elif(self.path == '/status'):
+            length = int(self.headers['Content-length'])
+            uid = str(self.rfile.read(length))
+            program = self.cache.get_program(uid)
+            if program:
+                print "status", program['status']
+                self.send_response(200)
+            else:
+                print "No such program: ", uid
                 self.send_response(500)
         else:
             print("Invalid path")

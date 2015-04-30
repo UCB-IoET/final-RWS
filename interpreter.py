@@ -91,6 +91,7 @@ def run_program(ast):
         #TODO: catch errors
         run_id(node)
     print "DONE"
+    return 0
 
 @node('literal',
       {'val': 'a literal number or string',
