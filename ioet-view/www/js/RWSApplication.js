@@ -1,9 +1,13 @@
+var app_id = 1;
+
 function RWSApplication(nodes, wires) {
 	this.nodes = nodes;
 	this.wires = wires;
+	this.app_id = app_id++;
 
 	this.getExportRepresentation = function() {
 		var exportObject = {'type' : 'program', 'password' : 'password'};
+		exportObject['uid'] = this.app_id;
 	    var initialNodes = [];
 
 	    this.nodes.forEach(function(node) {

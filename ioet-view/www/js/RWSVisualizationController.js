@@ -1,6 +1,6 @@
 var application = new RWSApplication([], []);
-// add url to your server here - format should be: http://10.142.34.191:1444 
-server_url = "http://127.0.0.1:1458"
+var server_url = "http://127.0.0.1:1458";
+var interpreter = new RWSInterpreterInterface(server_url);
 
 var selected = null;
 var dragging = null;
@@ -228,7 +228,7 @@ function nodeInfoPopup(node) {
 
 
 function send_model() {
-	export_application(application, server_url);
+	interpreter.export_application(application);
 }
 
 

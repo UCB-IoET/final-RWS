@@ -41,6 +41,7 @@ def update_thread_stream(n_threads):
         print (e)
 
 class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+    programs = {}
     def do_GET(self):
         if(self.path == '/config'):
             self.send_response(200)
@@ -52,40 +53,53 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         global n_threads
         logging.warning("======= POST STARTED =======")
         logging.warning(self.headers)
+        if(self.path == '/new'):
+            # load post content
+            length = int(self.headers['Content-length'])
+            post_content = self.rfile.read(length)
 
-        # load post content
-        length = int(self.headers['Content-length'])
-        post_content = self.rfile.read(length)
+            # object is a dictionary
+            program = util.load_json(post_content)
 
-        # object is a dictionary
-        program = util.load_json(post_content)
+            #check that received json is a valid program
+            if not all([program.get(x) for x in ['password',
+                                                 'uid',
+                                                 # 'pid',
+                                                 'initial',
+                                                 'connections',
+                                                 'nodes',
+                                                 'type']]):
+                print("Invalid program, ignoring.")  
+                return
+            #check user id and password
+            #TODO: user IDs
+            if str(program['password']) != "password":
+                print("Authentication failed")
+                self.send_response(500)
+                return
+            self.programs[str(program['uid'])] = program
+            self.send_response(200)
 
-        # feed client address into threadable function
-        client_addr = str(self.client_address[0]) + ":" + str(self.client_address[1])
-
-        #check that received json is a valid program
-        if not all([program.get(x) for x in ['password',
-                                             # 'uid',
-                                             # 'pid',
-                                             'initial',
-                                             'connections',
-                                             'nodes',
-                                             'type']]):
-            print("Invalid program, ignoring.")  
-            return
-
-        #check user id and password
-        #TODO: user IDs
-        if str(program['password']) != "password":
-            print("Authentication failed")
-            return
-
-        n_threads += 1
-        tid = thread.start_new_thread(client_thread,
+        elif(self.path == '/start'):
+            length = int(self.headers['Content-length'])
+            uid = str(self.rfile.read(length))
+            if uid in self.programs:
+                print "Starting process for program: ", uid
+                program = self.programs[uid]
+                # feed client address into threadable function
+                client_addr = str(self.client_address[0]) + ":" + str(self.client_address[1])
+                n_threads += 1
+                tid = thread.start_new_thread(client_thread,
                                       (program, client_addr, n_threads))
+                self.send_response(200)
+            else:
+                print("No such program: ", uid)
+                self.send_response(500)
+        else:
+            print("Invalid path")
+            self.send_response(404)
         #TODO: save this thread id in the users thread list
 
-        self.send_response(200)
 
 
 ################################################################################
@@ -106,6 +120,6 @@ else:
 ################################################################################
 
 httpd = SocketServer.TCPServer(("127.0.0.1", PORT), ServerHandler)
-
+httpd.allow_reuse_address = True # Prevent 'cannot bind to address' errors on restart....not working atm
 print("Server active")
 httpd.serve_forever()
