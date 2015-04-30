@@ -114,7 +114,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             else:
                 print "No such program: ", uid
                 self.send_response(500)
-        elif(self.path == '/stop'): # not actually doing anything atm...need to make threads killable
+        elif(self.path == '/stop'): # not actually doing anything atm...need to make threads killable   
             length = int(self.headers['Content-length'])
             uid = str(self.rfile.read(length))
             program = self.cache.get_program(uid)

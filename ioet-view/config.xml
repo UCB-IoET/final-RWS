@@ -5,9 +5,9 @@
         IoET-View application.
     </description>
     <author>
-        Running With Schissors
+        Running With Scissors
     </author>
-    <content src="index.html" />
+    <content src="menu.html" />
     <preference name="permissions" value="none" />
     <preference name="orientation" value="default" />
     <preference name="target-device" value="universal" />

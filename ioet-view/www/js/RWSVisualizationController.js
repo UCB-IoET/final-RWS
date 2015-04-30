@@ -228,6 +228,7 @@ function nodeInfoPopup(node) {
 
 
 function send_model() {
+	window.localStorage.setItem(String(application.app_id), application);
 	interpreter.export_application(application);
 }
 
