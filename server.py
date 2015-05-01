@@ -12,7 +12,7 @@ import json
 from interpreter import run_program
 from interpreter import _node_configs
 
-PORT = 1458
+PORT = 1462
 
 def client_thread(program, addr, n_threads):
     #stream some data to the archiver
@@ -48,14 +48,12 @@ class ProgramCache:
     programs = {}
 
     def store_program(self, program):
-        self.programs[str(program['uid'])] = program
+        self.programs[(str(program['uid']), str(program['pid']))] = program
         program['status'] = 'Not Started'
 
-    def get_program(self, uid):
-        print 'looking for ', uid, 'in', self.programs
-        if uid in self.programs:
-            return self.programs[uid]
-        return None
+    def get_program(self, uid, pid):
+        print 'looking for ({}, {}) in {}'.format(uid, pid, self.programs)
+        return self.programs.get((uid,pid))
 
 class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     cache = ProgramCache()
@@ -76,17 +74,22 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             post_content = self.rfile.read(length)
 
             # object is a dictionary
-            program = util.load_json(post_content)
+            try:
+                program = util.load_json(post_content)
+            except:
+                print "Error extracting json"
+                self.send_response(500)
+                return
 
             #check that received json is a valid program
             if not all([program.get(x) for x in ['password',
                                                  'uid',
-                                                 # 'pid',
+                                                 'pid',
                                                  'initial',
                                                  'connections',
                                                  'nodes',
                                                  'type']]):
-                print("Invalid program, ignoring.")  
+                print("Invalid program, ignoring.")
                 return
             #check user id and password
             #TODO: user IDs
@@ -98,12 +101,26 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.cache.store_program(program)
             self.send_response(200)
 
-        elif(self.path == '/start'): #TODO: Authentication of start request
+        elif (self.path == '/start'): #TODO: Authentication of start request
             length = int(self.headers['Content-length'])
-            uid = str(self.rfile.read(length))
-            program = self.cache.get_program(uid)
+            post_content = self.rfile.read(length)
+            try:
+                info = util.load_json(post_content)
+            except:
+                print "Error extracting json"
+                self.send_response(500)
+                return
+            if not (info.get('uid') and  info.get('pid') and info.get('password')):
+                print("Invalid user/program id, ignoring.")
+                return
+            if str(info['password']) != "password":
+                print("Authentication failed")
+                self.send_response(500)
+                return
+            uid, pid = info['uid'], info['pid']
+            program = self.cache.get_program(uid, pid)
             if program:
-                print "Starting process for program: ", uid
+                print "Starting process for program: ({},{})".format(uid, pid)
                 # feed client address into threadable function
                 client_addr = str(self.client_address[0]) + ":" + str(self.client_address[1])
                 n_threads += 1
@@ -112,9 +129,9 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 program['tid'] = tid;
                 self.send_response(200)
             else:
-                print "No such program: ", uid
+                print "No such program: ({}, {})".format(uid, pid)
                 self.send_response(500)
-        elif(self.path == '/stop'): # not actually doing anything atm...need to make threads killable   
+        elif (self.path == '/stop'): # not actually doing anything atm...need to make threads killable
             length = int(self.headers['Content-length'])
             uid = str(self.rfile.read(length))
             program = self.cache.get_program(uid)
