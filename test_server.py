@@ -1,7 +1,7 @@
 import json
 import urllib2
-
-PORT='1462'
+import time
+PORT='1463'
 
 program = {'type':'program',
            'uid': 'rws',
@@ -70,13 +70,25 @@ req = urllib2.Request('http://10.142.34.191:'+PORT)
 req = urllib2.Request('http://127.0.0.1:'+PORT)
 send_req = urllib2.Request('http://127.0.0.1:'+PORT+'/new')
 start_req = urllib2.Request('http://127.0.0.1:'+PORT+'/start')
+status_req = urllib2.Request('http://127.0.0.1:'+PORT+'/status')
+list_req = urllib2.Request('http://127.0.0.1:'+PORT+'/list_programs')
 
 req.add_header('Content-Type', 'application/json')
 
 print "sending program..."
-print urllib2.urlopen(send_req, json.dumps(program2))
+print urllib2.urlopen(send_req, json.dumps(program2)).read()
 
 print "starting program..."
-print urllib2.urlopen(start_req, json.dumps(program2_start))
+print urllib2.urlopen(start_req, json.dumps(program2_start)).read()
+
+print "querying status..."
+print urllib2.urlopen(status_req, json.dumps(program2_start)).read()
+
+time.sleep(1)
+
+print "querying status..."
+print urllib2.urlopen(status_req, json.dumps(program2_start)).read()
 
 
+print "listing programs..."
+print urllib2.urlopen(list_req, json.dumps({'uid': 'rws', 'password': 'password' })).read()
