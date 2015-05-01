@@ -47,17 +47,31 @@ def update_thread_stream(n_threads):
 class ProgramCache:
     programs = {}
 
+    def __init__(self, use_file):
+        if(use_file and os.path.isfile('programDump.json')):
+            f = open('programDump.json', 'r')
+            self.programs = json.load(f)
+            f.close()
+
     def store_program(self, program):
-        self.programs[(str(program['uid']), str(program['pid']))] = program
+        if not str(program['uid']) in self.programs:
+            self.programs[str(program['uid'])] = {}
+
+        self.programs.get(str(program['uid']))[str(program['pid'])] = program
         program['status'] = 'Not Started'
+        self.dump_to_file()
 
     def get_program(self, uid, pid):
-        print 'looking for ({}, {}) in {}'.format(uid, pid, self.programs)
-        return self.programs.get((uid,pid))
+        # print 'looking for ({}, {}) in {}'.format(uid, pid, self.programs)
+        return self.programs.get(str(uid)).get(str(pid))
 
+    def dump_to_file(self):
+        f = open('programDump.json', 'w')
+        json.dump(self.programs,f, indent=2)
+        f.close()
 
 class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
-    cache = ProgramCache()
+    cache = ProgramCache(True)
     def do_GET(self):
         if(self.path == '/config'):
             self.send_response(200)
