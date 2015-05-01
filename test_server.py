@@ -1,7 +1,7 @@
 import json
 import urllib2
 
-PORT='1458'
+PORT='1462'
 
 program = {'type':'program',
            'uid': 'rws',
@@ -63,13 +63,22 @@ program2 = {'type':'program',
                              'name': 'print',
                              'inputs': ['w2']}}}
 
+program2_start = {'uid': 'rws',
+                  'pid': '1',
+                  'password': 'password'}
+
 
 req = urllib2.Request('http://10.142.34.191:'+PORT)
 req = urllib2.Request('http://127.0.0.1:'+PORT)
+send_req = urllib2.Request('http://127.0.0.1:'+PORT+'/new')
+start_req = urllib2.Request('http://127.0.0.1:'+PORT+'/start')
 
 req.add_header('Content-Type', 'application/json')
 
-response = urllib2.urlopen(req, json.dumps(program2
-                                       ))
+print "sending program..."
+print urllib2.urlopen(send_req, json.dumps(program2))
 
-print(response)
+print "starting program..."
+print urllib2.urlopen(start_req, json.dumps(program2_start))
+
+
