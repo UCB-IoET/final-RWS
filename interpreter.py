@@ -9,6 +9,10 @@ import thread
 from util import load_json
 from ws4py.client.threadedclient import WebSocketClient
 
+smap_query_url = "http://shell.storm.pm:8079/api/query"
+smap_actuation_url = "http://shell.storm.pm:8079/add/apikey"
+
+
 debug = False
 class void:
     def __repr__(self):
@@ -197,15 +201,41 @@ def new_subscription(url, uuid, output_wires):
     def cb(m):
         for out in output_wires:
             set_and_signal(out, load_json(m.data).get('Readings')[0][1])
-    
+
     tid = thread.start_new_thread(smap_subscribe, (url, uuid, cb))
     smap_threads.append(tid)
     print "smap: new_subscription('{}',  '{}')".format(url, uuid)
+
+def smap_actuate(uuid, reading):
+    #query the acutation stream for 'Properties'
+    try:
+        r = "select * where uuid = '{}'".format(uuid)
+        resp = requests.post(smap_query_url, r)
+        j = load_json(resp.text)
+        properties = j[0]['Properties']
+    except:
+        print "Error: smap_actuate --failed to extract 'propereties'"
+        exit(1)
+
+    #uuid of our stream
+    #TODO: should we have a unique one for each thread?
+    act_stream_uuid = "52edbddd-98e9-5cef-8cc9-9ddee810cd88"
+
+    #construct our actuation request
+    act = {'/actuate': {'uuid': act_stream_uuid,
+                        'Readings': [[int(time.time()), reading]],
+                        'Properties': properties,
+                        'Metadata':{'override': uuid}}}
+
+    print "sending smap actuation..."
+    print requests.post(smap_actuation_url, data=json.dumps(act))
+
 
 @node('smap',
       {'smap-type': 'subscribe, query, actuate',
        'url': '',
        'uuid': '',
+       'inputs': 'input for smap actuation',
        'outputs': 'list of output wires'})
 def _(ast):
     global smap_subscriptions_p
@@ -216,7 +246,7 @@ def _(ast):
     elif stype == 'query':
         pass
     elif stype == 'actuate':
-        pass
+        smap_actuate(ast['uuid'], wire_get(ast['inputs'][0]))
     else:
         print "invalid smap type"
 

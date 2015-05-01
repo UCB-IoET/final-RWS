@@ -37,8 +37,6 @@ program = {'type':'program',
 
 #this program subscribes to a sine wave smap source,
 #multiplies it by 100 and prints that values
-#[This actually subscribes to two sine wave sources, because the
-# select is not specific enough]
 program2 = {'type':'program',
             'uid': 'rws',
             'password': 'password',
