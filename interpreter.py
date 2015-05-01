@@ -127,7 +127,8 @@ def binop(ast):
     set_and_signal(out, result)
 
 cmp_map = {'==': eq, '>': gt, '<': lt,'!=': ne}
-math_map = {'+': add, '-': sub, '*' : mul,'/': truediv}
+math_map = {'+': add, '-': sub, '*' : mul,'/': truediv, "%": mod, "**": pow,
+            '&': and_, '|': or_, '>>': rshift, '<<': lshift, '^': xor}
 for x in cmp_map:
     def_node_config('comparison', x, 'binop', ['val1', 'val2'], 'result',{'op':x})
 for x in math_map:
