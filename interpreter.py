@@ -259,6 +259,16 @@ def _(input):
     print(input)
     return input
 
+@function('even?',
+          {'inputs': 'a number N',
+           'outputs': '1if N is even, else 0'})
+def _(n):
+    print "EVEN?({})".format(n)
+    if n is void: return
+    if int(n)%2:
+        return 1
+    return 0
+
 ################################################################################
 
 def run(ast):
