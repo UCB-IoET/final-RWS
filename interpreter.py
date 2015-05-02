@@ -8,12 +8,15 @@ import Queue
 import thread
 from util import load_json
 from ws4py.client.threadedclient import WebSocketClient
+import requests
+import time
 
 smap_query_url = "http://shell.storm.pm:8079/api/query"
 smap_actuation_url = "http://shell.storm.pm:8079/add/apikey"
 
 
 debug = False
+
 class void:
     def __repr__(self):
         return "<void>"
@@ -127,7 +130,8 @@ def binop(ast):
     set_and_signal(out, result)
 
 cmp_map = {'==': eq, '>': gt, '<': lt,'!=': ne}
-math_map = {'+': add, '-': sub, '*' : mul,'/': truediv}
+math_map = {'+': add, '-': sub, '*' : mul,'/': truediv, "%": mod, "**": pow,
+            '&': and_, '|': or_, '>>': rshift, '<<': lshift, '^': xor}
 for x in cmp_map:
     def_node_config('comparison', x, 'binop', ['val1', 'val2'], 'result',{'op':x})
 for x in math_map:
@@ -208,13 +212,15 @@ def new_subscription(url, uuid, output_wires):
 
 def smap_actuate(uuid, reading):
     #query the acutation stream for 'Properties'
+    #print "\nSMAP_ACTUATE({}, {})\n".format(uuid, reading);
     try:
         r = "select * where uuid = '{}'".format(uuid)
         resp = requests.post(smap_query_url, r)
         j = load_json(resp.text)
         properties = j[0]['Properties']
-    except:
+    except Exception as e:
         print "Error: smap_actuate --failed to extract 'propereties'"
+        print e
         exit(1)
 
     #uuid of our stream
@@ -229,6 +235,8 @@ def smap_actuate(uuid, reading):
 
     print "sending smap actuation..."
     print requests.post(smap_actuation_url, data=json.dumps(act))
+#    print "sleeping for 3s"
+#    time.sleep(3)
 
 
 @node('smap',
@@ -257,6 +265,16 @@ def _(ast):
 def _(input):
     print(input)
     return input
+
+@function('even?',
+          {'inputs': 'a number N',
+           'outputs': '1if N is even, else 0'})
+def _(n):
+    print "EVEN?({})".format(n)
+    if n is void: return
+    if int(n)%2:
+        return 1
+    return 0
 
 ################################################################################
 
@@ -336,3 +354,4 @@ if __name__ == '__main__':
         exit(1)
     json = load_json(f.read());
     run_program(json)
+
