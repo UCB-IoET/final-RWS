@@ -14,7 +14,7 @@ uuid = "52edbef3-98e9-5cef-8cc9-9ddee810cd5d" #outlet7->blue light
 act_stream_uuid = "52edbddd-98e9-5cef-8cc9-9ddee810cd88"
 
 # value to send for 'Readings'
-state = 0 #1 or 0
+state = 1 #1 or 0
 #query url
 q_url = "http://shell.storm.pm:8079/api/query"
 

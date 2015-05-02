@@ -12,7 +12,7 @@ import json
 from interpreter import run_program
 from interpreter import _node_configs
 
-PORT = 1463
+PORT = 1471
 
 def client_thread(program, addr, n_threads):
     #stream some data to the archiver
