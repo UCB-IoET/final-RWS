@@ -8,12 +8,15 @@ import Queue
 import thread
 from util import load_json
 from ws4py.client.threadedclient import WebSocketClient
+import requests
+import time
 
 smap_query_url = "http://shell.storm.pm:8079/api/query"
 smap_actuation_url = "http://shell.storm.pm:8079/add/apikey"
 
 
 debug = False
+
 class void:
     def __repr__(self):
         return "<void>"
@@ -209,13 +212,15 @@ def new_subscription(url, uuid, output_wires):
 
 def smap_actuate(uuid, reading):
     #query the acutation stream for 'Properties'
+    #print "\nSMAP_ACTUATE({}, {})\n".format(uuid, reading);
     try:
         r = "select * where uuid = '{}'".format(uuid)
         resp = requests.post(smap_query_url, r)
         j = load_json(resp.text)
         properties = j[0]['Properties']
-    except:
+    except Exception as e:
         print "Error: smap_actuate --failed to extract 'propereties'"
+        print e
         exit(1)
 
     #uuid of our stream
@@ -230,6 +235,8 @@ def smap_actuate(uuid, reading):
 
     print "sending smap actuation..."
     print requests.post(smap_actuation_url, data=json.dumps(act))
+#    print "sleeping for 3s"
+#    time.sleep(3)
 
 
 @node('smap',
