@@ -4,7 +4,7 @@ function RWSSMAPNode(obj) {
     RWSNode.call(this, 'smap', obj);
 }
 
-RWSSMAPNode.prototype = new RWSNode();
+RWSSMAPNode.prototype = Object.create(RWSNode.prototype);
 
 RWSSMAPNode.prototype.populateInfoPopup = function(container) {
   container.html(dict_to_html(this.infoDict));
@@ -69,7 +69,7 @@ function RWSSMAPInterface(root_url, available_nodes) {
       node.uuid = entry['uuid'];
       if(entry['Actuator'] && entry['Actuator']['Model']) {
         node['smap-type'] = 'actuate';
-        node.add_input(new RWSIOPort(0, node, entry['Actuator']['Model']));
+        node.add_input(new RWSIOPort(0, node.id, entry['Actuator']['Model']));
       } else {
         node['smap-type'] = 'subscribe';
         node.add_output();

@@ -3,10 +3,9 @@ function RWSInterpreterInterface(server_url) {
 
   this.export_application = function(application) {
     var exportObject = application.getExportRepresentation();
-    console.log(JSON.stringify(exportObject));
 
     json_dict = JSON.stringify(exportObject);
-
+    console.log(json_dict)
     $.ajax({
        type: 'POST',
        url: this.server_url+'/new',

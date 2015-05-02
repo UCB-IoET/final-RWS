@@ -12,7 +12,7 @@ import json
 from interpreter import run_program
 from interpreter import _node_configs
 
-PORT = 1463
+PORT = 1458
 
 def client_thread(program, addr, n_threads):
     #stream some data to the archiver
@@ -56,8 +56,7 @@ class ProgramCache:
     def store_program(self, program):
         if not str(program['uid']) in self.programs:
             self.programs[str(program['uid'])] = {}
-
-        self.programs.get(str(program['uid']))[str(program['pid'])] = program
+        self.programs[str(program['uid'])][str(program['pid'])] = program
         program['status'] = 'Not Started'
         self.dump_to_file()
 
@@ -203,6 +202,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 return
             uid = info['uid']
             self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps(self.cache.list_programs(uid)))
         else:

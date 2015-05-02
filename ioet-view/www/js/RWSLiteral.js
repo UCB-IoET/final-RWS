@@ -11,7 +11,7 @@ function RWSLiteral(type, obj) {
 	}
 }
 
-RWSLiteral.prototype = new RWSNode();
+RWSLiteral.prototype = Object.create(RWSPrimitive.prototype);
 
 RWSLiteral.prototype.getDisplayString = function() {
 	return this.value.toString();

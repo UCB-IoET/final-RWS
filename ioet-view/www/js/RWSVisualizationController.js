@@ -1,4 +1,9 @@
-var application = new RWSApplication([], []);
+var selectedProgram = window.localStorage.getItem("selectedProgram");
+var application;
+application = new RWSApplication([], [], []);
+if(selectedProgram != null)
+	loadApplicationWithID(selectedProgram);
+
 var server_url = "http://127.0.0.1:1458";
 var interpreter = new RWSInterpreterInterface(server_url);
 
@@ -43,6 +48,9 @@ function visualize() {
 		ctx.scale(scaling, scaling);
 		application.nodes.forEach(function(node) {
 			node.draw(ctx, selected);
+		});
+		application.wires.forEach(function(wire) {
+			wire.draw(ctx);
 		});
 		ctx.restore();
 		valid = true;
@@ -128,7 +136,7 @@ function onMouseUp(e) {
 				}
 			} else {
 				if(io != null) {
-					selected.linkTo(io);
+					linkPorts(selected, io);
 					selected = null;
 					valid = false;
 				}
@@ -228,7 +236,15 @@ function nodeInfoPopup(node) {
 
 
 function send_model() {
-	window.localStorage.setItem(String(application.app_id), application);
+	//update the local storage
+	var programs = window.localStorage.getItem("storedPrograms");
+	if(programs === null)
+		programs = {};
+	else
+		programs = JSON.parse(programs)
+	programs[String(application.app_id)] = application;
+
+	window.localStorage.setItem("storedPrograms", JSON.stringify(programs));
 	interpreter.export_application(application);
 }
 
