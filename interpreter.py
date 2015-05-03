@@ -71,7 +71,10 @@ def function(name, args, returns=None, notes=None):
                        'args': args,
                        'returns': returns,
                        'notes': notes})
-    def_node_config('call', name, 'call', list(args.keys()), returns, {'name':name})
+    def_node_config('call', name, 'call',
+                    list(args.keys()),
+                    list(returns.keys()) if returns else None,
+                    {'name':name})
     return decorator
 
 @node('program',
@@ -261,18 +264,18 @@ def _(ast):
 
 ################################################################################
 @function('print',
-          {'inputs': 'a value to print'})
+          {'input': 'a value to print'})
 def _(input):
     print(input)
     return input
 
 @function('even?',
-          {'inputs': 'a number N',
-           'outputs': '1if N is even, else 0'})
+          {'input': 'a number N'},
+          {'output': '1if N is even, else 0'})
 def _(n):
-    print "EVEN?({})".format(n)
+    #print "EVEN?({})".format(n)
     if n is void: return
-    if int(n)%2:
+    if int(n) % 2:
         return 1
     return 0
 
