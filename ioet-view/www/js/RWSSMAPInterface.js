@@ -2,9 +2,22 @@ var NEW_LINE = '<br/>';
 
 function RWSSMAPNode(obj) {
     RWSNode.call(this, 'smap', obj);
+    if(obj) {
+      if(obj['Metadata']['SourceName']) {
+        this.name = obj['Metadata']['SourceName'];
+      }
+      this.uuid = obj['uuid'];
+      if(obj['Actuator'] && obj['Actuator']['Model']) {
+        this['smap-type'] = 'actuate';
+        this.add_input(new RWSIOPort(0, this.id, obj['Actuator']['Model']));
+      } else {
+        this['smap-type'] = 'subscribe';
+        this.add_output();
+      }
+    }
 }
 
-RWSSMAPNode.prototype = new RWSNode();
+RWSSMAPNode.prototype = Object.create(RWSNode.prototype);
 
 RWSSMAPNode.prototype.populateInfoPopup = function(container) {
   container.html(dict_to_html(this.infoDict));
@@ -32,6 +45,18 @@ RWSSMAPNode.prototype.getExportRepresentation = function() {
   return obj;
 }
 
+function SMAPNodeFromExport(obj) {
+  var smp = new RWSSMAPNode();
+  smp['infoDict'] = obj['infoDict']
+  obj.inputs.forEach(function(input) {
+    smp.inputs.push(application.ports[input.id]);
+  });
+  obj.outputs.forEach(function(output) {
+    smp.outputs.push(application.ports[output.id]);
+  });
+  return smp;
+}
+
 //NOTE: THIS WON'T Work until we aren't running in the browser because of CORS issues
 function RWSSMAPInterface(root_url, available_nodes) {
 	var smap = this;
@@ -45,7 +70,22 @@ function RWSSMAPInterface(root_url, available_nodes) {
        data: 'select * where has Metadata/SourceName;',
        success: function(data) {
           data.forEach(function(datum) {
+            var verifyQuery =  'select data in (now -600minutes, now) limit 1 streamlimit 1 where Metadata/SourceName = "' + datum['Metadata']['SourceName']  + '"'
+            var verified = true;
+            // $.ajax({
+            //        type: 'POST',
+            //        url: root_url,
+            //        data: verifyQuery,
+            //        success: function(readingData) {
+            //         if(readingData[0]['Readings'] && readingData[0]['Readings'].length > 0) {
+            //           verified = true;
+            //         }
+            //        },
+            //        async:false
+            //  });
+            if(verified) {
               smap.add_entry(datum);
+            }
           });
        },
        error: function() {
@@ -63,19 +103,7 @@ function RWSSMAPInterface(root_url, available_nodes) {
     
   this.select_entry = function(entry) {
       var node = new RWSSMAPNode(entry);
-      if(entry['Metadata']['SourceName']) {
-        node.name = entry['Metadata']['SourceName'];
-      }
-      node.uuid = entry['uuid'];
-      if(entry['Actuator'] && entry['Actuator']['Model']) {
-        node['smap-type'] = 'actuate';
-        node.add_input(new RWSIOPort(0, node, entry['Actuator']['Model']));
-      } else {
-        node['smap-type'] = 'subscribe';
-        node.add_output();
-      }
-      //need to check for duplicates
-      available_nodes.push(node);
+      available_nodes[node.id] = node;
   }
 
   this.html_for_entry = function(entry) {

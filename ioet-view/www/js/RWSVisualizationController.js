@@ -1,4 +1,7 @@
-var application = new RWSApplication([], []);
+var selectedProgram = window.localStorage.getItem("selectedProgram");
+var application;
+application = new RWSApplication({}, {}, []);
+
 var server_url = "http://127.0.0.1:1458";
 var interpreter = new RWSInterpreterInterface(server_url);
 
@@ -41,9 +44,14 @@ function visualize() {
 	    ctx.save();
 		ctx.translate(panX, panY);
 		ctx.scale(scaling, scaling);
-		application.nodes.forEach(function(node) {
+		for(var nodeID in application.nodes) {
+			var node = application.nodes[nodeID];
 			node.draw(ctx, selected);
-		});
+		}
+		for(var wireID in application.wires) {
+			var wire = application.wires[wireID];
+			wire.draw(ctx);
+		}
 		ctx.restore();
 		valid = true;
 	}
@@ -93,13 +101,14 @@ function onMouseDown(e) {
 	    dragging = null;
 	    dragDist = 0;
 	    if(e.touches.length == 1) {
-			application.nodes.forEach(function(node) {
+			for(var nodeID in application.nodes) {
+				var node = application.nodes[nodeID];
 				if(node.rectContains(mouse)) {
 					dragging = node;
 					dragoffset = mouse;
 					popupTimer = setTimeout(nodeInfoPopup, 1200, node); //open up the node info popup
 				}
-			});
+			}
 	    } else if(e.touches.length == 2) {
 			dragging = 'canvas';
 			dragoffset = mouse;
@@ -118,7 +127,8 @@ function onMouseUp(e) {
 		var mouse = getMouse(e);
 		var clickedPort = false;
 
-		application.nodes.forEach(function(node) {
+		for(var nodeID in application.nodes) {
+			var node = application.nodes[nodeID];
 			var io = node.ioContains(mouse);
 			if(!selected) {
 				if(io != null) {
@@ -128,12 +138,12 @@ function onMouseUp(e) {
 				}
 			} else {
 				if(io != null) {
-					selected.linkTo(io);
+					linkPorts(selected, io);
 					selected = null;
 					valid = false;
 				}
 			}
-		});
+		}
 
 		if(!clickedPort) {
 			selected = null;
@@ -189,9 +199,11 @@ function show_add_popup() {
 	function add_click(entry, cat, nam, obj) {
 		entry.on('click', function() {
 			if(cat == 'literal') {
-				application.nodes.push(new RWSLiteral(nam, obj));
+				var node = new RWSLiteral(nam, obj);
+				application.nodes[node.id] = node;
 			} else {
-				application.nodes.push(new RWSPrimitive(cat, nam, obj));
+				var node = new RWSPrimitive(cat, nam, obj);
+				application.nodes[node.id] = node;
 			}
 	    	document.getElementById('addPrimitiveMask').style.display = "none";
 	    	valid = false;
@@ -213,10 +225,33 @@ function show_add_popup() {
 	}
 }
 
+function deleteNode(node) {
+	console.log('TRYING TO DELETE THIS NODE');
+	console.log(node);
+	node.inputs.forEach(function(input) {
+		if(input.wireID) {
+			application.wires[input.wireID].destroy();
+		}
+	});
+	node.outputs.forEach(function(output) {
+		if(output.wireID) {
+			application.wires[output.wireID].destroy();
+		}
+	});
+	delete application.nodes[node.id];
+	valid = false;
+
+}
+
 function nodeInfoPopup(node) {
 	document.getElementById('nodeInfoMask').style.display = "block";
 	$('#nodeInfoPopup').html('');
 	node.populateInfoPopup($('#nodeInfoPopup'));
+	$('#nodeInfoPopup').append('<br><button id="deleteButton">Delete Node</button>');
+	$('#nodeInfoPopup').find('#deleteButton').click(function(e) {
+		deleteNode(node);
+		document.getElementById('nodeInfoMask').style.display = "none";
+	});
 	$('#nodeInfoPopup').on('click', function(e) {
 		e.stopPropagation();
 	});
@@ -228,7 +263,15 @@ function nodeInfoPopup(node) {
 
 
 function send_model() {
-	window.localStorage.setItem(String(application.app_id), application);
+	//update the local storage
+	var programs = window.localStorage.getItem("storedPrograms");
+	if(programs === null)
+		programs = {};
+	else
+		programs = JSON.parse(programs)
+	programs[String(application.app_id)] = application;
+
+	window.localStorage.setItem("storedPrograms", JSON.stringify(programs));
 	interpreter.export_application(application);
 }
 
@@ -241,4 +284,6 @@ window.addEventListener("DOMContentLoaded", function() {
     canvas.addEventListener('touchmove', onMouseMove, false);
     canvas.addEventListener('gestureend', onGestureEnd, false);
 	setInterval(visualize, 50);
+	if(selectedProgram != null)
+		loadApplicationWithID(selectedProgram);
 }, false);

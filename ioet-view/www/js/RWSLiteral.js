@@ -3,15 +3,15 @@ function RWSLiteral(type, obj) {
 	this.name = type;
 	switch(type) {
 		case 'number':
-			this.value = 0;
+			this.value = obj.value || 0;
 			break;
 		case 'string':
-			this.value = 'hello';
+			this.value = obj.value || 'hello';
 			break;
 	}
 }
 
-RWSLiteral.prototype = new RWSNode();
+RWSLiteral.prototype = Object.create(RWSPrimitive.prototype);
 
 RWSLiteral.prototype.getDisplayString = function() {
 	return this.value.toString();

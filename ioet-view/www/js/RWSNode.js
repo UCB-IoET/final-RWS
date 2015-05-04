@@ -1,116 +1,21 @@
 //RWSNode.js
-var nodeID = 0;
-var wireID = 0;
 var nodeColor = '#AAAAAA';
 
 var nodeWidth = 120;
 var nodeHeight = 60;
 var cornerRadius = 20;
-
-var ioSize = 15; // size of a triangle for input/output
-
-
-
-//a port entry; Has a mode(input or output) and a wire attached to it
-function RWSIOPort(mode, node, name, wire) { // 0 for input, 1 for output
-	this.mode = mode;
-	this.node = node || null;
-	this.name = name || "";
-	this.wire = wire || null;
-	this.x = 0;
-	this.y = 0;
-
-	this.linkTo = function(port) {
-		if(this != port && this.mode != port.mode) { //can only link inputs to outputs
-			if(this.wire)
-				this.wire.destroy();
-			this.wire = new RWSWire(this, port);
-			if(port.wire)
-				port.wire.destroy();
-			port.wire = this.wire;
-		}
+var nodeID = 0;
+function next_node_id() {
+	while (nodeID in application.nodes) {
+		++nodeID;
 	}
-
-	this.draw = function(context, selected) {
-		context.beginPath();
-		if(selected == this) {
-			context.fillStyle = "rgba(150, 200, 50, .7)";
-		} else {
-			context.fillStyle = "rgba(50, 50, 50, .7)";
-		}
-		if(this.mode == 1) {
-			context.moveTo(this.x, this.y);
-			context.lineTo(this.x + ioSize , this.y + ioSize);
-			context.lineTo(this.x + ioSize*2, this.y);
-			context.fill(); //automatically closes path
-			if(this.name)
-				drawString(context, this.name, this.x, this.y - 4,"#333333", 0, 'serif', 12);
-		} else {
-			context.moveTo(this.x, this.y);
-			context.lineTo(this.x + ioSize , this.y - ioSize);
-			context.lineTo(this.x + ioSize*2, this.y);
-			context.fill(); //automatically closes path
-			if(this.name)
-				drawString(context, this.name, this.x, this.y + ioSize,"#333333", 0, 'serif', 12);
-		}
-		if(this.wire) {
-			this.wire.draw(context);
-		}
-	};
-
-	this.contains = function(pos) {
-		if(this.mode == 1) {
-			return this.x < pos.x && this.x + ioSize*2 > pos.x && this.y < pos.y && this.y + ioSize > pos.y;
-		} else {
-			return this.x < pos.x && this.x + ioSize*2 > pos.x && this.y > pos.y && this.y - ioSize < pos.y;
-		}
-	}
-
-	this.getConnectionPoint = function() {
-		if(this.mode == 1) {
-			return {'x': this.x + ioSize, 'y': this.y + ioSize};
-		} else {
-			return {'x': this.x + ioSize, 'y': this.y - ioSize};
-		}
-	}
-}
-
-//a wire, linking two ports together
-function RWSWire(port1, port2) {
-	//link between 2 nodes
-	this.id = wireID++;
-	if(port1.mode == 1) {
-		this.source = port1;
-		this.target = port2;
-	} else {
-		this.source = port2;
-		this.target = port1;
-	}
-	application.wires.push(this);
-	//each wire is drawn twice atm, maybe we can fix this later
-	this.draw = function(context) {
-		context.strokeStyle='black'
-		context.beginPath();
-		pt1 = this.source.getConnectionPoint();
-		pt2 = this.target.getConnectionPoint();
-		context.moveTo(pt1['x'], pt1['y']);
-		context.lineTo(pt2['x'], pt2['y']);
-		context.stroke();
-		context.closePath();
-	}
-
-	//remove self from both source and target
-	this.destroy = function() {
-		this.source.wire = null;
-		this.target.wire = null;
-		application.wires.splice(application.wires.indexOf(this),1);
-	}
+	return nodeID;
 }
 
 //base class, container for node's actual data
 function RWSNode(type, infoDict) {
 	//metadata
-	this.id = nodeID++;
+	this.id = next_node_id();
 	this.type = type;
 	this.name = "";
 	this.description = "";
@@ -135,16 +40,16 @@ RWSNode.prototype.draw = function(context, selected) {
   // save original lineWidth
   var width = context.lineWidth
 
-	// Set faux rounded corners
-	context.lineJoin = "round";
-	context.lineWidth = cornerRadius;
+  // Set faux rounded corners
+  context.lineJoin = "round";
+  context.lineWidth = cornerRadius;
 
-	// Change origin and dimensions to match true size (a stroke makes the shape a bit larger)
-	context.strokeRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
-	context.fillRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
+  // Change origin and dimensions to match true size (a stroke makes the shape a bit larger)
+  context.strokeRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
+  context.fillRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
 
-	var displayString = this.getDisplayString()
-	drawString(context, displayString, this.x + nodeWidth/2 - displayString.length * 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
+  var displayString = this.getDisplayString()
+  drawString(context, displayString, this.x + nodeWidth/2 - displayString.length * 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
   context.fillStyle="rgba(50, 50, 50, .7)";
 
   // set lineWidth back to original
@@ -176,13 +81,13 @@ RWSNode.prototype.rectContains = function(pos) {
 }
 
 RWSNode.prototype.add_input = function(p) {
-	var port = p || new RWSIOPort(0, this); 
+	var port = p || new RWSIOPort(0, this.id); 
 	this.inputs.push(port);
 	this.updatePorts();
 }
 
 RWSNode.prototype.add_output = function(p) {
-	var port = p || new RWSIOPort(1, this); 
+	var port = p || new RWSIOPort(1, this.id); 
 	this.outputs.push(port);
 	this.updatePorts();
 }
@@ -252,4 +157,21 @@ function dict_to_html(dict) {
 
 RWSNode.prototype.populateInfoPopup = function (container) {
 	container.html(dict_to_html(this));
+}
+
+function createNodeFromExport(exp) {
+	var node;
+	if(exp.category == 'literal') {
+		node = new RWSLiteral(exp['name'],exp);
+	} else if(exp.type == 'smap') {
+		node = SMAPNodeFromExport(exp);
+	} else {
+		node = new RWSPrimitive(exp['category'], exp['name'], exp);
+	}
+
+	for(var key in exp) {
+		if(RESERVED_KEYS.indexOf(key) == -1)
+			node[key] = exp[key];
+	}
+	return node
 }
