@@ -54,7 +54,7 @@ function loadApplicationWithID(app_id) {
 }
 
 function loadApplicationFromExport(exportRepresentation) { //essentially the reverse of GetExportRepresntation
-	application = new RWSApplication([], [], []);
+	application = new RWSApplication({}, {}, []);
 	application.app_id = exportRepresentation['app_id'];
 
 	//add ports first, this is important
@@ -65,19 +65,16 @@ function loadApplicationFromExport(exportRepresentation) { //essentially the rev
 
 
 	for(var nodeID in exportRepresentation['nodes']) {
-		var node = exportRepresentation['nodes'][nodeID]
-		if(node.category == 'literal') {
-			node = new RWSLiteral(node['name'],node)
-		} else if(node.type == 'smap') {
-			node = new RWSSMAPNode(node['infoDict'])
-		} else {
-			node = new RWSPrimitive(node['category'], node['name'], node);
-		}
-		application.nodes.push(node);
+		var node = createNodeFromExport(exportRepresentation['nodes'][nodeID])
+	    node.updatePorts();
+		application.nodes[node.id] = node;
 	}
 
 	for(var wireID in exportRepresentation['wires']) {
 		var wire = exportRepresentation['wires'][wireID]
 		wire = new RWSWire(application.ports[wire.sourceID], application.ports[wire.targetID]);
 	}
+
+	valid = false;
+	visualize();
 }

@@ -4,11 +4,18 @@ var nodeColor = '#AAAAAA';
 var nodeWidth = 120;
 var nodeHeight = 60;
 var cornerRadius = 20;
+var nodeID = 0;
+function next_node_id() {
+	while (nodeID in application.nodes) {
+		++nodeID;
+	}
+	return nodeID;
+}
 
 //base class, container for node's actual data
 function RWSNode(type, infoDict) {
 	//metadata
-	this.id = application.nodes.length;
+	this.id = next_node_id();
 	this.type = type;
 	this.name = "";
 	this.description = "";
@@ -33,16 +40,16 @@ RWSNode.prototype.draw = function(context, selected) {
   // save original lineWidth
   var width = context.lineWidth
 
-	// Set faux rounded corners
-	context.lineJoin = "round";
-	context.lineWidth = cornerRadius;
+  // Set faux rounded corners
+  context.lineJoin = "round";
+  context.lineWidth = cornerRadius;
 
-	// Change origin and dimensions to match true size (a stroke makes the shape a bit larger)
-	context.strokeRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
-	context.fillRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
+  // Change origin and dimensions to match true size (a stroke makes the shape a bit larger)
+  context.strokeRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
+  context.fillRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
 
-	var displayString = this.getDisplayString()
-	drawString(context, displayString, this.x + nodeWidth/2 - displayString.length * 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
+  var displayString = this.getDisplayString()
+  drawString(context, displayString, this.x + nodeWidth/2 - displayString.length * 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
   context.fillStyle="rgba(50, 50, 50, .7)";
 
   // set lineWidth back to original
@@ -150,4 +157,21 @@ function dict_to_html(dict) {
 
 RWSNode.prototype.populateInfoPopup = function (container) {
 	container.html(dict_to_html(this));
+}
+
+function createNodeFromExport(exp) {
+	var node;
+	if(exp.category == 'literal') {
+		node = new RWSLiteral(exp['name'],exp);
+	} else if(exp.type == 'smap') {
+		node = SMAPNodeFromExport(exp);
+	} else {
+		node = new RWSPrimitive(exp['category'], exp['name'], exp);
+	}
+
+	for(var key in exp) {
+		if(RESERVED_KEYS.indexOf(key) == -1)
+			node[key] = exp[key];
+	}
+	return node
 }

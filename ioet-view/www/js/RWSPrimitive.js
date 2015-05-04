@@ -1,4 +1,4 @@
-var RESERVED_KEYS = ['name', 'inputs', 'outputs', 'infoDict']
+var RESERVED_KEYS = ['inputs', 'outputs', 'infoDict']
 function load_primitives(server_url) {
 	var configs = {};
 	$.ajax({
@@ -17,12 +17,12 @@ function load_primitives(server_url) {
 
 function RWSPrimitive(category, primitiveName, obj) {
 	RWSNode.call(this, primitiveName, {});
-	this.name = primitiveName;
-	this.category = category;
 	for(var key in obj) {
 		if(RESERVED_KEYS.indexOf(key) == -1)
 			this[key] = obj[key]
 	}
+	this.category = category;
+	this.name = primitiveName;
 
 	if(obj['inputs'] && obj['inputs'].length > 0) {
 		for(var input in obj['inputs']) {

@@ -1,10 +1,17 @@
 var ioSize = 15; // size of a triangle for input/output
 
+var wireID = 1;
+function next_wire_id() {
+	while (wireID in application.wires) {
+		++wireID;
+	}
+	return wireID;
+}
 //a port entry; Has a mode(input or output) and a wire attached to it
 function RWSIOPort(mode, nodeID, name, wireID, id) { // 0 for input, 1 for output
 	this.mode = mode;
-	this.nodeID = nodeID || 0;
-	this.wireID = wireID || 0;
+	this.nodeID = nodeID || null;
+	this.wireID = wireID || null;
 	this.name = name || "";
 	if(id) {
 		this.id = id;
@@ -58,11 +65,10 @@ function RWSIOPort(mode, nodeID, name, wireID, id) { // 0 for input, 1 for outpu
 }
 
 
-
 //a wire, linking two ports together
 function RWSWire(port1, port2) {
 	//link between 2 nodes
-	this.id = application.wires.length;
+	this.id = next_wire_id();
 	if(port1.mode == 1) {
 		this.sourceID = port1.id;
 		this.targetID = port2.id;
@@ -70,7 +76,7 @@ function RWSWire(port1, port2) {
 		this.sourceID = port2.id;
 		this.targetID = port1.id;
 	}
-	application.wires.push(this);
+	application.wires[this.id] = this;
 	//each wire is drawn twice atm, maybe we can fix this later
 	this.draw = function(context) {
 		context.strokeStyle='black'
@@ -87,7 +93,7 @@ function RWSWire(port1, port2) {
 	this.destroy = function() {
 		application.ports[this.sourceID].wireID = null;
 		application.ports[this.targetID].wireID = null;
-		application.wires.splice(application.wires.indexOf(this),1);
+		delete application.wires[this.id];
 	}
 }
 
@@ -101,8 +107,4 @@ function linkPorts(port1, port2){
 			application.wires[port2.wireID].destroy();
 		port2.wireID = wire.id;
 	}
-} 
-
-function RWSWireFromExport(exportRepresentation) {
-
 }

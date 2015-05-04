@@ -142,7 +142,11 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.wfile.write('Successfully stored program: ({},{})'.format(program['uid'],program['pid']));
 
         elif (self.path == '/start'): #TODO: Authentication of start request
-            uid, pid = self.extract_ids()
+            try:
+                uid, pid = self.extract_ids()
+            except:
+                self.send_response(500)
+                return
             program = self.cache.get_program(uid, pid)
             if program:
                 print "Starting process for program: ({},{})".format(uid, pid)
@@ -159,7 +163,11 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 print "No such program: ({}, {})".format(uid, pid)
                 self.send_response(500)
         elif (self.path == '/stop'): # not actually doing anything atm...need to make threads killable
-            uid, pid = self.extract_ids()
+            try:
+                uid, pid = self.extract_ids()
+            except:
+                self.send_response(500)
+                return
             program = self.cache.get_program(uid, pid)
             if program:
                 print "Stopping process for program: ", uid
