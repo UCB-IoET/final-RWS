@@ -1,6 +1,6 @@
 var selectedProgram = window.localStorage.getItem("selectedProgram");
-var application;
-application = new RWSApplication({}, {}, []);
+var application = new RWSApplication({}, {}, []);
+var smapInterface = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query', application.nodes);
 
 var server_url = "http://127.0.0.1:1458";
 var interpreter = new RWSInterpreterInterface(server_url);
@@ -58,20 +58,10 @@ function visualize() {
 }
 
 function find_nearby_nodes() {
-	//here we look for nearby nodes using smap
-	var smap = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query', application.nodes);
-	smap.find_nodes();
+	//here we look for nearby nodes using smapInterface
+    d3.select("#listNodePopup").html('');
+	smapInterface.find_nodes();
     document.getElementById('listNodeMask').style.display = "block";
-    d3.select("#listNodePopup").html();
-    d3.select("#listNodePopup").append("ul").selectAll("li").data(smap.entries).enter()
-        .append("li")
-        .attr('class', 'smapEntry')
-        .on('click', function(d, i) { 
-        	smap.select_entry(d);
-        	document.getElementById('listNodeMask').style.display = "none";
-        	valid = false;
-        })
-        .html(function(d) { return smap.html_for_entry(d); });
 }
 
 function getMouse(e) {
@@ -284,4 +274,5 @@ window.addEventListener("DOMContentLoaded", function() {
 	setInterval(visualize, 50);
 	if(selectedProgram != null)
 		loadApplicationWithID(selectedProgram);
+	smapInterface.popup = d3.select("#listNodePopup");
 }, false);
