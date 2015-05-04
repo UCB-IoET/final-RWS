@@ -59,9 +59,6 @@ RWSNode.prototype.draw = function(context, selected) {
   if(this.inputs.length > 0) {
     	for(var i = 0; i < this.inputs.length; i++) {
 			this.inputs[i].draw(context, selected);
-		    if(this.inputs[i].wire) {
-		    	this.inputs[i].wire.draw(context);
-		    }
 		}
   }
 
@@ -69,9 +66,6 @@ RWSNode.prototype.draw = function(context, selected) {
   if(this.outputs.length > 0) {
     	for(var i = 0; i < this.outputs.length; i++) {
 			this.outputs[i].draw(context, selected);
-		    if(this.outputs[i].wire) {
-		    	this.outputs[i].wire.draw(context);
-		    }
 		}
   }
 }
@@ -123,14 +117,14 @@ RWSNode.prototype.getExportRepresentation = function() {
 	var obj = {};
 	obj['inputs'] = [];
 	this.inputs.forEach(function(port) {
-		if(port.wire)
-    		obj['inputs'].push(String(port.wire.id));
+		if(port.wireID)
+    		obj['inputs'].push(String(port.wireID));
 	});
 
 	obj['outputs'] = [];
 	this.outputs.forEach(function(port) {
-		if(port.wire)
-    		obj['outputs'].push(String(port.wire.id));
+		if(port.wireID)
+    		obj['outputs'].push(String(port.wireID));
 	});
 	for(var key in this) {
 		if(RESERVED_KEYS.indexOf(key) == -1)

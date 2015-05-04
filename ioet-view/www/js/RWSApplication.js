@@ -72,7 +72,7 @@ function loadApplicationFromExport(exportRepresentation) { //essentially the rev
 
 	for(var wireID in exportRepresentation['wires']) {
 		var wire = exportRepresentation['wires'][wireID]
-		wire = new RWSWire(application.ports[wire.sourceID], application.ports[wire.targetID]);
+		wire = new RWSWire(application.ports[wire.sourceID], application.ports[wire.targetID], wireID);
 	}
 
 	valid = false;

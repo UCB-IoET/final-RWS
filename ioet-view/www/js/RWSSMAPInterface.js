@@ -27,14 +27,15 @@ RWSSMAPNode.prototype.getExportRepresentation = function() {
   var obj = {};
   obj['inputs'] = [];
   this.inputs.forEach(function(port) {
-    if(port.wire)
-        obj['inputs'].push(String(port.wire.id));
+    if(port.wireID != null)
+        obj['inputs'].push(String(port.wireID));
   });
 
   obj['outputs'] = [];
   this.outputs.forEach(function(port) {
-    if(port.wire)
-        obj['outputs'].push(String(port.wire.id));
+
+    if(port.wireID != null)
+        obj['outputs'].push(String(port.wireID));
   });
 
   obj['type'] = this.type;
@@ -60,7 +61,7 @@ function SMAPNodeFromExport(obj) {
 //NOTE: THIS WON'T Work until we aren't running in the browser because of CORS issues
 function RWSSMAPInterface(root_url, available_nodes) {
 	var smap = this;
-	smap.entries = [];
+	smap.entries = {};
   this.find_nodes = function() {
 
     //grab all the nodes
@@ -98,7 +99,7 @@ function RWSSMAPInterface(root_url, available_nodes) {
   };
 
   this.add_entry = function(entry) {
-  	this.entries.push(entry);
+  	this.entries[entry['Metadata']['SourceName']] = entry;
   }
     
   this.select_entry = function(entry) {

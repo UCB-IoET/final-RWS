@@ -226,8 +226,6 @@ function show_add_popup() {
 }
 
 function deleteNode(node) {
-	console.log('TRYING TO DELETE THIS NODE');
-	console.log(node);
 	node.inputs.forEach(function(input) {
 		if(input.wireID) {
 			application.wires[input.wireID].destroy();

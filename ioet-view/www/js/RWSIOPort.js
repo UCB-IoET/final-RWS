@@ -66,9 +66,9 @@ function RWSIOPort(mode, nodeID, name, wireID, id) { // 0 for input, 1 for outpu
 
 
 //a wire, linking two ports together
-function RWSWire(port1, port2) {
+function RWSWire(port1, port2, id) {
 	//link between 2 nodes
-	this.id = next_wire_id();
+	this.id = id || next_wire_id();
 	if(port1.mode == 1) {
 		this.sourceID = port1.id;
 		this.targetID = port2.id;

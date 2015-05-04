@@ -91,7 +91,7 @@ def run_program(ast):
     nodes = ast['nodes']
     wireS = ast['connections']
     #TODO: need to settle on some kind of name standard or fix this
-    wireV = {"w{}".format(name) : void for name in range(len(wireS))}
+    wireV = {"{}".format(name) : void for name in wireS}
     ready = set(ast.get('initial',[]))
     for node in ready:
         ready_q.put(node)
