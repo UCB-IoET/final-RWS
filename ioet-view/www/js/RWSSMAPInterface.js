@@ -3,7 +3,9 @@ var NEW_LINE = '<br/>';
 function RWSSMAPNode(obj) {
     RWSNode.call(this, 'smap', obj);
     if(obj) {
-      if(obj['Metadata']['SourceName']) {
+      if(obj['Metadata']['Name']) {
+        this.name = obj['Metadata']['Name'];
+      } else if(obj['Metadata']['SourceName']) {
         this.name = obj['Metadata']['SourceName'];
       }
       this.uuid = obj['uuid'];
