@@ -1,7 +1,7 @@
 {
     "comparison": {
         "==": {
-            "inputs": ["threshold", "value"],
+            "inputs": ["val1", "val2"],
             "op": "==",
             "type": "binop",
             "outputs": ["result"]
@@ -12,19 +12,19 @@
             "outputs": ["true", "false"]
         },
         "!=": {
-            "inputs": ["threshold", "value"],
+            "inputs": ["val1", "val2"],
             "op": "!=",
             "type": "binop",
             "outputs": ["result"]
         },
         "<": {
-            "inputs": ["threshold", "value"],
+            "inputs": ["val1", "val2"],
             "op": "<",
             "type": "binop",
             "outputs": ["result"]
         },
         ">": {
-            "inputs": ["threshold", "value"],
+            "inputs": ["val1", "val2"],
             "op": ">",
             "type": "binop",
             "outputs": ["result"]
@@ -44,35 +44,84 @@
     },
     "call": {
         "print": {
-            "inputs": ["inputs"],
+            "inputs": ["input"],
             "type": "call",
             "name": "print"
+        },
+        "even?": {
+            "inputs": ["input"],
+            "type": "call",
+            "name": "even?",
+            "outputs": ["output"]
         }
     },
     "math": {
-        "+": {
-            "inputs": ["threshold", "value"],
-            "op": "+",
+        "%": {
+            "inputs": ["val1", "val2"],
+            "op": "%",
+            "type": "binop",
+            "outputs": ["result"]
+        },
+        ">>": {
+            "inputs": ["val1", "val2"],
+            "op": ">>",
+            "type": "binop",
+            "outputs": ["result"]
+        },
+        "&": {
+            "inputs": ["val1", "val2"],
+            "op": "&",
+            "type": "binop",
+            "outputs": ["result"]
+        },
+        "<<": {
+            "inputs": ["val1", "val2"],
+            "op": "<<",
             "type": "binop",
             "outputs": ["result"]
         },
         "*": {
-            "inputs": ["threshold", "value"],
+            "inputs": ["val1", "val2"],
             "op": "*",
             "type": "binop",
             "outputs": ["result"]
         },
         "-": {
-            "inputs": ["threshold", "value"],
+            "inputs": ["val1", "val2"],
             "op": "-",
             "type": "binop",
             "outputs": ["result"]
         },
         "/": {
-            "inputs": ["threshold", "value"],
+            "inputs": ["val1", "val2"],
             "op": "/",
+            "type": "binop",
+            "outputs": ["result"]
+        },
+        "|": {
+            "inputs": ["val1", "val2"],
+            "op": "|",
+            "type": "binop",
+            "outputs": ["result"]
+        },
+        "**": {
+            "inputs": ["val1", "val2"],
+            "op": "**",
+            "type": "binop",
+            "outputs": ["result"]
+        },
+        "+": {
+            "inputs": ["val1", "val2"],
+            "op": "+",
+            "type": "binop",
+            "outputs": ["result"]
+        },
+        "^": {
+            "inputs": ["val1", "val2"],
+            "op": "^",
             "type": "binop",
             "outputs": ["result"]
         }
     }
 }
+
