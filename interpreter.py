@@ -96,6 +96,9 @@ def run_program(ast):
     for node in ready:
         ready_q.put(node)
     while not ready_q.empty() or smap_subscriptions_p:
+        if ast['shouldStop']:
+            print "TERMINATED"
+            return 1
         node = ready_q.get()
         ready.remove(node)
         #TODO: catch errors

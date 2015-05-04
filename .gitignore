@@ -1,5 +1,5 @@
 ioet-view/platforms/*
 */*.pbxproj
 */*.xcworkspace
-
+programDump.json
 *.pyc
