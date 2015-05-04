@@ -61,7 +61,7 @@ function SMAPNodeFromExport(obj) {
 }
 
 //NOTE: THIS WON'T Work until we aren't running in the browser because of CORS issues
-function RWSSMAPInterface(root_url, available_nodes) {
+function RWSSMAPInterface(root_url) {
   var smap = this;
   smap.entries = {};
   this.find_nodes = function() {
@@ -73,6 +73,7 @@ function RWSSMAPInterface(root_url, available_nodes) {
        data: 'select distinct Metadata/SourceName;',
        success: function(data) {
           data.forEach(function(sourceName) {
+
             var verifyQuery =  'select data before now where Metadata/SourceName = "' + sourceName  + '"';
             var verified = [];
             $.ajax({
@@ -81,7 +82,7 @@ function RWSSMAPInterface(root_url, available_nodes) {
                    data: verifyQuery,
                    success: function(readingData) {
                    	readingData.forEach(function(rDatum) {
-	                   	if(rDatum['Readings'][0][0] > Date.now() - 10800000) { //last 3 hours
+	                   	if(rDatum.Readings && rDatum['Readings'][0][0] > Date.now() - 10800000) { //last 3 hours
 	                   		verified.push(rDatum.uuid);
 	                   	}
 
@@ -126,17 +127,17 @@ function RWSSMAPInterface(root_url, available_nodes) {
   		    .append("li")
   		    .attr('class', 'smapEntry')
   		    .on('click', function() { 
-  		    	smapInterface.select_entry(entry);
+  		    	smap.select_entry(entry);
   		    	document.getElementById('listNodeMask').style.display = "none";
   		    	valid = false;
   		    })
-  		    .html(function() { return smapInterface.html_for_entry(entry); });
+  		    .html(function() { return smap.html_for_entry(entry); });
     }
   }
     
   this.select_entry = function(entry) {
       var node = new RWSSMAPNode(entry);
-      available_nodes[node.id] = node;
+      application.nodes[node.id] = node;
   }
 
   this.html_for_entry = function(entry) {
