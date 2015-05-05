@@ -1,5 +1,5 @@
 require "cord" -- scheduler / fiber library
-bit = require "bit"
+--bit = require "bit"
 
 ipaddr = storm.os.getipaddr()
 ipaddrs = string.format("%02x%02x:%02x%02x:%02x%02x:%02x%02x::%02x%02x:%02x%02x:%02x%02x:%02x%02x",
@@ -25,6 +25,8 @@ server = function()
                                     --local r = bit.band(bit.rshift(color, 5), 0x1F)
                                     --local g = bit.band(color, 0x1F)
                                     --local b = bit.band(bit.rshift(color, 10), 0x1F)
+
+				    r = msg["rgb"]
                                     print(r, g, b)
                                     led:setAll(r, 30, 30)
                                     led:display()

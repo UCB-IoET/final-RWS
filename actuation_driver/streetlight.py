@@ -30,11 +30,6 @@ class streetLight(driver.SmapDriver):
 	#self.r2 = RepublishClient(self.archiverurl, self.cb_rgb, restrict=self.subscription_rgb)  
 	self.table = {} 
 	rgb.add_actuator(RGBActuator(light=self,range=(0,31), archiver=archiver, subscribe=opts.get('rgb')))
-	self.UDP_IP = "2001:0470:4956:0002::0012:6d02:0000:3017" #all IPs
-	self.UDP_PORT = 1444 
- 
-	# Note we are creating an INET6 (IPv6) socket
-	self.sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
 
     """
     def start(self):
@@ -143,7 +138,23 @@ class RGBActuator(VirtualLightActuator, actuate.ContinuousActuator):
 	print(state)
 
         self.light.state['rgb'] = float(state)
-        return self.light.state.get('rgb')  
+        #return self.light.state.get('rgb')  
+
+	msg = {}
+	msg["index"] = 30
+	msg["rgb"] = state
+	print msg
+	msg_pack = msgpack.packb(msg)
+	
+	UDP_IP = "2001:470:4956:2:212:6d02::3017"
+	# UDP_IP = "2001:0470:4956:0002::0212:6d02:0000:3017" #all IPs
+	UDP_PORT = 1444 
+ 
+	# Note we are creating an INET6 (IPv6) socket
+	sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
+
+	sock.sendto(msg_pack, (UDP_IP, UDP_PORT))
+	"""	
 	if (len(self.table.keys()) > 0):
 		earliest_time = min(self.table, key=self.table.get)
 		index = self.table[earliest_time][0]
@@ -155,7 +166,8 @@ class RGBActuator(VirtualLightActuator, actuate.ContinuousActuator):
 		print msg
 		msg_pack = msgpack.packb(msg)
 		self.sock.sendto(msg_pack, (self.UDP_IP, self.UDP_PORT))
-
+	"""
+	return self.light.state.get('rgb')
 
 
 
