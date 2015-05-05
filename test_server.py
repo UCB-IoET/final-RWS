@@ -1,4 +1,4 @@
-PORT='1466'
+PORT='1471'
 
 import json
 import urllib2
@@ -118,11 +118,78 @@ program3_start = {'uid': 'rws',
                   'pid': '3',
                   'password': 'password'}
 
+#led strip demo program
+#reads from our sine save source which has amplitude of 0.5,
+#adds 0.5, multiples by 10, modulo 32, then sends that
+#value to the led strip actuator stream.
+#equivalent to:
+# led_strip_set(((sine_wave() + 0.5)*10) %32)
+program4 = {'type':'program',
+            'uid': 'rws',
+            'password': 'password',
+            'pid':'4',
+            'initial': ['n0', 'n1', 'n3', 'n8'],
+            'connections':{'w0' : ['n2'],
+                           'w1' : ['n2'],
+                           'w2' : ['n6'],
+                           'w3' : ['n6'],
+                           'w8' : ['n4', 'n5'],
+                           'w4' : ['n7'],
+                           'w5' : ['n7']},
+            'nodes':{'n0' : {'type': 'smap',
+                             'smap-type': 'subscribe',
+                             'url': 'ws://shell.storm.pm:8078/republish',
+                             ##our sine wave driver:
+                             #'uuid': '8227497f-34bf-54a9-94e4-b1d1a9fe9fd2',
+                             'uuid': '024fdb52-617f-5714-b5a1-c80774e60ea5',
+                             'outputs': ['w0']},
+                     'n1' : {'type': 'literal',
+                             'val': 0.5,
+                             'outputs': ['w1']},
+                     'n2' : {'type': 'binop',
+                             'op': '+',
+                             'inputs':['w0', 'w1'],
+                             'outputs': ['w2']},
+
+                     'n3' : {'type': 'literal',
+                             'val': 10,#100,
+                             'outputs': ['w3']},
+                     'n6' : {'type': 'binop',
+                             'op': '*',
+                             'inputs':['w3', 'w2'],
+                             'outputs': ['w5']},
+
+                     'n8' : {'type': 'literal',
+                             'val': 32,
+                             'outputs': ['w4']},
+                     'n7' : {'type': 'binop',
+                             'op': '%',
+                             'inputs':['w5', 'w4'],
+                             'outputs': ['w8']},
+
+                     'n4' : {'type': 'smap',
+                             'smap-type': 'actuate',
+                             # 'streetlight' driver
+                             #'uuid': 'ac903027-3a81-5d2f-a5cb-7983f5fb9f0a',
+                             'uuid': '4caee96b-31fc-540b-9210-5160d19f2af2',
+                             'inputs': ['w8']},
+
+                     'n5' : {'type': 'call',
+                             'name': 'print',
+                             'inputs': ['w8']}
+                 }}
+
+program4_start = {'uid': 'rws',
+                  'pid': '4',
+                  'password': 'password'}
+
 ################################################################################
 #program = program2
-program = program3
+#program = program3
+program = program4
 #start = program2_start
-start = program3_start
+#start = program3_start
+start = program4_start
 
 
 req = urllib2.Request('http://10.142.34.191:'+PORT)
