@@ -52,6 +52,7 @@ div.popup {
     background-color:#eee;
 	font-family:'Raleway',sans-serif;
 	overflow-y:scroll;
+	color: #000000;
 }
 form {
 	max-width:300px;
