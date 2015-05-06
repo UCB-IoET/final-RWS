@@ -155,6 +155,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 n_threads += 1
                 tid = thread.start_new_thread(client_thread,
                                       (program, client_addr, n_threads))
+                program['shouldStop'] = False
                 program['tid'] = tid;
                 self.send_response(200)
                 self.end_headers()
@@ -175,6 +176,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 # tid = thread.start_new_thread(client_thread,
                 #                       (program, client_addr, n_threads))
                 # program['tid'] = tid;
+                program['shouldStop'] = True
                 self.send_response(200)
                 self.end_headers()
                 self.wfile.write('Successfully stopped program: ({},{})'.format(program['uid'],program['pid']));

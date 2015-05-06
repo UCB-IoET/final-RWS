@@ -91,11 +91,14 @@ def run_program(ast):
     nodes = ast['nodes']
     wireS = ast['connections']
     #TODO: need to settle on some kind of name standard or fix this
-    wireV = {"w{}".format(name) : void for name in range(len(wireS))}
+    wireV = {"{}".format(name) : void for name in wireS}
     ready = set(ast.get('initial',[]))
     for node in ready:
         ready_q.put(node)
     while not ready_q.empty() or smap_subscriptions_p:
+        if ast['shouldStop']:
+            print "TERMINATED"
+            return 1
         node = ready_q.get()
         ready.remove(node)
         #TODO: catch errors
