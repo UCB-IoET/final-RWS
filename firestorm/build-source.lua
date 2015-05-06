@@ -5,7 +5,9 @@ libs = {
    reg = "i2creg.lua",
    temp = "tempSensor.lua",
    cord = "../../contrib/lib/cord.lua",
-   stormsh = "../../contrib/lib/stormsh.lua"
+   stormsh = "../../contrib/lib/stormsh.lua",
+   accel = "../../contrib/lib/accelerometer.lua",
+   starter = "../../contrib/lib/starterShield.lua"
 }
 
 autoupdate = false

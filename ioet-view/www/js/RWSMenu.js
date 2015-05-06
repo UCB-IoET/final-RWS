@@ -1,4 +1,5 @@
-var username = 'Client';
+var username = window.localStorage.getItem('uid') || 'User';
+var server_url = "http://127.0.0.1:1458";
 
 function load_applications() {
 	var key;
@@ -7,52 +8,114 @@ function load_applications() {
 	if(programs != null) {
 		programs = JSON.parse(programs)
 		for(key in programs) {	 //load from local storage here
-			loaded_applications.push(programs[key]);
+			if(programs[key]['uid'] == username) {
+				loaded_applications.push(programs[key]);
+			}
 		}
 	}
 	return loaded_applications;
 }
 
-function html_for_application(app) {
+function populate_application(app, index, jquery_obj) {
+	if(!jquery_obj) {
+		jquery_obj = $('<div class="application" id="app'+index+'">');
+	}
 	if(app == 'New Application') {
-		return '<div class="application" id="New Application"> New Application </div>';
+		jquery_obj = $('<div class="application" id="New Application"> New Application </div>');
 	}
-	var html = '<div class="application" id="app' + app['app_id'] + '">';
-	html += '<h3>'+app['app_id']+'</h3>\n';
+	jquery_obj.html('');
+	jquery_obj.append('<h3>'+app['app_id']+'</h3>\n');
 	if(app['status']){
-		html += '<br>\n';
-		html += 'Status: '+app['status']+'\n';
+		jquery_obj.append('<br>\n');
+		jquery_obj.append('Status: '+app['status']+'\n<br>\n');
+		if(app['status'] != 'running') {
+			$('<button class="rwsButton"> Start App </button>').appendTo(jquery_obj).click(function(e) {
+				$.post(server_url + '/start', JSON.stringify({'uid': username, 'pid': app['app_id'], 'password': 'password'}), function(data) {
+					update_app_status(app, index);
+					alert(data);
+				});
+				e.stopPropagation();
+			});
+		} else {
+			$('<button class="rwsButton"> Stop App </button>').appendTo(jquery_obj).click(function(e) {
+				$.post(server_url + '/stop', JSON.stringify({'uid': username, 'pid': app['app_id'], 'password': 'password'}), function(data) {
+					update_app_status(app, index);
+					alert(data);
+				});
+				e.stopPropagation();
+			});
+		}
 	}
-	html += '</div>';
-	return html;
+	return jquery_obj;
 }
 
-function update_app_status(app) {
+function update_app_status(app, index) {
 	if(app != 'New Application')
-		$.post('http://localhost:1458/status', JSON.stringify({'uid': username, 'pid': app['app_id'], 'password': 'password'}), function(data) {
+		$.post(server_url + '/status', JSON.stringify({'uid': username, 'pid': app['app_id'], 'password': 'password'}), function(data) {
 			app['status'] = data;
-			$('#app'+app['app_id']).html(html_for_application(app));
+			populate_application(app, index, $('#app'+index));
 		}).fail(function() {
 			delete app['status'];
-			$('#app'+app['app_id']).html(html_for_application(app));
+			populate_application(app, index, $('#app'+index));
 		});
 
+}
+
+function updateUsername() {
+	username = $('#username').val();
+	$('#userDisplay').html('Username: ' + username);
+	window.localStorage.setItem("uid", username);
+	populate_applications();
+	return false;
+}
+
+function getNewAppName(applications) {
+	var i = 1;
+	var found = true;
+	while(found) {
+		found = false;
+		for(var index in applications) {
+			if(applications[index]['app_id'] == 'App '+i) {
+				i++;
+				found = true;
+				break;
+			}
+		}
+	}
+	return 'App ' + i;
+}
+
+function createApplication(index, applications) {
+	var app = applications[index];
+	var jquery_obj = populate_application(app, index);
+	jquery_obj.appendTo('#appContainer').click(function(event) {
+			window.localStorage.setItem("selectedProgram", app['app_id'] || getNewAppName(applications));
+			window.open("edit.html",'_self');
+		});
+	var timer;
+	jquery_obj.on("touchstart",function(e){
+	    timer = setTimeout(function(){
+	        alert('open app info popup');
+	    }, 1000);
+	}).on("touchend",function(){
+	    clearTimeout(timer);
+	});
+	app['app_watcher'] = window.setInterval(update_app_status, 5000, app, index);
+
+}
+
+function populate_applications() {
+	$('#appContainer').html('');
+	var applications = load_applications();
+	for(var index in applications) {
+		createApplication(index, applications);
+	}
 }
 
 $(document).ready(function() {
-	var applications = load_applications();
-	for(var index in applications) {
-		var app = applications[index];
-		var jquery_obj = $(html_for_application(app));
-		jquery_obj.appendTo('body').click(function(event) {
-			window.localStorage.setItem("selectedProgram", app['app_id'] || 'New Application');
-			window.open("edit.html",'_self');
-		});
-		app['app_watcher'] = window.setInterval(update_app_status, 5000, app);
-	}
-
-	$('#username').change(function() {
-		username = $('#username').val()
-		window.localStorage.setItem("uid", username);
-	});
+	document.body.style.webkitUserSelect='none';
+	populate_applications();
+	$('#userDisplay').html('Username: ' + username);
+	$('#username').change(updateUsername);
+	$('#userForm').submit(updateUsername);
 });
