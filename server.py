@@ -11,7 +11,7 @@ import os
 import time
 import requests
 import json
-from interpreter import run_program
+from interpreter import Interpreter
 from interpreter import _node_configs
 
 def client_thread(program, addr, n_threads):
@@ -19,7 +19,8 @@ def client_thread(program, addr, n_threads):
     #we have the child do this so the parent can remain responsive
     update_thread_stream(n_threads)
     program['status'] = 'running'
-    if(run_program(program) == 0): #success
+    interpreter = Interpreter()
+    if (interpreter.run(program) == 0): #success
         program['status'] = 'completed'
     else:
         program['status'] = 'terminated'
@@ -153,9 +154,10 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 # feed client address into threadable function
                 client_addr = str(self.client_address[0]) + ":" + str(self.client_address[1])
                 n_threads += 1
+                program['shouldStop'] = False
+
                 tid = thread.start_new_thread(client_thread,
                                       (program, client_addr, n_threads))
-                program['shouldStop'] = False
                 program['tid'] = tid;
                 self.send_response(200)
                 self.end_headers()
