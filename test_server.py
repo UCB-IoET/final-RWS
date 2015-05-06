@@ -1,7 +1,8 @@
+PORT='1466'
+
 import json
 import urllib2
 import time
-PORT='1458'
 
 program1 = {'type':'program',
            'uid': 'rws',
@@ -81,7 +82,10 @@ program3 = {'type':'program',
             'nodes':{'n0' : {'type': 'smap',
                              'smap-type': 'subscribe',
                              'url': 'ws://shell.storm.pm:8078/republish',
-                             'uuid': '71be455c-2eac-50d3-ac03-81fae87b0ee3',
+                             ##our sine wave driver:
+                             'uuid': '8227497f-34bf-54a9-94e4-b1d1a9fe9fd2',
+                             ##Gabes sine wave driver:
+                             #'uuid': '71be455c-2eac-50d3-ac03-81fae87b0ee3'
                              'outputs': ['w0']},
                      'n1' : {'type': 'literal',
                              'val': 100,
@@ -97,8 +101,12 @@ program3 = {'type':'program',
 
                      'n4' : {'type': 'smap',
                              'smap-type': 'actuate',
-                             #uuid for inventation lab plugstrip7(desk lamp)
-                             'uuid': '52edbef3-98e9-5cef-8cc9-9ddee810cd5d',
+                             ##uuid for inventation lab plugstrip7(desk lamp)
+                             #'uuid': '52edbef3-98e9-5cef-8cc9-9ddee810cd5d',
+
+                             # our test driver
+                             'uuid': 'ee52a387-905a-5a63-9b86-afb53414e702',
+
                              'inputs': ['w4']},
                      #print even?
                      'n5' : {'type': 'call',

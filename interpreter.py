@@ -216,14 +216,15 @@ def new_subscription(url, uuid, output_wires):
     smap_threads.append(tid)
     print "smap: new_subscription('{}',  '{}')".format(url, uuid)
 
-def smap_actuate(uuid, reading):
+def smap_actuate(uuid, reading, q_url, a_url):
+    q_url = q_url or smap_query_url
+    a_url = a_url or smap_actuation_url
     #query the acutation stream for 'Properties'
-    #print "\nSMAP_ACTUATE({}, {})\n".format(uuid, reading);
     try:
         r = "select * where uuid = '{}'".format(uuid)
-        resp = requests.post(smap_query_url, r)
+        resp = requests.post(q_url, r)
         j = load_json(resp.text)
-        properties = j[0]['Properties']
+        properties = j[0].get('Properties', {})
     except Exception as e:
         print "Error: smap_actuate --failed to extract 'propereties'"
         print e
@@ -240,7 +241,7 @@ def smap_actuate(uuid, reading):
                         'Metadata':{'override': uuid}}}
 
     print "sending smap actuation..."
-    print requests.post(smap_actuation_url, data=json.dumps(act))
+    print requests.post(a_url, data=json.dumps(act))
 #    print "sleeping for 3s"
 #    time.sleep(3)
 
@@ -260,7 +261,11 @@ def _(ast):
     elif stype == 'query':
         pass
     elif stype == 'actuate':
-        smap_actuate(ast['uuid'], wire_get(ast['inputs'][0]))
+        smap_actuate(ast['uuid'],
+                     wire_get(ast['inputs'][0]),
+                     ast.get('query_url'),
+                     ast.get('actuate_url'))
+
     else:
         print "invalid smap type"
 
