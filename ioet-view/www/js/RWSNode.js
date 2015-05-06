@@ -40,6 +40,10 @@ RWSNode.prototype.getDisplayX = function(x,displayString) {
 	return x + nodeWidth/2 - displayString.length*3;
 }
 
+RWSNode.prototype.getDisplayY = function(y) {
+	return y + nodeHeight/2 + 4;
+}
+
 RWSNode.prototype.draw = function(context, selected) {
   context.fillStyle="rgba(150, 150, 150, 1)";
   context.strokeStyle="rgba(150, 150, 150, 1)";
@@ -58,7 +62,8 @@ RWSNode.prototype.draw = function(context, selected) {
   var displayString = this.getDisplayString();
   var displaySize = this.getDisplaySize();
   var X = this.getDisplayX(this.x,displayString);
-  drawString(context, displayString, X, this.y + nodeHeight/2 + 4, "#333333", 0, 'serif', displaySize);
+  var Y = this.getDisplayY(this.y);
+  drawString(context, displayString, X, Y, "#333333", 0, 'serif', displaySize);
   context.fillStyle="rgba(50, 50, 50, .7)";
 
   // set lineWidth back to original

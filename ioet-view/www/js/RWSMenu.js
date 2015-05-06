@@ -17,11 +17,11 @@ function load_applications() {
 }
 
 function populate_application(app, index, jquery_obj) {
+	if(app == 'New Application') {
+		return $('<div class="application" id="New Application"><h3> New Application </h3></div>');
+	}
 	if(!jquery_obj) {
 		jquery_obj = $('<div class="application" id="app'+index+'">');
-	}
-	if(app == 'New Application') {
-		jquery_obj = $('<div class="application" id="New Application"> New Application </div>');
 	}
 	jquery_obj.html('');
 	jquery_obj.append('<h3>'+app['app_id']+'</h3>\n');
@@ -32,7 +32,7 @@ function populate_application(app, index, jquery_obj) {
 			$('<button class="rwsButton"> Start App </button>').appendTo(jquery_obj).click(function(e) {
 				$.post(server_url + '/start', JSON.stringify({'uid': username, 'pid': app['app_id'], 'password': 'password'}), function(data) {
 					update_app_status(app, index);
-					alert(data);
+					navigator.notification.alert(data, function() {}, 'Result');
 				});
 				e.stopPropagation();
 			});
@@ -40,11 +40,26 @@ function populate_application(app, index, jquery_obj) {
 			$('<button class="rwsButton"> Stop App </button>').appendTo(jquery_obj).click(function(e) {
 				$.post(server_url + '/stop', JSON.stringify({'uid': username, 'pid': app['app_id'], 'password': 'password'}), function(data) {
 					update_app_status(app, index);
-					alert(data);
+					navigator.notification.alert(data, function() {}, 'Result');
 				});
 				e.stopPropagation();
 			});
 		}
+		//add the delete button
+		$('<button class="closeButton"> x </button>').prependTo(jquery_obj)
+			.offset(jquery_obj.offset())
+			.click(function(e) {
+				$.post(server_url + '/delete', JSON.stringify({'uid': username, 'pid': app['app_id'], 'password': 'password'}), function(data) {
+					var programs = window.localStorage.getItem("storedPrograms");
+					programs = JSON.parse(programs)
+					delete programs[app.app_id];
+					window.localStorage.setItem("storedPrograms", JSON.stringify(programs));
+					clearInterval(app['app_watcher']);
+					populate_applications();
+				});
+				e.stopPropagation();
+			});
+
 	}
 	return jquery_obj;
 }
@@ -100,6 +115,9 @@ function createApplication(index, applications) {
 	}).on("touchend",function(){
 	    clearTimeout(timer);
 	});
+	if(app['app_watcher']) {
+		clearInterval(app['app_watcher'])
+	}
 	app['app_watcher'] = window.setInterval(update_app_status, 5000, app, index);
 
 }

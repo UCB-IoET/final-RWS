@@ -19,6 +19,7 @@ div.popup {
 	position:absolute;
 	left:8%;
 	top:13%;
+	padding:5px;
     width: 80%;
     height: 70%;
     background-color:#eee;
