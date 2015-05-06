@@ -17,11 +17,11 @@ function load_applications() {
 }
 
 function populate_application(app, index, jquery_obj) {
+	if(app == 'New Application') {
+		return $('<div class="application" id="New Application"><h3> New Application </h3></div>');
+	}
 	if(!jquery_obj) {
 		jquery_obj = $('<div class="application" id="app'+index+'">');
-	}
-	if(app == 'New Application') {
-		jquery_obj = $('<div class="application" id="New Application"> New Application </div>');
 	}
 	jquery_obj.html('');
 	jquery_obj.append('<h3>'+app['app_id']+'</h3>\n');
