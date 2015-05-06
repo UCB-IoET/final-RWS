@@ -49,7 +49,7 @@ RWSNode.prototype.draw = function(context, selected) {
   context.fillRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
 
   var displayString = this.getDisplayString()
-  drawString(context, displayString, this.x + nodeWidth/2 - displayString.length * 5, this.y + nodeHeight/2, "#333333", 0, 'serif', 12);
+  drawString(context, displayString, this.x + nodeWidth/2 - displayString.length * 3, this.y + nodeHeight/2 + 4, "#333333", 0, 'serif', 10);
   context.fillStyle="rgba(50, 50, 50, .7)";
 
   // set lineWidth back to original
