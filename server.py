@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+PORT = 1471
+
 import SimpleHTTPServer
 import SocketServer
 import logging
@@ -11,8 +13,6 @@ import requests
 import json
 from interpreter import run_program
 from interpreter import _node_configs
-
-PORT = 1466
 
 def client_thread(program, addr, n_threads):
     #stream some data to the archiver
