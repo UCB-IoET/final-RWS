@@ -2,13 +2,27 @@
 Final project for Running With Scissors
 
 
+# smap sources
 
-./firestorm/build-actuator.lua
-  load code for actuator firestorm, controls light strip
+To load code for source firestorm, provides ir tmp, buttons, and accelerometer SMAP sources:
+  ./firestorm/build-source.lua
 
-./firestorm/build-source.lua
-  load code for source firestorm, provides ir tmp, buttons, and accelerometer SMAP sources
+To run the middleware:
+
+  cd smap
+  python middleware.py
+
+# smap actuators
+
+To load code for actuator firestorm, controls light strip
+  ./firestorm/build-actuator.lua
+
+To run the smap driver:
+  cd actuation_driver
+  twistd -n smap streetlight.ini
 
 
- 
+#start the server
+
+./server.py
 
