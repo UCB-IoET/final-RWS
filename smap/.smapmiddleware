@@ -1,0 +1,1 @@
+{"3039": {"/3039/ir_temp": {"Properties": {"UnitofTime": "ms", "UnitofMeasure": "count"}, "uuid": "88eb4d06-dbf3-11e4-82c6-22000ac51496", "Metadata": {"SourceName": "temperature"}}, "/3039/ambient_temp": {"Properties": {"UnitofTime": "ms", "UnitofMeasure": "count"}, "uuid": "88ea5748-dbf3-11e4-82c6-22000ac51496", "Metadata": {"SourceName": "temperature"}}}}
