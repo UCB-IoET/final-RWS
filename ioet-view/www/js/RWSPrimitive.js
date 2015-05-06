@@ -55,6 +55,10 @@ RWSPrimitive.prototype.getExportRepresentation = function() {
 	return obj;
 }
 
+RWSPrimitive.prototype.getDisplaySize = function() {
+	return 14;
+}
+
 RWSPrimitive.prototype.populateInfoPopup = function(container) {
 	container.html(this.name);
 }
