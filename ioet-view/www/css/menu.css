@@ -7,3 +7,7 @@
 	float:left;
 	background-color: rgba(100, 200, 255, .5);
 }
+
+.closeButton {
+	position: fixed;
+}

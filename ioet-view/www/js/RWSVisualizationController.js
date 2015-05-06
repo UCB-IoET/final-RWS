@@ -260,7 +260,6 @@ function send_model() {
 
 	window.localStorage.setItem("storedPrograms", JSON.stringify(programs));
 	interpreter.export_application(application);
-	window.open("menu.html",'_self');
 }
 
 

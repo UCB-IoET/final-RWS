@@ -12,46 +12,10 @@ function RWSInterpreterInterface(server_url) {
        data: json_dict,
        success: function(data) {
           print(data)
+          window.open("menu.html",'_self');
        },
        async:true
     });
 
-  }
-
-  this.monitor_application = function(application) {
-    $.ajax({
-       type: 'POST',
-       url: this.server_url+'/status',
-       data: application.app_id,
-       success: function(data) {
-          console.log('got application state');
-          console.log(data);
-       },
-       async:true
-    });
-  }
-
-  this.start_application = function(application) {
-    $.ajax({
-       type: 'POST',
-       url: this.server_url+'/start',
-       data: application.app_id,
-       success: function(data) {
-          console.log('successfully started application');
-       },
-       async:true
-    });
-  }
-
-  this.stop_application = function(application) {
-    $.ajax({
-       type: 'POST',
-       url: this.server_url+'/stop',
-       data: application.app_id,
-       success: function(data) {
-          console.log('successfully stopped application');
-       },
-       async:true
-    });
   }
 }

@@ -45,6 +45,21 @@ function populate_application(app, index, jquery_obj) {
 				e.stopPropagation();
 			});
 		}
+		//add the delete button
+		$('<button class="closeButton"> x </button>').prependTo(jquery_obj)
+			.offset(jquery_obj.offset())
+			.click(function(e) {
+				$.post(server_url + '/delete', JSON.stringify({'uid': username, 'pid': app['app_id'], 'password': 'password'}), function(data) {
+					var programs = window.localStorage.getItem("storedPrograms");
+					programs = JSON.parse(programs)
+					delete programs[app.app_id];
+					window.localStorage.setItem("storedPrograms", JSON.stringify(programs));
+					clearInterval(app['app_watcher']);
+					populate_applications();
+				});
+				e.stopPropagation();
+			});
+
 	}
 	return jquery_obj;
 }
@@ -100,6 +115,9 @@ function createApplication(index, applications) {
 	}).on("touchend",function(){
 	    clearTimeout(timer);
 	});
+	if(app['app_watcher']) {
+		clearInterval(app['app_watcher'])
+	}
 	app['app_watcher'] = window.setInterval(update_app_status, 5000, app, index);
 
 }
