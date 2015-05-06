@@ -28,7 +28,7 @@ server = function()
 
 				    r = msg["rgb"]
                                     print(r, g, b)
-                                    led:setAll(r, 30, 30)
+                                    led:setAll(r, r, r)
                                     led:display()
 			                    end)
 end
