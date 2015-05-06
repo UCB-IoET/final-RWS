@@ -32,7 +32,7 @@ function populate_application(app, index, jquery_obj) {
 			$('<button class="rwsButton"> Start App </button>').appendTo(jquery_obj).click(function(e) {
 				$.post(server_url + '/start', JSON.stringify({'uid': username, 'pid': app['app_id'], 'password': 'password'}), function(data) {
 					update_app_status(app, index);
-					alert(data);
+					navigator.notification.alert(data, function() {}, 'Result');
 				});
 				e.stopPropagation();
 			});
@@ -40,7 +40,7 @@ function populate_application(app, index, jquery_obj) {
 			$('<button class="rwsButton"> Stop App </button>').appendTo(jquery_obj).click(function(e) {
 				$.post(server_url + '/stop', JSON.stringify({'uid': username, 'pid': app['app_id'], 'password': 'password'}), function(data) {
 					update_app_status(app, index);
-					alert(data);
+					navigator.notification.alert(data, function() {}, 'Result');
 				});
 				e.stopPropagation();
 			});
