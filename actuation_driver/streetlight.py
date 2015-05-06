@@ -146,8 +146,9 @@ class RGBActuator(VirtualLightActuator, actuate.ContinuousActuator):
 	print msg
 	msg_pack = msgpack.packb(msg)
 	
-	UDP_IP = "2001:470:4956:2:212:6d02::3017"
-	# UDP_IP = "2001:0470:4956:0002::0212:6d02:0000:3017" #all IPs
+	UDP_IP = "2001:470:832b:2:212:6d02::3017"
+	#UDP_IP = "2001:470:4956:2:212:6d02::3017"
+	# UDP_IP = "2001:0470:832b:0002::0212:6d02:0000:3017" #all IPs
 	UDP_PORT = 1444 
  
 	# Note we are creating an INET6 (IPv6) socket
