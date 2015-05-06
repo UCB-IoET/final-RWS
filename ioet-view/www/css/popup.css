@@ -92,7 +92,7 @@ span {
 button {
 	height:45px;
 	border-radius:3px;
-	background-color:#229cdc;
+	background-color:#AC58FA; /* AC58FA, D0A9F5, rgba(100, 200, 255, .5)*/
 	color:#fff;
 	font-family:'Raleway',sans-serif;
 	font-size:18px;
