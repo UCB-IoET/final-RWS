@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-PORT = 1471
+PORT = 1458
 
 import SimpleHTTPServer
 import SocketServer
@@ -63,7 +63,9 @@ class ProgramCache:
 
     def get_program(self, uid, pid):
         # print 'looking for ({}, {}) in {}'.format(uid, pid, self.programs)
-        return self.programs.get(str(uid)).get(str(pid))
+        if self.programs.get(str(uid)):
+            return self.programs.get(str(uid)).get(str(pid))
+        return None
 
     def list_programs(self, uid):
         if(str(uid) in self.programs):
@@ -128,7 +130,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                                  'connections',
                                                  'nodes',
                                                  'type']]):
-                print("Invalid program, ignoring.")
+                print("Invalid program, ignoring: {}", program)
                 return
             #check user id and password
             #TODO: user IDs
@@ -150,7 +152,6 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 return
             program = self.cache.get_program(uid, pid)
             if program:
-                print "Starting process for program: ({},{})".format(uid, pid)
                 # feed client address into threadable function
                 client_addr = str(self.client_address[0]) + ":" + str(self.client_address[1])
                 n_threads += 1
@@ -173,7 +174,6 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 return
             program = self.cache.get_program(uid, pid)
             if program:
-                print "Stopping process for program: ", uid
                 # n_threads -= 1
                 # tid = thread.start_new_thread(client_thread,
                 #                       (program, client_addr, n_threads))
@@ -183,7 +183,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write('Successfully stopped program: ({},{})'.format(program['uid'],program['pid']));
             else:
-                print "No such program: ", uid
+                print "No such program: ({},{})".format(uid, pid)
                 self.send_response(500)
         elif(self.path == '/status'): #get the status of a specific program
             uid, pid = self.extract_ids()
@@ -194,7 +194,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(program['status']);
             else:
-                print "No such program: ", uid
+                print "No such program: ({},{})".format(uid, pid)
                 self.send_response(500)
         elif(self.path == '/list_programs'): #list program uids for a given user
             length = int(self.headers['Content-length'])

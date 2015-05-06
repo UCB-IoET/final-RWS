@@ -5,11 +5,12 @@ function RWSApplication(nodes, wires, ports) {
 	this.wires = wires;
 	this.ports = ports; //ports are how nodes connect to wires. 
 	this.app_id = app_id++;
+	this.uid = window.localStorage.getItem('uid');
 
 	this.getExportRepresentation = function() {
 		var exportObject = {'type' : 'program', 'password' : 'password'};
 		exportObject['pid'] = this.app_id;
-		exportObject['uid'] = window.localStorage.getItem('uid');
+		exportObject['uid'] = this.uid;
 
 
 	    var connections = {};
@@ -49,8 +50,11 @@ function loadApplicationWithID(app_id) {
 		programs = JSON.parse(programs)
 		if(app_id in programs) {
 			loadApplicationFromExport(programs[app_id]);
+			return;
 		}
 	}
+	//otherwise just set the ID
+	application.app_id = app_id; 
 }
 
 function loadApplicationFromExport(exportRepresentation) { //essentially the reverse of GetExportRepresntation
