@@ -33,15 +33,15 @@ RWSNode.prototype.getDisplayString = function() {
 }
 
 RWSNode.prototype.getDisplaySize = function() {
-	return 10;
+	return 14;
 }
 
-RWSNode.prototype.getDisplayX = function(x,displayString) {
-	return x + nodeWidth/2 - displayString.length*3;
+RWSNode.prototype.getDisplayX = function(x) {
+	return x + nodeWidth/2;
 }
 
 RWSNode.prototype.getDisplayY = function(y) {
-	return y + nodeHeight/2 + 4;
+	return y + nodeHeight/2+4;
 }
 
 RWSNode.prototype.draw = function(context, selected) {
@@ -61,7 +61,7 @@ RWSNode.prototype.draw = function(context, selected) {
 
   var displayString = this.getDisplayString();
   var displaySize = this.getDisplaySize();
-  var X = this.getDisplayX(this.x,displayString);
+  var X = this.getDisplayX(this.x);
   var Y = this.getDisplayY(this.y);
   drawString(context, displayString, X, Y, "#333333", 0, 'serif', displaySize);
   context.fillStyle="rgba(50, 50, 50, .7)";
