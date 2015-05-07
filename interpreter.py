@@ -135,8 +135,8 @@ def _(self, ast):
     val = ast['val']
     if debug: print('literal: {}'.format(val))
     self.set_and_signal(ast['outputs'][0], val)
-def_node_config('literal', 'number', 'literal', None,'num',{'value':True})
-def_node_config('literal', 'string', 'literal', None,'str',{'value':True})
+def_node_config('literal', 'number', 'literal', None,'num',{'value':0})
+def_node_config('literal', 'string', 'literal', None,'str',{'value':''})
 
 @node('binop',
       {'op' : 'the operation, +, *, ==, >, ...',
