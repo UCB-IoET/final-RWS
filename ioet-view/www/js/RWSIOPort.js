@@ -36,7 +36,6 @@ function RWSIOPort(mode, nodeID, name, wireID, id) { // 0 for input, 1 for outpu
 			context.lineTo(this.x + ioSize , this.y + ioSize);
 			context.lineTo(this.x + ioSize*2, this.y);
 			context.fill(); //automatically closes path
-			// displayString = this.getDisplayString(displayName,this.name);
 			if (displayName) {
 				displayString = name;
 			} else {

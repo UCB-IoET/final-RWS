@@ -11,3 +11,9 @@
 .closeButton {
 	position: fixed;
 }
+
+#appContainer {
+	margin: 2%;
+	padding: 2%;
+	height: 400px;
+}
