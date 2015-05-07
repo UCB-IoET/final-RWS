@@ -1,6 +1,6 @@
 #!/usr/bin/env lua
 
-autorun = "streetlight_firestorm.lua"
+autorun = "actuators.lua"
 
 libs = {
     cord    = "../../contrib/lib/cord.lua",
