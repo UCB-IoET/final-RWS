@@ -317,8 +317,7 @@ def _(self, ast, v):
     if not ast.get('toggle_last'):
         ast['toggle_last'] = 0
     last = ast['toggle_last']
-    this = 1 if v else 0
-    if last != this:
+    if v:
         ast['toggle_last'] = 1-last
     return ast['toggle_last']
 
