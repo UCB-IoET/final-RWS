@@ -34,12 +34,12 @@
         "number": {
             "outputs": ["num"],
             "type": "literal",
-            "value": true
+            "value": 0
         },
         "string": {
             "outputs": ["str"],
             "type": "literal",
-            "value": true
+            "value": ''
         }
     },
     "call": {
