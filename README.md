@@ -1,4 +1,4 @@
-# Simple Manipulation and Actuation of Remote Things (SMART)
+## Simple Manipulation and Actuation of Remote Things (SMART)
 Final project for Running With Scissors
 
 
