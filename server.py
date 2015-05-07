@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 PORT = 1458
 
+print_errors = True
+print_responses = True
+
 import SimpleHTTPServer
 import SocketServer
 import logging
@@ -52,7 +55,11 @@ class ProgramCache:
         if(use_file and os.path.isfile('programDump.json')):
             f = open('programDump.json', 'r')
             self.programs = json.load(f)
+            for uid in self.programs:
+                for pid in self.programs[uid]:
+                    self.programs[uid][pid]['status'] = 'Not Started'
             f.close()
+            self.dump_to_file()
 
     def store_program(self, program):
         if not str(program['uid']) in self.programs:
@@ -66,6 +73,13 @@ class ProgramCache:
         if self.programs.get(str(uid)):
             return self.programs.get(str(uid)).get(str(pid))
         return None
+
+    def remove_program(self, uid, pid):
+        del self.programs.get(str(uid))[str(pid)]
+        if(len(self.programs.get(str(uid))) == 0):
+            del self.programs[str(uid)]
+        self.dump_to_file()
+
 
     def list_programs(self, uid):
         if(str(uid) in self.programs):
@@ -81,12 +95,21 @@ class ProgramCache:
 class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     cache = ProgramCache(True)
     def do_error(self, error):
-        print(error)
+        if(print_errors):
+            print(error)
         self.send_response(500)
         self.end_headers()
         self.wfile.write(error)
         return
     
+    def do_response(self, message):
+        if(print_responses):
+            print(message)
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(message)
+        return
+
     def extract_ids(self):
         length = int(self.headers['Content-length'])
         post_content = self.rfile.read(length)
@@ -110,8 +133,8 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         global n_threads
-        logging.warning("======= POST STARTED =======")
-        logging.warning(self.headers)
+        # logging.warning("======= POST STARTED =======")
+        # logging.warning(self.headers)
         if(self.path == '/new'):
             # load post content
             length = int(self.headers['Content-length'])
@@ -133,22 +156,20 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                                  'type']]):
                 print("Invalid program, ignoring: {}", program)
                 return
-            #check user id and password
-            #TODO: user IDs
-            if str(program['password']) != "password":
-                return self.do_error("Authentication Failed")
+
+            program = self.cache.get_program(program['uid'], program['pid'])
+            if program: #terminate the running process before overwriting
+                n_threads -= 1
+                program['shouldStop'] = True
 
             self.cache.store_program(program)
-            self.send_response(200)
-            self.end_headers()
-            self.wfile.write('Successfully stored program: ({},{})'.format(program['uid'],program['pid']));
 
+            self.do_response('Successfully stored program: ({},{})'.format(program['uid'],program['pid']))
         elif (self.path == '/start'): #TODO: Authentication of start request
             try:
                 uid, pid = self.extract_ids()
             except:
-                self.send_response(500)
-                return
+                return self.do_error('Invalid Program Metadata')
             program = self.cache.get_program(uid, pid)
             if program:
                 if program['status'] != 'running':
@@ -160,9 +181,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     tid = thread.start_new_thread(client_thread,
                                           (program, client_addr, n_threads))
                     program['tid'] = tid;
-                    self.send_response(200)
-                    self.end_headers()
-                    self.wfile.write('Successfully started program: ({},{})'.format(program['uid'],program['pid']));
+                    self.do_response('Successfully started program: ({},{})'.format(program['uid'],program['pid']))
                 else:
                     return self.do_error("Program already running: ({}, {})".format(uid, pid))
             else:
@@ -174,24 +193,26 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 return self.do_error("Invalid Program Metadata");
             program = self.cache.get_program(uid, pid)
             if program:
-                # n_threads -= 1
-                # tid = thread.start_new_thread(client_thread,
-                #                       (program, client_addr, n_threads))
-                # program['tid'] = tid;
+                n_threads -= 1
                 program['shouldStop'] = True
-                self.send_response(200)
-                self.end_headers()
-                self.wfile.write('Successfully stopped program: ({},{})'.format(program['uid'],program['pid']));
+                self.do_response('Successfully stopped program: ({},{})'.format(program['uid'],program['pid']))
             else:
                 return self.do_error("No such program: ({},{})".format(uid, pid))
         elif(self.path == '/status'): #get the status of a specific program
             uid, pid = self.extract_ids()
             program = self.cache.get_program(uid, pid)
             if program:
-                print "status", program['status']
-                self.send_response(200)
-                self.end_headers()
-                self.wfile.write(program['status']);
+                if(print_responses):
+                    print("For Program: ({},{})".format(program['uid'],program['pid']))
+                self.do_response(program['status']);
+            else:
+                return self.do_error("No such program: ({},{})".format(uid, pid))
+        elif(self.path == '/delete'): #get the status of a specific program
+            uid, pid = self.extract_ids()
+            program = self.cache.get_program(uid, pid)
+            if program:
+                self.cache.remove_program(uid, pid)
+                self.do_response('Successfully deleted program: ({},{})'.format(program['uid'],program['pid']));
             else:
                 return self.do_error("No such program: ({},{})".format(uid, pid))
         elif(self.path == '/list_programs'): #list program uids for a given user
