@@ -50,14 +50,16 @@ class Interpreter:
         while not self.ready_q.empty() or self.smap_subscriptions_p:
             #TODO: catch errors
             if ast.get('shouldStop'):
-                print "TERMINATED"
                 return 1
-            node = self.ready_q.get()
-            self.ready.remove(node)
-            node_ast = self.nodes.get(node)
-            if node_ast:
-                fn = _node_switch_table.get(node_ast.get('type'))
-                fn and fn(self, node_ast)
+            try:
+                node = self.ready_q.get(True, 2)
+                self.ready.remove(node)
+                node_ast = self.nodes.get(node)
+                if node_ast:
+                    fn = _node_switch_table.get(node_ast.get('type'))
+                    fn and fn(self, node_ast)
+            except Queue.Empty:
+                if(debug): print 'Ready Queue was empty and timed out'
         print "DONE"
         return 0
 
