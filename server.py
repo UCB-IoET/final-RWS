@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-PORT = 1458
+PORT = 14588
 
 print_errors = True
 print_responses = True
@@ -256,7 +256,7 @@ else:
 
 ################################################################################
 
-httpd = SocketServer.TCPServer(("127.0.0.1", PORT), ServerHandler)
+httpd = SocketServer.TCPServer(("0.0.0.0", PORT), ServerHandler)
 httpd.allow_reuse_address = True # Prevent 'cannot bind to address' errors on restart....not working atm
-print("Server active")
+print("Server active on {}",httpd.server_address)
 httpd.serve_forever()
