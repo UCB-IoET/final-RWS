@@ -313,12 +313,14 @@ def _(self,ast,n):
 @function('toggle',
           {'input': 'something'},
           {'output': 'alternate 1, 0'})
-def _(self, ast,_):
-    if not ast.get('toggle_val'):
-        ast['toggle_val'] = 0
-    val = ast['toggle_val']
-    ast['toggle_val'] = 1-val
-    return val
+def _(self, ast, v):
+    if not ast.get('toggle_last'):
+        ast['toggle_last'] = 0
+    last = ast['toggle_last']
+    this = 1 if v else 0
+    if last != this:
+        ast['toggle_last'] = 1-last
+    return ast['toggle_last']
 
 @function('not',
           {'input': 'a binary value'},
