@@ -62,7 +62,7 @@ class ProgramCache:
             self.dump_to_file()
 
     def store_program(self, program):
-        if not str(program['uid']) in self.programs:
+	if not str(program['uid']) in self.programs:
             self.programs[str(program['uid'])] = {}
         self.programs[str(program['uid'])][str(program['pid'])] = program
         program['status'] = 'Not Started'
@@ -157,10 +157,10 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 print("Invalid program, ignoring: {}", program)
                 return
 
-            program = self.cache.get_program(program['uid'], program['pid'])
-            if program: #terminate the running process before overwriting
+            existing = self.cache.get_program(program['uid'], program['pid'])
+            if existing: #terminate the running process before overwriting
                 n_threads -= 1
-                program['shouldStop'] = True
+                existing['shouldStop'] = True
 
             self.cache.store_program(program)
 
