@@ -5,7 +5,8 @@ Final project for Running With Scissors
 ## smap sources
 
 To load code for source firestorm, provides ir tmp, buttons, and accelerometer SMAP sources:
-  ./firestorm/build-source.lua
+  
+  > ./firestorm/build-source.lua
 
 To run the middleware:
 
