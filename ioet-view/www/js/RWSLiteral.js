@@ -41,6 +41,7 @@ RWSLiteral.prototype.populateInfoPopup = function(container) {
 			node.value = String(value);
 		}
 		container.parent()[0].style.display="none";
+		valid = false;
 		return false;
 	});
 }

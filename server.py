@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-PORT = 1471
+PORT = 1458
+
+print_errors = True
+print_responses = True
 
 import SimpleHTTPServer
 import SocketServer
@@ -52,7 +55,11 @@ class ProgramCache:
         if(use_file and os.path.isfile('programDump.json')):
             f = open('programDump.json', 'r')
             self.programs = json.load(f)
+            for uid in self.programs:
+                for pid in self.programs[uid]:
+                    self.programs[uid][pid]['status'] = 'Not Started'
             f.close()
+            self.dump_to_file()
 
     def store_program(self, program):
         if not str(program['uid']) in self.programs:
@@ -63,7 +70,16 @@ class ProgramCache:
 
     def get_program(self, uid, pid):
         # print 'looking for ({}, {}) in {}'.format(uid, pid, self.programs)
-        return self.programs.get(str(uid)).get(str(pid))
+        if self.programs.get(str(uid)):
+            return self.programs.get(str(uid)).get(str(pid))
+        return None
+
+    def remove_program(self, uid, pid):
+        del self.programs.get(str(uid))[str(pid)]
+        if(len(self.programs.get(str(uid))) == 0):
+            del self.programs[str(uid)]
+        self.dump_to_file()
+
 
     def list_programs(self, uid):
         if(str(uid) in self.programs):
@@ -75,24 +91,36 @@ class ProgramCache:
         json.dump(self.programs,f, indent=2)
         f.close()
 
+
 class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     cache = ProgramCache(True)
+    def do_error(self, error):
+        if(print_errors):
+            print(error)
+        self.send_response(500)
+        self.end_headers()
+        self.wfile.write(error)
+        return
+    
+    def do_response(self, message):
+        if(print_responses):
+            print(message)
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(message)
+        return
+
     def extract_ids(self):
         length = int(self.headers['Content-length'])
         post_content = self.rfile.read(length)
         try:
             info = util.load_json(post_content)
         except:
-            print "Error extracting json"
-            self.send_response(500)
-            return
+            return self.do_error("Error extracting json")
         if not (info.get('uid') and info.get('pid') and info.get('password')):
-            print("Invalid user/program id, ignoring.")
-            return
+            return self.do_error("Invalid program metadata")
         if str(info['password']) != "password":
-            print("Authentication failed")
-            self.send_response(500)
-            return
+           return self.do_error("Authentication Failed")
         uid, pid = info['uid'], info['pid']
         return uid, pid
 
@@ -105,8 +133,8 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         global n_threads
-        logging.warning("======= POST STARTED =======")
-        logging.warning(self.headers)
+        # logging.warning("======= POST STARTED =======")
+        # logging.warning(self.headers)
         if(self.path == '/new'):
             # load post content
             length = int(self.headers['Content-length'])
@@ -116,9 +144,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             try:
                 program = util.load_json(post_content)
             except:
-                print "Error extracting json"
-                self.send_response(500)
-                return
+               return self.do_error("Error extracting json")
 
             #check that received json is a valid program
             if not all([program.get(x) for x in ['password',
@@ -128,90 +154,79 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                                  'connections',
                                                  'nodes',
                                                  'type']]):
-                print("Invalid program, ignoring.")
+                print("Invalid program, ignoring: {}", program)
                 return
-            #check user id and password
-            #TODO: user IDs
-            if str(program['password']) != "password":
-                print("Authentication failed")
-                self.send_response(500)
-                return
+
+            program = self.cache.get_program(program['uid'], program['pid'])
+            if program: #terminate the running process before overwriting
+                n_threads -= 1
+                program['shouldStop'] = True
 
             self.cache.store_program(program)
-            self.send_response(200)
-            self.end_headers()
-            self.wfile.write('Successfully stored program: ({},{})'.format(program['uid'],program['pid']));
 
+            self.do_response('Successfully stored program: ({},{})'.format(program['uid'],program['pid']))
         elif (self.path == '/start'): #TODO: Authentication of start request
             try:
                 uid, pid = self.extract_ids()
             except:
-                self.send_response(500)
-                return
+                return self.do_error('Invalid Program Metadata')
             program = self.cache.get_program(uid, pid)
             if program:
-                print "Starting process for program: ({},{})".format(uid, pid)
-                # feed client address into threadable function
-                client_addr = str(self.client_address[0]) + ":" + str(self.client_address[1])
-                n_threads += 1
-                program['shouldStop'] = False
+                if program['status'] != 'running':
+                    # feed client address into threadable function
+                    client_addr = str(self.client_address[0]) + ":" + str(self.client_address[1])
+                    n_threads += 1
+                    program['shouldStop'] = False
 
-                tid = thread.start_new_thread(client_thread,
-                                      (program, client_addr, n_threads))
-                program['tid'] = tid;
-                self.send_response(200)
-                self.end_headers()
-                self.wfile.write('Successfully started program: ({},{})'.format(program['uid'],program['pid']));
+                    tid = thread.start_new_thread(client_thread,
+                                          (program, client_addr, n_threads))
+                    program['tid'] = tid;
+                    self.do_response('Successfully started program: ({},{})'.format(program['uid'],program['pid']))
+                else:
+                    return self.do_error("Program already running: ({}, {})".format(uid, pid))
             else:
-                print "No such program: ({}, {})".format(uid, pid)
-                self.send_response(500)
+                return self.do_error("No such program: ({},{})".format(uid, pid))
         elif (self.path == '/stop'): # not actually doing anything atm...need to make threads killable
             try:
                 uid, pid = self.extract_ids()
             except:
-                self.send_response(500)
-                return
+                return self.do_error("Invalid Program Metadata");
             program = self.cache.get_program(uid, pid)
             if program:
-                print "Stopping process for program: ", uid
-                # n_threads -= 1
-                # tid = thread.start_new_thread(client_thread,
-                #                       (program, client_addr, n_threads))
-                # program['tid'] = tid;
+                n_threads -= 1
                 program['shouldStop'] = True
-                self.send_response(200)
-                self.end_headers()
-                self.wfile.write('Successfully stopped program: ({},{})'.format(program['uid'],program['pid']));
+                self.do_response('Successfully stopped program: ({},{})'.format(program['uid'],program['pid']))
             else:
-                print "No such program: ", uid
-                self.send_response(500)
+                return self.do_error("No such program: ({},{})".format(uid, pid))
         elif(self.path == '/status'): #get the status of a specific program
             uid, pid = self.extract_ids()
             program = self.cache.get_program(uid, pid)
             if program:
-                print "status", program['status']
-                self.send_response(200)
-                self.end_headers()
-                self.wfile.write(program['status']);
+                if(print_responses):
+                    print("For Program: ({},{})".format(program['uid'],program['pid']))
+                self.do_response(program['status']);
             else:
-                print "No such program: ", uid
-                self.send_response(500)
+                return self.do_error("No such program: ({},{})".format(uid, pid))
+        elif(self.path == '/delete'): #get the status of a specific program
+            uid, pid = self.extract_ids()
+            program = self.cache.get_program(uid, pid)
+            if program:
+                self.cache.remove_program(uid, pid)
+                self.do_response('Successfully deleted program: ({},{})'.format(program['uid'],program['pid']));
+            else:
+                return self.do_error("No such program: ({},{})".format(uid, pid))
         elif(self.path == '/list_programs'): #list program uids for a given user
             length = int(self.headers['Content-length'])
             post_content = self.rfile.read(length)
             try:
                 info = util.load_json(post_content)
             except:
-                print "Error extracting json"
-                self.send_response(500)
-                return
+                return self.do_error("Error Extracting JSON")
             if not (info.get('uid')  and info.get('password')):
-                print("Invalid user id, ignoring.")
-                return
+                return self.do_error("Invalid user id, ignoring.")
             if str(info['password']) != "password":
-                print("Authentication failed")
-                self.send_response(500)
-                return
+                return self.do_error("Authentication Failed")
+
             uid = info['uid']
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')

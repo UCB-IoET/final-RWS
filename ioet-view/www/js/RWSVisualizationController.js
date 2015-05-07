@@ -249,7 +249,6 @@ function nodeInfoPopup(node) {
 
 }
 
-
 function send_model() {
 	//update the local storage
 	var programs = window.localStorage.getItem("storedPrograms");
@@ -264,7 +263,6 @@ function send_model() {
 }
 
 
-
 window.addEventListener("DOMContentLoaded", function() {
     canvas = $('canvas')[0];
     canvas.addEventListener('touchstart', onMouseDown, false);
@@ -274,5 +272,6 @@ window.addEventListener("DOMContentLoaded", function() {
 	setInterval(visualize, 50);
 	if(selectedProgram != null)
 		loadApplicationWithID(selectedProgram);
+	$('#appTitle').html(application.app_id);
 	smapInterface.popup = d3.select("#listNodePopup");
 }, false);
