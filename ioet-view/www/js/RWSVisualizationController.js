@@ -2,7 +2,7 @@ var selectedProgram = window.localStorage.getItem("selectedProgram");
 var application = new RWSApplication({}, {}, []);
 var smapInterface = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query');
 
-var server_url = "http://127.0.0.1:1458";
+var server_url = "http://shell.storm.pm:14588";
 var interpreter = new RWSInterpreterInterface(server_url);
 
 var selected = null;
@@ -40,6 +40,7 @@ function drawString(ctx, text, posX, posY, textColor, rotation, font, fontSize) 
 function visualize() {
 	if(canvas && !valid) {
 		var ctx = canvas.getContext('2d');
+		ctx.textAlign="center"; 
 		clear(ctx);
 	    ctx.save();
 		ctx.translate(panX, panY);
@@ -148,8 +149,8 @@ function onMouseMove(e) {
 		var mouse = getMouse(e);
 		var deltaX = mouse.x - dragoffset['x'];
 		var deltaY = mouse.y - dragoffset['y'];
-		dragging.x += deltaX;
-		dragging.y += deltaY;
+		dragging.x = Math.max(Math.min(dragging.x + deltaX, canvas.width - nodeWidth), 0);
+		dragging.y = Math.max(Math.min(dragging.y + deltaY, canvas.height - nodeHeight), 0);
 		dragging.updatePorts();
 		dragoffset = mouse;
 		dragDist += Math.sqrt(Math.pow(deltaX ,2) + Math.pow(deltaY,2));
@@ -265,6 +266,8 @@ function send_model() {
 
 window.addEventListener("DOMContentLoaded", function() {
     canvas = $('canvas')[0];
+    canvas.height = screen.height - canvas.offsetTop;
+    canvas.width = screen.width;
     canvas.addEventListener('touchstart', onMouseDown, false);
     canvas.addEventListener('touchend', onMouseUp, false);
     canvas.addEventListener('touchmove', onMouseMove, false);

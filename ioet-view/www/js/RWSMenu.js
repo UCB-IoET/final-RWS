@@ -1,5 +1,5 @@
 var username = window.localStorage.getItem('uid') || 'User';
-var server_url = "http://127.0.0.1:1458";
+var server_url = "http://shell.storm.pm:14588";
 
 function load_applications() {
 	var key;
@@ -24,10 +24,11 @@ function populate_application(app, index, jquery_obj) {
 		jquery_obj = $('<div class="application" id="app'+index+'">');
 	}
 	jquery_obj.html('');
-	jquery_obj.append('<h3>'+app['app_id']+'</h3>\n');
+	// jquery_obj.append('<h3>'+app['app_id']+'</h3>\n');
+	jquery_obj.append('<font size="5" face="sans-serif">'+app['app_id']+'</font>\n');
 	if(app['status']){
 		jquery_obj.append('<br>\n');
-		jquery_obj.append('Status: '+app['status']+'\n<br>\n');
+		jquery_obj.append('<font size="1"> Status: '+app['status']+'</font> \n<br>\n');
 		if(app['status'] != 'running') {
 			$('<button class="rwsButton"> Start App </button>').appendTo(jquery_obj).click(function(e) {
 				$.post(server_url + '/start', JSON.stringify({'uid': username, 'pid': app['app_id'], 'password': 'password'}), function(data) {
