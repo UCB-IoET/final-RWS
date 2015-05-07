@@ -1,4 +1,4 @@
-PORT='1471'
+PORT='1459'
 
 import json
 import urllib2
@@ -35,13 +35,17 @@ program1 = {'type':'program',
                             'name': 'print',
                             'inputs': ['w2']}}}
 
+program1_start = {'uid': 'rws',
+                  'pid': '1',
+                  'password': 'password'}
+
 
 #this program subscribes to a sine wave smap source,
 #multiplies it by 100 and prints that values
 program2 = {'type':'program',
             'uid': 'rws',
             'password': 'password',
-            'pid':'1',
+            'pid':'2',
             'initial': ['n0', 'n1'],
             'connections':{'w0' : ['n2'],
                            'w1' : ['n2'],
@@ -63,7 +67,7 @@ program2 = {'type':'program',
                              'inputs': ['w2']}}}
 
 program2_start = {'uid': 'rws',
-                  'pid': '1',
+                  'pid': '2',
                   'password': 'password'}
 
 
@@ -170,8 +174,9 @@ program4 = {'type':'program',
                      'n4' : {'type': 'smap',
                              'smap-type': 'actuate',
                              # 'streetlight' driver
-                             #'uuid': 'ac903027-3a81-5d2f-a5cb-7983f5fb9f0a',
-                             'uuid': '4caee96b-31fc-540b-9210-5160d19f2af2',
+                             #Andrews version:
+                             'uuid': 'ac903027-3a81-5d2f-a5cb-7983f5fb9f0a',
+                             #'uuid': '4caee96b-31fc-540b-9210-5160d19f2af2',
                              'inputs': ['w8']},
 
                      'n5' : {'type': 'call',
@@ -184,9 +189,12 @@ program4_start = {'uid': 'rws',
                   'password': 'password'}
 
 ################################################################################
+#program = program1
 #program = program2
 #program = program3
 program = program4
+
+#start = program1_start
 #start = program2_start
 #start = program3_start
 start = program4_start

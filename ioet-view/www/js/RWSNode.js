@@ -1,10 +1,9 @@
 //RWSNode.js
 var nodeColor = '#AAAAAA';
 
-var nodeWidth = 120;
-var nodeHeight = 60;
 var cornerRadius = 20;
 var nodeID = 0;
+var nodeHeight = 60;
 function next_node_id() {
 	while (nodeID in application.nodes) {
 		++nodeID;
@@ -28,20 +27,27 @@ function RWSNode(type, infoDict) {
 	this.y = Math.floor((Math.random() * 200) + 30);
 }
 
+RWSNode.prototype.getNodeWidth = function() {
+	if(this.getDisplayString().length > 18) {
+		return 180;
+	}
+	return 110;
+}
+
 RWSNode.prototype.getDisplayString = function() {
 	return this.name + '\n' + this.description;
 }
 
 RWSNode.prototype.getDisplaySize = function() {
-	return 10;
+	return 14;
 }
 
-RWSNode.prototype.getDisplayX = function(x,displayString) {
-	return x + nodeWidth/2 - displayString.length*3;
+RWSNode.prototype.getDisplayX = function(x) {
+	return x + this.getNodeWidth()/2;
 }
 
 RWSNode.prototype.getDisplayY = function(y) {
-	return y + nodeHeight/2 + 4;
+	return y + nodeHeight/2+4;
 }
 
 RWSNode.prototype.draw = function(context, selected) {
@@ -56,12 +62,12 @@ RWSNode.prototype.draw = function(context, selected) {
   context.lineWidth = cornerRadius;
 
   // Change origin and dimensions to match true size (a stroke makes the shape a bit larger)
-  context.strokeRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
-  context.fillRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), nodeWidth-cornerRadius, nodeHeight-cornerRadius);
+  context.strokeRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), this.getNodeWidth()-cornerRadius, nodeHeight-cornerRadius);
+  context.fillRect(this.x+(cornerRadius/2), this.y+(cornerRadius/2), this.getNodeWidth()-cornerRadius, nodeHeight-cornerRadius);
 
   var displayString = this.getDisplayString();
   var displaySize = this.getDisplaySize();
-  var X = this.getDisplayX(this.x,displayString);
+  var X = this.getDisplayX(this.x);
   var Y = this.getDisplayY(this.y);
   drawString(context, displayString, X, Y, "#333333", 0, 'serif', displaySize);
   context.fillStyle="rgba(50, 50, 50, .7)";
@@ -85,7 +91,7 @@ RWSNode.prototype.draw = function(context, selected) {
 }
 
 RWSNode.prototype.rectContains = function(pos) {
-	return this.x <= pos['x'] && pos['x'] <= this.x + nodeWidth && this.y <= pos['y'] && pos['y'] <= this.y + nodeHeight;
+	return this.x <= pos['x'] && pos['x'] <= this.x + this.getNodeWidth() && this.y <= pos['y'] && pos['y'] <= this.y + nodeHeight;
 }
 
 RWSNode.prototype.add_input = function(p) {
@@ -115,12 +121,12 @@ RWSNode.prototype.ioContains = function(pos) {
 }
 
 RWSNode.prototype.updatePorts = function() {
-	var interval = (nodeWidth) / (this.inputs.length + 1);
+	var interval = (this.getNodeWidth()) / (this.inputs.length + 1);
 	for(var i = 0; i < this.inputs.length; i++) {
 		this.inputs[i].x = this.x + interval*(i+1) - ioSize;
 		this.inputs[i].y = this.y;
 	}
-	interval = (nodeWidth) / (this.outputs.length + 1) ;
+	interval = (this.getNodeWidth()) / (this.outputs.length + 1) ;
 	for(var i = 0; i < this.outputs.length; i++) {
 		this.outputs[i].x = this.x + interval*(i+1) - ioSize;
 		this.outputs[i].y = this.y + nodeHeight;

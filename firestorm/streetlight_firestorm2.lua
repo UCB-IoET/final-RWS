@@ -1,6 +1,10 @@
 require "cord" -- scheduler / fiber library
 LCD = require "lcd"
 
+speed=2
+sent_value = 30 
+rgb_off=0
+
 ipaddr = storm.os.getipaddr()
 ipaddrs = string.format("%02x%02x:%02x%02x:%02x%02x:%02x%02x::%02x%02x:%02x%02x:%02x%02x:%02x%02x",
 			ipaddr[0],
@@ -44,8 +48,18 @@ server = function()
 				     elseif on == 0 then
 					set_on()
 				     end
-				  else
 
+				elseif msg["speed"] then 
+						rgb_off=1
+						print("hii")
+						--led:setAll(30,30,30)
+						--led:display()
+						print(msg["speed"])
+						speed = msg["speed"]
+						   
+
+				     else
+				     rgb_off=0
 				     local color = msg["rgb"]
 				     print("message: ", msg)
 				     print("index: ", msg["index"])
@@ -54,14 +68,56 @@ server = function()
 				     --local g = bit.band(color, 0x1F)
 				     --local b = bit.band(bit.rshift(color, 10), 0x1F)
 
-				     r = msg["rgb"]
-				     print(r, g, b)
-				     led:setAll(r, r, r)
+				     sent_value = msg["rgb"]
+				     static = sent_value
+				     r= sent_value
+				     print(sent_value)
+				     --print(r, g, b)
+				     led:setAll(r, 30,30)
 				     led:display()
-				  end
+				     end
 
 			       end)
 end
+
+
+i = 0
+cord.new(function() 
+
+
+							while true do 
+								 					  
+									r = sent_value
+									
+									b = i
+									g = 31-b
+
+									--if rgb_off==0 then r= static end
+									--if rgb_off==0 then g=static end
+									--if rgb_off==0 then b=static end
+
+									led:setAll(r,g, b)
+									led:display()
+									cord.await(storm.os.invokeLater, storm.os.MINUTE/speed)
+
+									print(i) 
+									print(r,g, b)
+									if r>31 or r<0 then
+									r = 0
+									end
+									if g>31 or g <0 then 
+									g = 0
+									end
+									--if b>31 or b<0 then 
+									--b = 0
+									--end
+
+									i = i +1 
+									if i>31 then i = 0 end 
+								
+								end
+
+						end)
 
 cord.new(function ()
 	    lcd:init(2, 1)

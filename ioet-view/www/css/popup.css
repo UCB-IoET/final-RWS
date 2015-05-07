@@ -93,7 +93,8 @@ span {
 button {
 	height:45px;
 	border-radius:3px;
-	background-color:#AC58FA; /* AC58FA, D0A9F5, rgba(100, 200, 255, .5)*/
+	border: none;
+	background-color:#a37ff0; /* AC58FA, D0A9F5, rgba(100, 200, 255, .5)*/
 	color:#fff;
 	font-family:'Raleway',sans-serif;
 	font-size:18px;
@@ -117,5 +118,12 @@ ul {
 
 .literalInput {
 	width: 80%;
+}
+
+h3#appTitle {
+	background-color: #4a4a4a;
+	margin: 3%;
+	height: 40px;
+	border-radius:3px;
 }
 

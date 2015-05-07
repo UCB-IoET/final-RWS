@@ -1,6 +1,6 @@
 #!/usr/bin/env lua
 
-autorun = "smap_ir_source.lua"
+autorun = "sources.lua"
 libs = {
    reg = "i2creg.lua",
    temp = "tempSensor.lua",
