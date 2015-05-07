@@ -25,10 +25,6 @@ RWSSMAPNode.prototype.populateInfoPopup = function(container) {
   container.html(dict_to_html(this.infoDict));
 }
 
-RWSSMAPNode.prototype.getDisplayX = function(x,displayString) {
-  return x + nodeWidth/2 - displayString.length * 2;
-}
-
 RWSSMAPNode.prototype.getExportRepresentation = function() {
   var obj = {};
   obj['inputs'] = [];

@@ -40,6 +40,7 @@ function drawString(ctx, text, posX, posY, textColor, rotation, font, fontSize) 
 function visualize() {
 	if(canvas && !valid) {
 		var ctx = canvas.getContext('2d');
+		ctx.textAlign="center"; 
 		clear(ctx);
 	    ctx.save();
 		ctx.translate(panX, panY);
