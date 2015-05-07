@@ -149,7 +149,7 @@ function onMouseMove(e) {
 		var mouse = getMouse(e);
 		var deltaX = mouse.x - dragoffset['x'];
 		var deltaY = mouse.y - dragoffset['y'];
-		dragging.x = Math.max(Math.min(dragging.x + deltaX, canvas.width - nodeWidth), 0);
+		dragging.x = Math.max(Math.min(dragging.x + deltaX, canvas.width - dragging.getNodeWidth()), 0);
 		dragging.y = Math.max(Math.min(dragging.y + deltaY, canvas.height - nodeHeight), 0);
 		dragging.updatePorts();
 		dragoffset = mouse;
