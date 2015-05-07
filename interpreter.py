@@ -310,6 +310,16 @@ def _(_, n):
         return 1
     return 0
 
+
+@function('not',
+          {'input': 'a binary value'},
+          {'output': 'the inverse of the input value'})
+def _(_, n):
+    #print "EVEN?({})".format(n)
+    if n:
+        return 0
+    return 1
+
 ################################################################################
 
 def subscribe(self, wire, node):
