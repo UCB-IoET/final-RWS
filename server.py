@@ -156,12 +156,14 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                                  'type']]):
                 print("Invalid program, ignoring: {}", program)
                 return
-            #check user id and password
-            #TODO: user IDs
-            if str(program['password']) != "password":
-                return self.do_error("Authentication Failed")
+
+            program = self.cache.get_program(program['uid'], program['pid'])
+            if program: #terminate the running process before overwriting
+                n_threads -= 1
+                program['shouldStop'] = True
 
             self.cache.store_program(program)
+
             self.do_response('Successfully stored program: ({},{})'.format(program['uid'],program['pid']))
         elif (self.path == '/start'): #TODO: Authentication of start request
             try:
