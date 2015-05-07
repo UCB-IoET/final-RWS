@@ -9,7 +9,7 @@ To load code for source firestorm, provides ir tmp, buttons, and accelerometer S
 
 To run the middleware:
 
-  cd smap
+  "cd smap"
   
   python middleware.py
 
