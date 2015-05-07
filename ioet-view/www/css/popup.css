@@ -119,3 +119,9 @@ ul {
 	width: 80%;
 }
 
+h4#appTitle {
+	background-color: #4a4a4a;
+	margin: 3%;
+	height: 40px;
+}
+
