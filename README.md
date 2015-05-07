@@ -1,4 +1,4 @@
-# final-RWS
+# Simple Manipulation and Actuation of Remote Things (SMART)
 Final project for Running With Scissors
 
 
@@ -24,5 +24,5 @@ To run the smap driver:
 
 #start the server
 
-./server.py
+python server.py
 
