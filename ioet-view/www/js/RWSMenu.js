@@ -24,8 +24,8 @@ function populate_application(app, index, jquery_obj) {
 		jquery_obj = $('<div class="application" id="app'+index+'">');
 	}
 	jquery_obj.html('');
-	// jquery_obj.append('<h3>'+app['app_id']+'</h3>\n');
-	jquery_obj.append('<font size="5" face="monospace">'+app['app_id']+'</font>\n');
+	jquery_obj.append('\n<h2>'+app['app_id']+'</h2>\n');
+	// jquery_obj.append('<font size="5" face="monospace">'+app['app_id']+'</font>\n');
 	if(app['status']){
 		jquery_obj.append('<br>\n');
 		jquery_obj.append('<font size="1"> Status: '+app['status']+'</font> \n<br>\n');
