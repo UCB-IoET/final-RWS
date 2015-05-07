@@ -7,13 +7,21 @@ function next_wire_id() {
 	}
 	return wireID;
 }
+
+RWSIOPort.prototype.getDisplayString = function(displayName, name) {
+	if (displayName) {
+		return name;
+	} else {
+		return "";
+	}
+}
+
 //a port entry; Has a mode(input or output) and a wire attached to it
 function RWSIOPort(mode, nodeID, name, wireID, id) { // 0 for input, 1 for output
 	this.mode = mode;
 	this.nodeID = nodeID || null;
 	this.wireID = wireID || null;
 	this.name = name || "";
-	this.displayString = "";
 	if(id) {
 		this.id = id;
 		portID = id+1;
@@ -26,9 +34,6 @@ function RWSIOPort(mode, nodeID, name, wireID, id) { // 0 for input, 1 for outpu
 
 	this.draw = function(context, selected, displayName) {
 		context.beginPath();
-		if(displayName) {
-			this.displayString = this.name;
-		}
 		if(selected == this) {
 			context.fillStyle = "rgba(150, 200, 50, .7)";
 		} else {
@@ -39,15 +44,16 @@ function RWSIOPort(mode, nodeID, name, wireID, id) { // 0 for input, 1 for outpu
 			context.lineTo(this.x + ioSize , this.y + ioSize);
 			context.lineTo(this.x + ioSize*2, this.y);
 			context.fill(); //automatically closes path
+			displayString = this.getDisplayString(displayName,this.name);
 			if(this.name)
-				drawString(context, this.displayString, this.x, this.y - 4,"#333333", 0, 'serif', 12);
+				drawString(context, displayString, this.x, this.y - 4,"#333333", 0, 'serif', 12);
 		} else {
 			context.moveTo(this.x, this.y);
 			context.lineTo(this.x + ioSize , this.y - ioSize);
 			context.lineTo(this.x + ioSize*2, this.y);
 			context.fill(); //automatically closes path
 			if(this.name)
-				drawString(context, this.displayString, this.x, this.y + ioSize,"#333333", 0, 'serif', 12);
+				drawString(context, displayString, this.x, this.y + ioSize,"#333333", 0, 'serif', 12);
 		}
 	};
 
