@@ -68,18 +68,18 @@ RWSNode.prototype.draw = function(context, selected) {
 
   // set lineWidth back to original
   context.lineWidth = width;
-    
+  
     //draw triangles for inputs
   if(this.inputs.length > 0) {
     	for(var i = 0; i < this.inputs.length; i++) {
-			this.inputs[i].draw(context, selected);
+			this.inputs[i].draw(context, selected, this.inputs.length > 1);
 		}
   }
 
     //draw triangles for outputs
   if(this.outputs.length > 0) {
     	for(var i = 0; i < this.outputs.length; i++) {
-			this.outputs[i].draw(context, selected);
+			this.outputs[i].draw(context, selected, this.outputs.length > 1);
 		}
   }
 }
