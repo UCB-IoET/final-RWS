@@ -21,6 +21,7 @@ To load code for actuator firestorm, controls light strip
 
 To run the smap driver:
  > cd actuation_driver
+ 
  > twistd -n smap streetlight.ini
 
 
