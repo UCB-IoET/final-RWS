@@ -1,5 +1,5 @@
 var username = window.localStorage.getItem('uid') || 'User';
-var server_url = "http://127.0.0.1:1458";
+var server_url = "http://shell.storm.pm:14588";
 
 function load_applications() {
 	var key;
