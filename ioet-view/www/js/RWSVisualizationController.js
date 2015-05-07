@@ -2,7 +2,7 @@ var selectedProgram = window.localStorage.getItem("selectedProgram");
 var application = new RWSApplication({}, {}, []);
 var smapInterface = new RWSSMAPInterface('http://shell.storm.pm:8079/api/query');
 
-var server_url = "http://127.0.0.1:1458";
+var server_url = "http://shell.storm.pm:14588";
 var interpreter = new RWSInterpreterInterface(server_url);
 
 var selected = null;
