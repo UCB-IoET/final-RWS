@@ -320,6 +320,15 @@ def _(self, ast,_):
     ast['toggle_val'] = 1-val
     return val
 
+@function('not',
+          {'input': 'a binary value'},
+          {'output': 'the inverse of the input value'})
+def _(_, n):
+    #print "EVEN?({})".format(n)
+    if n:
+        return 0
+    return 1
+
 ################################################################################
 
 def subscribe(self, wire, node):
