@@ -8,14 +8,6 @@ function next_wire_id() {
 	return wireID;
 }
 
-RWSIOPort.prototype.getDisplayString = function(displayName, name) {
-	if (displayName) {
-		return name;
-	} else {
-		return "";
-	}
-}
-
 //a port entry; Has a mode(input or output) and a wire attached to it
 function RWSIOPort(mode, nodeID, name, wireID, id) { // 0 for input, 1 for output
 	this.mode = mode;
@@ -44,7 +36,13 @@ function RWSIOPort(mode, nodeID, name, wireID, id) { // 0 for input, 1 for outpu
 			context.lineTo(this.x + ioSize , this.y + ioSize);
 			context.lineTo(this.x + ioSize*2, this.y);
 			context.fill(); //automatically closes path
-			displayString = this.getDisplayString(displayName,this.name);
+			// displayString = this.getDisplayString(displayName,this.name);
+			if (displayName) {
+				displayString = name;
+			} else {
+				displayString = "";
+			}
+			console.log(displayString);
 			if(this.name)
 				drawString(context, displayString, this.x, this.y - 4,"#333333", 0, 'serif', 12);
 		} else {
