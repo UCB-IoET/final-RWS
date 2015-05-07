@@ -4,7 +4,9 @@ autorun = "streetlight_firestorm.lua"
 
 libs = {
     cord    = "../../contrib/lib/cord.lua",
-    stormsh = "../../contrib/lib/stormsh.lua"
+    stormsh = "../../contrib/lib/stormsh.lua",
+    lcd = "lcd.lua",
+    reg = "i2creg.lua"
 }
 
 autoupdate = false
