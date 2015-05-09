@@ -22,7 +22,7 @@ To run the server:
   > python server.py
 
 ## Demo sMAP sources
-We created 6 sMAP streams to be used as sources for demoing SMART.
+We created 8 sMAP streams to be used as sources for demoing SMART.
  - ambient and IR temperature
  - 3 buttons
  - accelerometer x,y,and z values
