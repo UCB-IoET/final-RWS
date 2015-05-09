@@ -193,7 +193,7 @@ def _(self, ast):
     fn = _func_switch_table[ast['name']]
     if not fn:
         error("call -- procedure '{}' was not found".format(ast['name']))
-    ret = fn(*[self]+[self.wire_get(x) for x in ast['inputs']])
+    ret = fn(*[self, ast]+[self.wire_get(x) for x in ast['inputs']])
     out = ast.get('outputs')
     if out:
         self.set_and_signal(out[0], ret)#for now, only 1 output
@@ -296,19 +296,39 @@ def _(self, ast):
 ################################################################################
 @function('print',
           {'input': 'a value to print'})
-def _(_, input):
+def _(self, ast, input):
     print(input)
     return input
 
 @function('even?',
           {'input': 'a number N'},
           {'output': '1if N is even, else 0'})
-def _(_, n):
+def _(self,ast,n):
     #print "EVEN?({})".format(n)
     if n is void: return
     if int(n) % 2:
         return 1
     return 0
+
+@function('toggle',
+          {'input': 'something'},
+          {'output': 'alternate 1, 0'})
+def _(self, ast, v):
+    if not ast.get('toggle_last'):
+        ast['toggle_last'] = 0
+    last = ast['toggle_last']
+    if v:
+        ast['toggle_last'] = 1-last
+    return ast['toggle_last']
+
+@function('not',
+          {'input': 'a binary value'},
+          {'output': 'the inverse of the input value'})
+def _(_, n):
+    #print "EVEN?({})".format(n)
+    if n:
+        return 0
+    return 1
 
 ################################################################################
 
