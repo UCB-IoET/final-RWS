@@ -54,7 +54,7 @@ To run the smap driver for the on/off device:
 > cd smap/thing_driver
 > twistd -n smap thing-driver.ini
 
-### Dependencies
+## Dependencies
 - phone gap
 - python
 - ws4py
