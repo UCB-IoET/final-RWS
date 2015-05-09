@@ -3,7 +3,10 @@ from smap.util import periodicSequentialCall
 import msgpack
 import socket
 
-UDP_IP = "2001:470:832b:2:212:6d02::3017"
+#supernode:
+#UDP_IP = "2001:470:832b:2:212:6d02::3017"
+#invention lab:
+UDP_IP = "2001:470:4956:2:212:6d02::3017"
 UDP_PORT = 1444 
 
 import threading
