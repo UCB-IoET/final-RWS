@@ -63,19 +63,19 @@ To run the smap driver for the on/off device:
 
 ## relevant files and directories
 
-- server.py
+- **server.py**
    receives requests from phone app, sends programs to interpreter.py
-- interpreter.py
+- **interpreter.py**
    executes the user created programs
-- firestorm/
+- **firestorm/**
    contains files for the firestorm sMAP devices
-- smap/
+- **smap/**
    contains middleware and drivers for the sMAP sources
-- ioet-view/
+- **ioet-view/**
    contains all code for graphical program creation app running on Android/IOS
-- ioet-view/www/js/
+- **ioet-view/www/js/**
    logic for the phone app
-- test_server.py
+- **test_server.py**
    Contains example programs in json form for testing the server and interpreter
-- primitiveConfig.js
+- **primitiveConfig.js**
    config file for graphical app. Generate by running "./interpreter.py gen:prim"
