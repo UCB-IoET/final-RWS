@@ -12,7 +12,7 @@ we focused on mobile devices first as they are relatively common. Our intent is
 for people at all levels of computational sophistication to realize new
 applications and solutions with SMART.
 
-## Running the server
+## Running the Application
 The server accepts requests from the user application. It creates a new instance
 of the interpreter in a new thread when the user wants to run one of their
 programs. It is responsible for saving, starting, or stopping programs.
@@ -20,6 +20,20 @@ programs. It is responsible for saving, starting, or stopping programs.
 To run the server:
 
   > python server.py
+  
+The app itself can be run in an emulator or on an actual device. It is by default
+set up to look for the server at http://shell.storm.pm:14588, which is where we ran
+the server for the demo. This can be changed by adjusting the server_url variable in
+ioet-view/www/js/RWSVisualizationController.js and ioet-view/www/js/RWSMenu.js.
+Running this app on the device or in an emulator requires the appropriate mobile development
+SDK to be setup on your computer.
+
+To run the mobile app:
+
+  > cd ioet-view
+  
+  > phonegap [emulate|run] [ios|android]
+
 
 ## Demo sMAP sources
 We created 8 sMAP streams to be used as sources for demoing SMART.
@@ -34,6 +48,7 @@ To load the firestorm code for these sources:
 To run the middleware:
 
   > cd smap
+  
   > python middleware.py
 
 ## Demo sMAP actuators
@@ -47,11 +62,13 @@ To load code for the actuator firestorm:
 To run the smap driver for the LED strip:
 
  > cd actuation_driver
+ 
  > twistd -n smap streetlight.ini
 
 To run the smap driver for the on/off device:
 
 > cd smap/thing_driver
+
 > twistd -n smap thing-driver.ini
 
 ## Dependencies
